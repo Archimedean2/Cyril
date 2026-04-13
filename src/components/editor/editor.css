@@ -1,0 +1,73 @@
+.cyril-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--panel-bg);
+  align-items: center;
+}
+
+.editor-toolbar button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.editor-toolbar button:hover:not(:disabled) {
+  background-color: var(--hover-bg);
+}
+
+.editor-toolbar button.is-active {
+  background-color: var(--active-bg, #e0e0e0);
+  font-weight: bold;
+}
+
+.editor-toolbar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--border-color);
+  margin: 0 4px;
+}
+
+.cyril-editor-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.ProseMirror {
+  outline: none;
+  min-height: 100%;
+  font-family: inherit;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.ProseMirror > * + * {
+  margin-top: 0.75em;
+}
+
+/* Placeholder (optional, if we add placeholder extension later) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
