@@ -42,6 +42,7 @@ export function LeftNav() {
           {isEditing ? (
             <input
               autoFocus
+              data-testid="project-title-input"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               onBlur={handleTitleSubmit}
@@ -49,7 +50,12 @@ export function LeftNav() {
               style={{ width: '100%', padding: '2px 4px', fontSize: '1.125rem', fontWeight: 600 }}
             />
           ) : (
-            <h2 onClick={handleTitleClick} style={{ cursor: 'pointer' }} title="Click to rename">
+            <h2 
+              data-testid="project-title"
+              onClick={handleTitleClick} 
+              style={{ cursor: 'pointer' }} 
+              title="Click to rename"
+            >
               {title}
             </h2>
           )}

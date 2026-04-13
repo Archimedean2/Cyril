@@ -17,8 +17,10 @@ describe('Project Defaults (T-1.01)', () => {
     expect(file.schemaVersion).toBe('1.0.0');
     expect(file.project.title).toBe('Test Song');
     expect(file.project.workspaces).toHaveProperty('brief');
-    expect(file.project.workspaces).toHaveProperty('structure');
-    expect(file.project.drafts).toEqual([]);
+    expect(file.project.workspaces).toHaveProperty('vocabularyWorld');
+    
+    expect(file.project.drafts.length).toBe(1);
+    expect(file.project.drafts[0].name).toBe('Draft 1');
     expect(file.project.activeDraftId).toBeNull();
   });
 });

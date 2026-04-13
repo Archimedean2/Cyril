@@ -15,14 +15,14 @@ test.describe('Stage 1: Project CRUD', () => {
     // 3. Left nav should display default title
     await expect(page.getByText('Untitled Song')).toBeVisible();
 
-    // 4. Rename the project
-    await page.getByText('Untitled Song').click();
-    const input = page.locator('input');
+    // Rename project
+    await page.getByTestId('project-title').click();
+    const input = page.getByTestId('project-title-input');
     await input.fill('My Great Song');
     await input.press('Enter');
 
     // Title should be updated
-    await expect(page.getByText('My Great Song')).toBeVisible();
+    await expect(page.getByTestId('project-title')).toHaveText('My Great Song');
 
     // 5. Close project to return to empty state
     await page.getByRole('button', { name: 'Close' }).click();
