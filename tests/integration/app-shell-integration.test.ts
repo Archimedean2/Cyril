@@ -28,7 +28,7 @@ describe('Stage 0: App Shell Integration', () => {
 
     it('T-0.02: Left nav renders', () => {
       render(createElement(AppShell));
-      expect(screen.getByText('Cyril')).toBeInTheDocument();
+      expect(screen.getByText('Untitled Song')).toBeInTheDocument();
       expect(screen.getByText('Workspaces')).toBeInTheDocument();
       expect(screen.getByText('Drafts')).toBeInTheDocument();
     });
