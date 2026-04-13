@@ -1,0 +1,23 @@
+# Windsurf Agent Rules
+
+## Environment
+- Operating System: Windows
+- Shell: PowerShell
+
+## Command Execution Rules
+- ALWAYS Prefer a built-in tool such as read_file, list_dir, and find_by_name.
+- If no tool exists, use PowerShell syntax for commands, NOT Bash. 
+- NEVER use `&&` to chain commands. In PowerShell, use `;` or `and` equivalent if necessary, but prefer running commands separately or using PowerShell-native chaining if absolutely required.
+- Use `ls` or `Get-ChildItem` instead of `ls -a` or `ls -l`.
+- Use `rm` or `Remove-Item` instead of `rm -rf`. Use `Remove-Item -Recurse -Force` for directories.
+- Use `cp` or `Copy-Item` instead of `cp -r`. Use `Copy-Item -Recurse` for directories.
+- Use `mv` or `Move-Item` instead of `mv`.
+- Use `mkdir` or `New-Item -ItemType Directory` instead of `mkdir -p`.
+- Use `$env:VAR_NAME` to access environment variables instead of `$VAR_NAME` or `${VAR_NAME}`.
+- Use `$env:VAR_NAME="value"` to set environment variables instead of `export VAR_NAME=value`.
+- Use `Select-String` instead of `grep` if running directly in the terminal (though prefer the provided grep_search tool).
+- NEVER use `fd` or `find`. Use `Get-ChildItem -Recurse -Filter` instead (though prefer the provided find_by_name tool).
+
+## General Instructions
+- Always verify the current working directory before executing commands.
+- Keep commands simple and avoid complex Bash-isms that do not translate well to PowerShell.

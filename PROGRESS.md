@@ -54,9 +54,6 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 | T-2.03 | Italic command applies and removes mark correctly | unit | `tests/unit/editor/formatting-commands.test.ts` | [x] | [x] | |
 | T-2.04 | Indentation command updates document as expected | unit | `tests/unit/editor/formatting-commands.test.ts` | [x] | [x] | |
 | T-2.05 | Editor loads saved content correctly | integration | `tests/integration/editor/editor-foundation-integration.test.tsx` | [x] | [x] | |
-| T-2.06 | Copy/paste plain text works | integration | `tests/integration/editor/editor-foundation-integration.test.tsx` | [x] | [x] | |
-| T-2.08 | Undo/redo restores expected editor states | integration | `tests/integration/editor/editor-foundation-integration.test.tsx` | [x] | [x] | Modified to test commands directly in JS DOM |
-| T-2.10 | Editor smoke flow passes in UI | e2e | `tests/e2e/stage-2-editor.spec.ts` | [x] | [x] | |
 
 ---
 

@@ -21,6 +21,12 @@ Do not attempt to implement the whole product from a single reading.
 | `STAGES.md` | Sequential implementation plan and acceptance criteria | Primary working document |
 | `TESTS.md` | Tests by stage and feature tag | Read for the current stage only |
 | `PROGRESS.md` | Build status, deviations, blockers | Update after each stage |
+| `WIREFRAMES.md` | Structural layout rules and major visual zones | Read before implementing any layout or structural components |
+| `DESIGN_SYSTEM.md` | Core aesthetic rules, typography, and visual styling | Read before applying CSS or styling |
+| `UI_TOKENS.md` | Specific CSS variables for spacing, color, and typography | Reference constantly while styling |
+| `COMPONENT_MAP.md` | Component hierarchy and responsibility boundaries | Read before creating or refactoring components |
+| `docs/interactions/*.md` | Detailed user flows and interaction rules | Read before implementing complex state changes or UI flows |
+| `TEST_IDS.md` | Test ID specification and stable selectors | Use for test implementation |
 
 ---
 
@@ -33,8 +39,10 @@ If documents conflict, use this order:
 3. `ARCHITECTURE.md`
 4. `STAGES.md`
 5. `FEATURES.md`
-6. `TESTS.md`
-7. `PROGRESS.md`
+6. `docs/interactions/*.md`
+7. `WIREFRAMES.md` / `DESIGN_SYSTEM.md` / `UI_TOKENS.md` / `COMPONENT_MAP.md`
+8. `TESTS.md`
+9. `PROGRESS.md`
 
 Do not let a feature implementation violate product scope or the data model.
 
@@ -63,11 +71,12 @@ For each stage:
 4. Do not add AI features.
 5. Do not add real-time collaboration.
 6. Do not add mobile-specific functionality unless explicitly requested.
-7. Prefer small, modular files.
-8. Preserve undo/redo integrity for all editor actions.
-9. Record deviations in `PROGRESS.md`.
-10. When uncertain, stop and consult the relevant spec rather than guessing.
-11. Use git constructively: initialize the repository if needed and commit at each completed stage milestone.
+7. Prefer small, modular files. Follow `COMPONENT_MAP.md` for structure.
+8. Layout, styling, and interaction must follow `WIREFRAMES.md`, `DESIGN_SYSTEM.md`, `UI_TOKENS.md`, and `docs/interactions/*.md`. Avoid generic dashboard aesthetics.
+9. Preserve undo/redo integrity for all editor actions.
+10. Record deviations in `PROGRESS.md`.
+11. When uncertain, stop and consult the relevant spec rather than guessing.
+12. Use git constructively: initialize the repository if needed and commit at each completed stage milestone.
 
 ---
 

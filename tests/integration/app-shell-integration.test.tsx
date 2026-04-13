@@ -67,14 +67,15 @@ describe('Stage 0: App Shell Integration', () => {
               autosave: true, preferredExportMode: 'lyricsOnly'
             }
           }
-        }
+        },
+        activeView: { type: 'draft', draftId: 'draft_1' }
       });
     });
 
     it('T-0.02: Left nav renders', () => {
       render(<AppShell />);
       expect(screen.getByText('Untitled Song')).toBeInTheDocument();
-      expect(screen.getByText('Workspaces')).toBeInTheDocument();
+      expect(screen.getByText('Project')).toBeInTheDocument();
       expect(screen.getByText('Drafts')).toBeInTheDocument();
     });
 

@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { useProjectStore } from '../../app/state/projectStore';
+import { WorkspaceNav } from '../../features/workspace-nav/WorkspaceNav';
+import { DraftList } from '../../features/draft-manager/DraftList';
+import { DisplayControls } from '../../features/display-controls/DisplayControls';
 
 export function LeftNav() {
   const { currentProject, renameProject, saveProject, saveProjectAs, duplicateProject, closeProject } = useProjectStore();
@@ -60,20 +63,9 @@ export function LeftNav() {
         </div>
       </div>
       <div className="left-nav-body">
-        <p className="section-label">Workspaces</p>
-        <div className="nav-list">
-          {/* Placeholder for workspaces */}
-          <div className="nav-item">Brief</div>
-          <div className="nav-item">Structure</div>
-          <div className="nav-item">Hook Lab</div>
-          <div className="nav-item">Vocabulary World</div>
-        </div>
-        
-        <p className="section-label spacer-lg">Drafts</p>
-        <div className="nav-list">
-          {/* Placeholder for drafts */}
-          <div className="nav-item nav-item-active">Draft 1</div>
-        </div>
+        <WorkspaceNav />
+        <DraftList />
+        <DisplayControls />
       </div>
     </nav>
   );

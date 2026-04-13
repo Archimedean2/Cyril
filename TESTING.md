@@ -27,6 +27,7 @@ Use the stage-specific spec files in `tests/specs/`.
 4. Critical transforms and persistence logic require unit coverage
 5. User workflows require integration or e2e coverage
 6. Test files should remain small and focused for AI readability
+7. Test IDs should be stable and documented in `TEST_IDS.md`
 
 ---
 
@@ -188,3 +189,4 @@ When a bug is found:
 2. fix the bug
 3. confirm the test now passes
 4. record the regression in `PROGRESS.md` if relevant
+5. record the test ID in `TEST_IDS.md` if relevant

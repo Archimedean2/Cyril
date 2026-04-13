@@ -267,6 +267,7 @@ This stage turns the shell + editor into a usable writing environment.
   - duplicate both
 - Active draft switching
 - Separate editor content for workspaces vs drafts
+- Ensure layout and interaction follow `WIREFRAMES.md`, `DESIGN_SYSTEM.md`, `UI_TOKENS.md`, `COMPONENT_MAP.md`, and `docs/interactions/workspace-and-draft-flows.md`
 
 ### Explicitly Out of Scope
 - Structured sections

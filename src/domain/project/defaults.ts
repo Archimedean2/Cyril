@@ -23,7 +23,25 @@ export function createDefaultProject(title: string = 'Untitled Song'): CyrilProj
       hookLab: { doc: { type: 'doc', content: [] } },
       vocabularyWorld: { doc: { type: 'doc', content: [] } },
     },
-    drafts: [],
+    drafts: [
+      {
+        id: generateId('draft'),
+        name: 'Draft 1',
+        createdAt: now,
+        updatedAt: now,
+        mode: 'lyrics',
+        doc: { type: 'doc', content: [{ type: 'paragraph' }] } as any,
+        inventory: { type: 'inventory', doc: { type: 'doc', content: [{ type: 'paragraph' }] } } as any,
+        draftSettings: {
+          showChords: true,
+          showSectionLabels: true,
+          showSpeakerLabels: true,
+          showStageDirections: true,
+          showSummaries: true,
+          showSyllableCounts: false,
+        }
+      }
+    ],
     activeDraftId: null,
     displaySettings: {
       defaultShowChords: true,

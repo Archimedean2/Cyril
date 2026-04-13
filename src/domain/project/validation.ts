@@ -4,11 +4,11 @@ import { z } from 'zod';
 const RichTextNodeSchema: z.ZodType<any> = z.lazy(() => z.object({
   type: z.string(),
   text: z.string().optional(),
-  attrs: z.record(z.any()).optional(),
+  attrs: z.record(z.string(), z.any()).optional(),
   content: z.array(RichTextNodeSchema).optional(),
   marks: z.array(z.object({
     type: z.string(),
-    attrs: z.record(z.any()).optional(),
+    attrs: z.record(z.string(), z.any()).optional(),
   })).optional(),
 }).passthrough());
 

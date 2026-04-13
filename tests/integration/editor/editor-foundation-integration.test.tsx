@@ -7,9 +7,28 @@ import { createDefaultProject, createCyrilFile } from '../../../src/domain/proje
 
 describe('Editor Foundation Integration', () => {
   beforeEach(() => {
+    const defaultProject = createDefaultProject('Test Editor');
+    defaultProject.drafts = [{
+      id: 'draft_default',
+      name: 'Default Draft',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      mode: 'lyrics',
+      doc: {
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [] }] as any
+      },
+      inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
+      draftSettings: {
+        showChords: true, showSectionLabels: true, showSpeakerLabels: true,
+        showStageDirections: true, showSummaries: true, showSyllableCounts: false
+      }
+    }];
+    
     useProjectStore.setState({
       isProjectLoaded: true,
-      currentProject: createCyrilFile(createDefaultProject('Test Editor')),
+      currentProject: createCyrilFile(defaultProject),
+      activeView: { type: 'draft', draftId: 'draft_default' },
       error: null,
       saveProject: vi.fn(),
     });
@@ -33,7 +52,10 @@ describe('Editor Foundation Integration', () => {
         showStageDirections: true, showSummaries: true, showSyllableCounts: false
       }
     }];
-    useProjectStore.setState({ currentProject: project });
+    useProjectStore.setState({ 
+      currentProject: project,
+      activeView: { type: 'draft', draftId: 'draft_1' }
+    });
 
     render(<CenterPane />);
     

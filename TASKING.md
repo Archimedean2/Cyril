@@ -29,6 +29,16 @@ It exists to prevent:
    - tests are implemented
    - tests are passing
 10. Preserve working behavior from earlier stages.
+11. UI work must follow the design and interaction docs (`WIREFRAMES.md`, `DESIGN_SYSTEM.md`, `UI_TOKENS.md`, `COMPONENT_MAP.md`).
+12. Avoid generic dashboard/SaaS styling.
+13. Preserve the desktop-editor feel:
+    - compact top bar
+    - left nav
+    - center editor
+    - right split sidebar
+    - internal pane scrolling
+    - restrained visual density
+14. Interaction behavior should follow the `docs/interactions/*.md` files when relevant.
 
 ---
 
