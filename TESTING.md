@@ -160,6 +160,16 @@ This keeps stage-level testing modular and grepable.
 
 ---
 
+## E2E Testing Guidelines (Playwright)
+
+- **Use robust selectors**: Prefer `getByRole`, `getByLabel`, or explicit `data-testid` attributes over brittle `getByText` calls when possible. If you must use `getByText`, consider `{ exact: true }` to avoid partial matches.
+- **Avoid ambiguous locators**: Be aware that `getByText('Draft 1')` might match both a navigation link and a header. Use `getByRole('button', { name: 'Draft 1' })` or `getByRole('heading', { name: 'Draft 1' })` to be specific and avoid "strict mode violations".
+- **Action Timeouts**: Actions like clicks and fills are set to timeout at 10s locally. Expects timeout at 5s. This ensures tests fail fast rather than hanging when elements are truly missing.
+- **Retries**: Local tests do not retry. CI tests retry twice.
+- **Trace Viewer**: Traces are only recorded on the first retry in CI to save time and disk space.
+
+---
+
 ## Stage Completion Rule
 
 A stage is complete only when:
