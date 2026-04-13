@@ -1,10 +1,10 @@
 # Cyril — Build Progress
 
 ## Current Stage
-- Stage: 0
+- Stage: 1
 - Status: Complete
-- Started: 2026-04-13
-- Completed: 2026-04-13
+- Started: 2026-04-14
+- Completed: 2026-04-14
 
 ---
 
@@ -13,7 +13,7 @@
 | Stage | Name | Status | Acceptance Complete | Tests Implemented | Tests Passing | Notes |
 |------|------|--------|---------------------|-------------------|---------------|-------|
 | 0 | Project Scaffolding and App Shell | Complete | [x] | [x] | [x] | Stage 0 shell implemented with passing integration and e2e smoke tests |
-| 1 | Project CRUD and Local Persistence | Not Started | [ ] | [ ] | [ ] | |
+| 1 | Project CRUD and Local Persistence | Complete | [x] | [x] | [x] | Stage 1 local-first project management using File System Access API |
 | 2 | Editor Foundation | Not Started | [ ] | [ ] | [ ] | |
 | 3 | Workspaces and Multiple Drafts | Not Started | [ ] | [ ] | [ ] | |
 | 4 | Structured Sections and Metadata | Not Started | [ ] | [ ] | [ ] | |
@@ -31,13 +31,14 @@
 
 Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
 
-### Stage 0 Acceptance Checklist
-- [x] App runs locally
-- [x] Shell layout renders without errors
-- [x] Left, center, and right panels are visible
-- [x] Right panel is visually split into top and bottom sections
-- [x] Empty state is shown when no project is loaded
-- [x] Codebase is organized into modular folders
+### Stage 1 Acceptance Checklist
+- [x] Create project from default template
+- [x] Open/load `.cyril` file
+- [x] Save `.cyril` file
+- [x] Rename project title
+- [x] Duplicate project with new IDs
+- [x] Close project to return to empty state
+- [x] File loaded follows schema and normalizes defaults
 
 ---
 
@@ -47,13 +48,17 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 
 | ID | Test | Type | Test File | Implemented | Passing | Notes |
 |----|------|------|-----------|-------------|---------|-------|
-| T-0.01 | App boots without runtime error | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
-| T-0.02 | Left nav renders | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
-| T-0.03 | Center pane renders | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
-| T-0.04 | Right sidebar renders | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
-| T-0.05 | Right sidebar has top and bottom sections | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
-| T-0.06 | Empty state renders when no project is loaded | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
-| T-0.07 | App shell smoke test passes in browser | e2e | `tests/e2e/stage-0-shell.spec.ts` | [x] | [x] | |
+| T-1.01 | New project template matches required schema | unit | `tests/unit/domain/project-defaults.test.ts` | [x] | [x] | |
+| T-1.02 | Validation accepts valid minimal project | unit | `tests/unit/domain/project-validation.test.ts` | [x] | [x] | |
+| T-1.03 | Validation rejects missing required fields | unit | `tests/unit/domain/project-validation.test.ts` | [x] | [x] | |
+| T-1.04 | Missing optional fields are normalized to defaults | unit | `tests/unit/domain/project-migration.test.ts` | [x] | [x] | |
+| T-1.05 | Unknown extra fields are preserved where expected | unit | `tests/unit/persistence/project-serialization.test.ts` | [x] | [x] | |
+| T-1.06 | Save/load round trip preserves project content | integration | `tests/integration/project/project-crud-integration.test.ts` | [x] | [x] | |
+| T-1.07 | Create project flow succeeds | integration | `tests/integration/project/project-crud-integration.test.ts` | [x] | [x] | |
+| T-1.08 | Rename project title persists | integration | `tests/integration/project/project-crud-integration.test.ts` | [x] | [x] | |
+| T-1.09 | Duplicate project generates new IDs | integration | `tests/integration/project/project-crud-integration.test.ts` | [x] | [x] | |
+| T-1.10 | Invalid project file fails gracefully | integration | `tests/integration/project/project-crud-integration.test.ts` | [x] | [x] | |
+| T-1.11 | Project CRUD smoke flow passes in UI | e2e | `tests/e2e/stage-1-project-crud.spec.ts` | [x] | [x] | |
 
 ---
 
@@ -67,11 +72,11 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Regression impact: None
 
 ### Stage 1: Project CRUD and Local Persistence
-- Status:
-- Completed:
-- Notes:
+- Status: Complete
+- Completed: 2026-04-14
+- Notes: Implemented rigorous domain modeling with Zod schema validation. Built File System Access API hooks for local-first load and save. Tied into app state and built UI interactions for Stage 1. 11/11 tests passing.
 - Deviations:
-- Regression impact:
+- Regression impact: None
 
 ### Stage 2: Editor Foundation
 - Status:
