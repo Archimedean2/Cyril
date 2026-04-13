@@ -2,9 +2,9 @@
 
 ## Current Stage
 - Stage: 0
-- Status: Not Started / In Progress / Blocked / Complete
-- Started:
-- Completed:
+- Status: Complete
+- Started: 2026-04-13
+- Completed: 2026-04-13
 
 ---
 
@@ -12,7 +12,7 @@
 
 | Stage | Name | Status | Acceptance Complete | Tests Implemented | Tests Passing | Notes |
 |------|------|--------|---------------------|-------------------|---------------|-------|
-| 0 | Project Scaffolding and App Shell | Not Started | [ ] | [ ] | [ ] | |
+| 0 | Project Scaffolding and App Shell | Complete | [x] | [x] | [x] | Stage 0 shell implemented with passing integration and e2e smoke tests |
 | 1 | Project CRUD and Local Persistence | Not Started | [ ] | [ ] | [ ] | |
 | 2 | Editor Foundation | Not Started | [ ] | [ ] | [ ] | |
 | 3 | Workspaces and Multiple Drafts | Not Started | [ ] | [ ] | [ ] | |
@@ -32,12 +32,12 @@
 Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
 
 ### Stage 0 Acceptance Checklist
-- [ ] App runs locally
-- [ ] Shell layout renders without errors
-- [ ] Left, center, and right panels are visible
-- [ ] Right panel is visually split into top and bottom sections
-- [ ] Empty state is shown when no project is loaded
-- [ ] Codebase is organized into modular folders
+- [x] App runs locally
+- [x] Shell layout renders without errors
+- [x] Left, center, and right panels are visible
+- [x] Right panel is visually split into top and bottom sections
+- [x] Empty state is shown when no project is loaded
+- [x] Codebase is organized into modular folders
 
 ---
 
@@ -47,24 +47,24 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 
 | ID | Test | Type | Test File | Implemented | Passing | Notes |
 |----|------|------|-----------|-------------|---------|-------|
-| T-0.01 | App boots without runtime error | integration | `tests/integration/app-shell-integration.test.ts` | [ ] | [ ] | |
-| T-0.02 | Left nav renders | integration | `tests/integration/app-shell-integration.test.ts` | [ ] | [ ] | |
-| T-0.03 | Center pane renders | integration | `tests/integration/app-shell-integration.test.ts` | [ ] | [ ] | |
-| T-0.04 | Right sidebar renders | integration | `tests/integration/app-shell-integration.test.ts` | [ ] | [ ] | |
-| T-0.05 | Right sidebar has top and bottom sections | integration | `tests/integration/app-shell-integration.test.ts` | [ ] | [ ] | |
-| T-0.06 | Empty state renders when no project is loaded | integration | `tests/integration/app-shell-integration.test.ts` | [ ] | [ ] | |
-| T-0.07 | App shell smoke test passes in browser | e2e | `tests/e2e/stage-0-shell.spec.ts` | [ ] | [ ] | |
+| T-0.01 | App boots without runtime error | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
+| T-0.02 | Left nav renders | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
+| T-0.03 | Center pane renders | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
+| T-0.04 | Right sidebar renders | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
+| T-0.05 | Right sidebar has top and bottom sections | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
+| T-0.06 | Empty state renders when no project is loaded | integration | `tests/integration/app-shell-integration.test.ts` | [x] | [x] | |
+| T-0.07 | App shell smoke test passes in browser | e2e | `tests/e2e/stage-0-shell.spec.ts` | [x] | [x] | |
 
 ---
 
 ## Completed Stages
 
 ### Stage 0: Project Scaffolding and App Shell
-- Status:
-- Completed:
-- Notes:
+- Status: Complete
+- Completed: 2026-04-13
+- Notes: Implemented Vite + React + TypeScript scaffold, modular shell layout, empty state, integration test coverage, and Playwright smoke test.
 - Deviations:
-- Regression impact:
+- Regression impact: None
 
 ### Stage 1: Project CRUD and Local Persistence
 - Status:
@@ -183,9 +183,9 @@ Record any intentional differences from the spec docs.
 
 Before moving to the next stage, confirm:
 
-- [ ] Current stage acceptance criteria complete
-- [ ] Current stage tests implemented
-- [ ] Current stage tests passing
-- [ ] Prior stage regression tests passing
-- [ ] Deviations documented
-- [ ] Coverage reviewed
+- [x] Current stage acceptance criteria complete
+- [x] Current stage tests implemented
+- [x] Current stage tests passing
+- [x] Prior stage regression tests passing
+- [x] Deviations documented
+- [x] Coverage reviewed

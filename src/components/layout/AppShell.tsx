@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { LeftNav } from './LeftNav';
 import { CenterPane } from './CenterPane';
 import { RightSidebar } from './RightSidebar';
@@ -13,7 +12,7 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+    <div className="app-shell">
       <LeftNav />
       <CenterPane />
       <RightSidebar />

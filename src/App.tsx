@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { AppShell } from './components/layout/AppShell';
+import { AppShell } from './components/layout/AppShell.tsx';
 
 function App() {
   return <AppShell />;
