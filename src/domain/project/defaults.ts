@@ -1,11 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CyrilProject, CyrilFile } from './types';
+import { CyrilProject, CyrilFile, DraftSettings } from './types';
 
 export const SCHEMA_VERSION = '1.0.0';
 
 export function generateId(prefix: string): string {
   return `${prefix}_${uuidv4().replace(/-/g, '').substring(0, 12)}`;
 }
+
+export const defaultDraftSettings: DraftSettings = {
+  showSectionLabels: true,
+  showSpeakerLabels: true,
+  showStageDirections: true,
+  showChords: false,
+  showSyllableCounts: false,
+  showSummaries: true,
+};
 
 export function createDefaultProject(title: string = 'Untitled Song'): CyrilProject {
   const now = new Date().toISOString();
@@ -32,14 +41,7 @@ export function createDefaultProject(title: string = 'Untitled Song'): CyrilProj
         mode: 'lyrics',
         doc: { type: 'doc', content: [{ type: 'paragraph' }] } as any,
         inventory: { type: 'inventory', doc: { type: 'doc', content: [{ type: 'paragraph' }] } } as any,
-        draftSettings: {
-          showChords: true,
-          showSectionLabels: true,
-          showSpeakerLabels: true,
-          showStageDirections: true,
-          showSummaries: true,
-          showSyllableCounts: false,
-        }
+        draftSettings: defaultDraftSettings,
       }
     ],
     activeDraftId: null,

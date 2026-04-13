@@ -1,5 +1,5 @@
 import { useProjectStore } from '../../app/state/projectStore';
-import { RichTextEditor } from '../../components/editor/RichTextEditor';
+import { DraftEditor } from '../../components/editor/DraftEditor';
 import { DraftDocument } from '../../domain/project/types';
 
 export function DraftView() {
@@ -25,10 +25,11 @@ export function DraftView() {
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600 }}>Draft: {draft.name}</h2>
       </header>
       
-      <div className="editor-container" style={{ maxWidth: '760px' }}>
-        <RichTextEditor 
-          // Cast is safe here because DraftDocument extends RichTextDocument in practice (for Stage 3 base editing)
+      <div style={{ maxWidth: '760px' }}>
+        <DraftEditor 
+          // Cast is safe here because DraftDocument extends RichTextDocument in practice
           initialContent={draft.doc as any}
+          settings={draft.draftSettings}
           onChange={handleUpdate}
         />
       </div>

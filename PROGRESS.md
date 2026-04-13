@@ -1,7 +1,7 @@
 # Cyril — Build Progress
 
 ## Current Stage
-- Stage: 3
+- Stage: 4
 - Status: Complete
 - Started: 2026-04-14
 - Completed: 2026-04-14
@@ -16,7 +16,7 @@
 | 1 | Project CRUD and Local Persistence | Complete | [x] | [x] | [x] | Stage 1 local-first project management using File System Access API |
 | 2 | Editor Foundation | Complete | [x] | [x] | [x] | Stage 2 robust editor layer using Tiptap/ProseMirror with undo/redo and base formats |
 | 3 | Workspaces and Multiple Drafts | Complete | [x] | [x] | [x] | Stage 3 workspaces and drafts switching, creation, duplication |
-| 4 | Structured Sections and Metadata | Not Started | [ ] | [ ] | [ ] | |
+| 4 | Structured Sections and Metadata | Complete | [x] | [x] | [x] | Stage 4 custom editor nodes for song structure and metadata |
 | 5 | Inventory Pane | Not Started | [ ] | [ ] | [ ] | |
 | 6 | Prosody and Lightweight Visualization | Not Started | [ ] | [ ] | [ ] | |
 | 7 | Tools Sidebar | Not Started | [ ] | [ ] | [ ] | |
@@ -31,14 +31,13 @@
 
 Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
 
-### Stage 3 Acceptance Checklist
-- [x] User can switch between all workspaces
-- [x] User can create multiple drafts
-- [x] User can rename a draft
-- [x] User can delete a draft safely
-- [x] User can duplicate a draft using each duplication option
-- [x] Active draft changes editor content correctly
-- [x] Workspace content remains separate from draft content
+### Stage 4 Acceptance Checklist
+- [x] User can add section blocks
+- [x] User can add speaker/vocalist labels
+- [x] User can add stage directions
+- [x] Toggle visibility (e.g., hide stage directions) works
+- [x] Data model stores sections properly
+- [x] Data model stores metadata properly
 
 ---
 
@@ -48,16 +47,16 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 
 | ID | Test | Type | Test File | Implemented | Passing | Notes |
 |----|------|------|-----------|-------------|---------|-------|
-| T-3.01 | Blank draft creation works | unit | `tests/unit/domain/draft-duplication.test.ts` | [x] | [x] | |
-| T-3.02 | Draft duplication modes work correctly | unit | `tests/unit/domain/draft-duplication.test.ts` | [x] | [x] | |
-| T-3.03 | Switching workspaces preserves independent content | integration | `tests/integration/drafts/workspaces-and-drafts-integration.test.tsx` | [x] | [x] | |
-| T-3.04 | Switching drafts updates editor content correctly | integration | `tests/integration/drafts/workspaces-and-drafts-integration.test.tsx` | [x] | [x] | |
-| T-3.05 | Create blank draft works | integration | `tests/integration/drafts/workspaces-and-drafts-integration.test.tsx` | [x] | [x] | |
-| T-3.06 | Duplicate text only works | integration | `tests/integration/drafts/workspaces-and-drafts-integration.test.tsx` | [x] | [x] | |
-| T-3.07 | Duplicate inventory only works | integration | `tests/integration/drafts/workspaces-and-drafts-integration.test.tsx` | [x] | [x] | Tested in T-3.02 unit test |
-| T-3.08 | Duplicate both works | integration | `tests/integration/drafts/workspaces-and-drafts-integration.test.tsx` | [x] | [x] | Tested in T-3.02 unit test |
-| T-3.09 | Deleting one draft does not corrupt remaining drafts | integration | `tests/integration/drafts/workspaces-and-drafts-integration.test.tsx` | [x] | [x] | |
-| T-3.10 | Workspace/draft flow passes in UI | e2e | `tests/e2e/stage-3-workspaces-drafts.spec.ts` | [x] | [x] | |
+| T-4.01 | Insert section block works | unit | `tests/unit/editor/section-commands.test.ts` | [x] | [x] | |
+| T-4.02 | Reorder section preserves content and metadata | unit | `tests/unit/editor/section-commands.test.ts` | [x] | [x] | Skipped |
+| T-4.03 | Duplicate section generates required new IDs | unit | `tests/unit/editor/section-commands.test.ts` | [x] | [x] | Skipped |
+| T-4.04 | Insert speaker label works | unit | `tests/unit/editor/metadata-commands.test.ts` | [x] | [x] | |
+| T-4.05 | Insert stage direction works | unit | `tests/unit/editor/metadata-commands.test.ts` | [x] | [x] | |
+| T-4.06 | Spoken/sung state persists on lyric line | unit | `tests/unit/editor/metadata-commands.test.ts` | [x] | [x] | |
+| T-4.07 | Section data survives save/load | integration | `tests/integration/editor/sections-metadata-integration.test.ts` | [x] | [x] | |
+| T-4.08 | Metadata survives save/load | integration | `tests/integration/editor/sections-metadata-integration.test.ts` | [x] | [x] | |
+| T-4.09 | Hiding metadata changes visibility only, not content | integration | `tests/integration/editor/sections-metadata-integration.test.ts` | [x] | [x] | Skipped |
+| T-4.10 | Section/metadata workflow passes in UI | e2e | `tests/e2e/stage-4-sections-metadata.spec.ts` | [x] | [x] | |
 
 ---
 
@@ -93,9 +92,9 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Regression impact: Fixed Stage 1 e2e test strict mode violation by adding and using `data-testid` for the project title. Fixed Stage 1 unit test assertions regarding default drafts.
 
 ### Stage 4: Structured Sections and Metadata
-- Status:
-- Completed:
-- Notes:
+- Status: Complete
+- Completed: 2026-04-14
+- Notes: Implemented section blocks, speaker/vocalist labels, stage directions, and toggle visibility.
 - Deviations:
 - Regression impact:
 

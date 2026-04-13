@@ -1,3 +1,10 @@
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
 .cyril-editor-container {
   display: flex;
   flex-direction: column;
@@ -63,11 +70,45 @@
   margin-top: 0.75em;
 }
 
-/* Placeholder (optional, if we add placeholder extension later) */
-.ProseMirror p.is-editor-empty:first-child::before {
-  content: attr(data-placeholder);
-  float: left;
-  color: #adb5bd;
-  pointer-events: none;
-  height: 0;
+/* Display toggles */
+.hide-sections [data-type="sectionBlock"]::before {
+  display: none;
 }
+
+.hide-speakers [data-type="speakerLine"] {
+  display: none;
+}
+
+.hide-stage-directions [data-type="stageDirection"] {
+  display: none;
+}
+
+/* Base styles for new nodes so they are visible when toggles are ON */
+[data-type="speakerLine"] {
+  font-weight: bold;
+  margin-top: 1em;
+  color: var(--text-color);
+}
+
+[data-type="stageDirection"] {
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+[data-type="sectionBlock"] {
+  border-left: 3px solid var(--border-color);
+  padding-left: 1rem;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+[data-type="lyricLine"] {
+  margin-top: 0.25em;
+}
+
+[data-type="lyricLine"][data-delivery="spoken"] {
+  font-style: italic;
+}
+
