@@ -1,7 +1,7 @@
 # Cyril — Build Progress
 
 ## Current Stage
-- Stage: 4
+- Stage: 5
 - Status: Complete
 - Started: 2026-04-14
 - Completed: 2026-04-14
@@ -17,7 +17,7 @@
 | 2 | Editor Foundation | Complete | [x] | [x] | [x] | Stage 2 robust editor layer using Tiptap/ProseMirror with undo/redo and base formats |
 | 3 | Workspaces and Multiple Drafts | Complete | [x] | [x] | [x] | Stage 3 workspaces and drafts switching, creation, duplication |
 | 4 | Structured Sections and Metadata | Complete | [x] | [x] | [x] | Stage 4 custom editor nodes for song structure and metadata |
-| 5 | Inventory Pane | Not Started | [ ] | [ ] | [ ] | |
+| 5 | Inventory Pane | Complete | [x] | [x] | [x] | Stage 5 draft-specific scratchpad in right sidebar |
 | 6 | Prosody and Lightweight Visualization | Not Started | [ ] | [ ] | [ ] | |
 | 7 | Tools Sidebar | Not Started | [ ] | [ ] | [ ] | |
 | 8 | Alternate Lyrics | Not Started | [ ] | [ ] | [ ] | |
@@ -31,13 +31,11 @@
 
 Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
 
-### Stage 4 Acceptance Checklist
-- [x] User can add section blocks
-- [x] User can add speaker/vocalist labels
-- [x] User can add stage directions
-- [x] Toggle visibility (e.g., hide stage directions) works
-- [x] Data model stores sections properly
-- [x] Data model stores metadata properly
+### Stage 5 Acceptance Checklist
+- [x] User can view inventory pane in right sidebar
+- [x] Inventory content persists per draft
+- [x] Editing inventory does not alter draft document
+- [x] Inventory follows duplication modes correctly
 
 ---
 
@@ -47,16 +45,12 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 
 | ID | Test | Type | Test File | Implemented | Passing | Notes |
 |----|------|------|-----------|-------------|---------|-------|
-| T-4.01 | Insert section block works | unit | `tests/unit/editor/section-commands.test.ts` | [x] | [x] | |
-| T-4.02 | Reorder section preserves content and metadata | unit | `tests/unit/editor/section-commands.test.ts` | [x] | [x] | Skipped |
-| T-4.03 | Duplicate section generates required new IDs | unit | `tests/unit/editor/section-commands.test.ts` | [x] | [x] | Skipped |
-| T-4.04 | Insert speaker label works | unit | `tests/unit/editor/metadata-commands.test.ts` | [x] | [x] | |
-| T-4.05 | Insert stage direction works | unit | `tests/unit/editor/metadata-commands.test.ts` | [x] | [x] | |
-| T-4.06 | Spoken/sung state persists on lyric line | unit | `tests/unit/editor/metadata-commands.test.ts` | [x] | [x] | |
-| T-4.07 | Section data survives save/load | integration | `tests/integration/editor/sections-metadata-integration.test.ts` | [x] | [x] | |
-| T-4.08 | Metadata survives save/load | integration | `tests/integration/editor/sections-metadata-integration.test.ts` | [x] | [x] | |
-| T-4.09 | Hiding metadata changes visibility only, not content | integration | `tests/integration/editor/sections-metadata-integration.test.ts` | [x] | [x] | Skipped |
-| T-4.10 | Section/metadata workflow passes in UI | e2e | `tests/e2e/stage-4-sections-metadata.spec.ts` | [x] | [x] | |
+| T-5.01 | Inventory persists as draft-specific data | unit | `tests/unit/domain/inventory-persistence.test.ts` | [x] | [x] | |
+| T-5.02 | Inventory duplication follows selected draft creation mode | unit | `tests/unit/domain/inventory-persistence.test.ts` | [x] | [x] | |
+| T-5.03 | Inventory pane renders in bottom-right panel | integration | `tests/integration/inventory/inventory-pane-integration.test.tsx` | [x] | [x] | |
+| T-5.04 | Switching drafts switches inventory content correctly | integration | `tests/integration/inventory/inventory-pane-integration.test.tsx` | [x] | [x] | |
+| T-5.05 | Editing inventory does not alter draft document | integration | `tests/integration/inventory/inventory-pane-integration.test.tsx` | [x] | [x] | |
+| T-5.06 | Inventory workflow passes in UI | e2e | `tests/e2e/stage-5-inventory.spec.ts` | [x] | [x] | |
 
 ---
 
@@ -99,11 +93,11 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Regression impact:
 
 ### Stage 5: Inventory Pane
-- Status:
-- Completed:
-- Notes:
-- Deviations:
-- Regression impact:
+- Status: Complete
+- Completed: 2026-04-14
+- Notes: Implemented draft-specific inventory pane using a simple textarea that persists per draft. Added `updateDraftInventory` action to the project store. Inventory follows duplication modes (text only, inventory only, both, blank).
+- Deviations: None
+- Regression impact: Fixed Stage 0 app shell tests to reflect new InventoryPane component in right sidebar.
 
 ### Stage 6: Prosody and Lightweight Visualization
 - Status:

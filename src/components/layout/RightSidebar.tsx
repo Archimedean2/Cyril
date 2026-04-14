@@ -1,3 +1,5 @@
+import { InventoryPane } from '../../features/inventory/InventoryPane';
+
 export function RightSidebar() {
   return (
     <aside className="right-sidebar panel" aria-label="Right sidebar">
@@ -13,9 +15,7 @@ export function RightSidebar() {
       <section className="sidebar-section">
         <div className="sidebar-section-header">Inventory</div>
         <div className="sidebar-section-body">
-          <div>
-            Draft scratchpad will go here...
-          </div>
+          <InventoryPane />
         </div>
       </section>
     </aside>

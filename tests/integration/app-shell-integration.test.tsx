@@ -83,8 +83,8 @@ describe('Stage 0: App Shell Integration', () => {
       render(<AppShell />);
       // We expect 'Draft 1' to appear in the nav and the center pane header
       expect(screen.getAllByText('Draft 1').length).toBeGreaterThanOrEqual(1);
-      // Editor should render with the textbox role
-      expect(screen.getByRole('textbox')).toBeInTheDocument();
+      // Editor should render (look for draft-editor testid)
+      expect(screen.getByTestId('draft-editor')).toBeInTheDocument();
     });
 
     it('T-0.04: Right sidebar renders', () => {
@@ -96,7 +96,9 @@ describe('Stage 0: App Shell Integration', () => {
     it('T-0.05: Right sidebar has top and bottom sections', () => {
       render(<AppShell />);
       expect(screen.getByText('Rhyme, Dictionary, Thesaurus will go here...')).toBeInTheDocument();
-      expect(screen.getByText('Draft scratchpad will go here...')).toBeInTheDocument();
+      // Inventory pane should now render with the textarea
+      expect(screen.getByTestId('inventory-pane')).toBeInTheDocument();
+      expect(screen.getByTestId('inventory-textarea')).toBeInTheDocument();
     });
   });
 });

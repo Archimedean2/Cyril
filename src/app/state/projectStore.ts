@@ -33,6 +33,9 @@ interface ProjectState {
   
   // Settings Actions
   toggleDraftSetting: (draftId: string, settingKey: keyof import('../../domain/project/types').DraftSettings) => void;
+  
+  // Inventory Actions
+  updateDraftInventory: (draftId: string, inventoryDoc: import('../../domain/project/types').RichTextDocument) => void;
 }
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
@@ -196,6 +199,37 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       draftSettings: {
         ...draft.draftSettings,
         [settingKey]: !draft.draftSettings[settingKey]
+      },
+      updatedAt: new Date().toISOString()
+    };
+
+    set({
+      currentProject: {
+        ...currentProject,
+        project: {
+          ...currentProject.project,
+          drafts: newDrafts,
+          updatedAt: new Date().toISOString()
+        }
+      }
+    });
+  },
+
+  updateDraftInventory: (draftId: string, inventoryDoc: import('../../domain/project/types').RichTextDocument) => {
+    const { currentProject } = get();
+    if (!currentProject) return;
+
+    const draftIndex = currentProject.project.drafts.findIndex(d => d.id === draftId);
+    if (draftIndex === -1) return;
+
+    const draft = currentProject.project.drafts[draftIndex];
+    const newDrafts = [...currentProject.project.drafts];
+    
+    newDrafts[draftIndex] = {
+      ...draft,
+      inventory: {
+        type: 'inventory',
+        doc: inventoryDoc
       },
       updatedAt: new Date().toISOString()
     };
