@@ -30,6 +30,7 @@ export function DraftView() {
           // Cast is safe here because DraftDocument extends RichTextDocument in practice
           initialContent={draft.doc as any}
           settings={draft.draftSettings}
+          draftMode={draft.mode}
           onChange={handleUpdate}
         />
       </div>

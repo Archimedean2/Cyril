@@ -27,6 +27,11 @@ Do not attempt to implement the whole product from a single reading.
 | `COMPONENT_MAP.md` | Component hierarchy and responsibility boundaries | Read before creating or refactoring components |
 | `docs/interactions/*.md` | Detailed user flows and interaction rules | Read before implementing complex state changes or UI flows |
 | `TEST_IDS.md` | Test ID specification and stable selectors | Use for test implementation |
+| `docs/agent-workflow/SENIOR_DEV_LOOP.md` | The junior-to-senior consultation loop and templates | Read before any significant task |
+| `docs/agent-workflow/REPO_RECON_CHECKLIST.md` | Repo inspection checklist before handoff | Run before producing a Pre-Implementation Handoff |
+| `docs/agent-workflow/prompt-templates/TEMPLATE_A_PRE_IMPLEMENTATION_HANDOFF.md` | Prompt template: request implementation plan | Use when preparing Pre-Implementation Handoff |
+| `docs/agent-workflow/prompt-templates/TEMPLATE_C_POST_IMPLEMENTATION_TEST_PLAN.md` | Prompt template: request test plan | Use after implementation, before writing tests |
+| `docs/agent-workflow/prompt-templates/TEMPLATE_B_BREAK_GLASS_ESCALATION.md` | Prompt template: escalate when blocked | Use when blocked or deeply uncertain |
 
 ---
 
@@ -82,19 +87,15 @@ When implementing a task, use this order of authority:
 8. `TEST_IDS.md` if present
 9. `PROGRESS.md`
 
-## Required Senior Dev Consultation Workflow
+---
 
-For significant tasks, the coding agent must follow the consultation loop documented in:
-- `docs/agent-workflow/SENIOR_DEV_LOOP.md`
-- `docs/agent-workflow/prompt-templates/BREAK_GLASS_ESCALATION.md`
-- `docs/agent-workflow/prompt-templates/POST_IMPLEMENTATION_TEST_PLAN.md`
-- `docs/agent-workflow/prompt-templates/PRE_IMPLEMENTATION_HANDOFF.md`
-- `docs/agent-workflow/REPO_RECON_CHECKLIST.md`
+## Senior Dev Consultation Workflow
 
-The coding agent acts as a junior dev with repo access.
-It should inspect the codebase first, then request a scoped implementation plan, then implement, then request a test plan, then implement tests.
+For significant tasks, follow the loop in `docs/agent-workflow/SENIOR_DEV_LOOP.md`.
 
-Do not skip this loop for tasks with meaningful ambiguity or broad impact.
+Full rules and trigger conditions are in `TASKING.md` → Senior Dev Consultation Workflow.
+
+---
 
 ## Rules
 

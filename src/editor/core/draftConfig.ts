@@ -5,6 +5,7 @@ import { SectionBlock } from '../nodes/sectionBlock/sectionBlock';
 import { SpeakerLine } from '../nodes/speakerLine/speakerLine';
 import { StageDirection } from '../nodes/stageDirection/stageDirection';
 import { LyricLine } from '../nodes/lyricLine/lyricLine';
+import { ChordExtension } from '../extensions/chords';
 
 export const draftExtensions = [
   StarterKit.configure({
@@ -25,9 +26,25 @@ export const draftExtensions = [
   LyricLine,
 ];
 
-export const getDraftEditorConfig = (content: any = ''): Partial<EditorOptions> => ({
-  extensions: draftExtensions,
-  content,
-  editable: true,
-  autofocus: false,
-});
+export interface DraftEditorConfigOptions {
+  content?: any;
+  showChords?: boolean;
+  draftMode?: 'lyrics' | 'lyricsWithChords';
+}
+
+export const getDraftEditorConfig = (options: DraftEditorConfigOptions = {}): Partial<EditorOptions> => {
+  const { content, showChords = true, draftMode = 'lyrics' } = options;
+
+  return {
+    extensions: [
+      ...draftExtensions,
+      ChordExtension.configure({
+        showChords,
+        draftMode,
+      }),
+    ],
+    content,
+    editable: true,
+    autofocus: false,
+  };
+};

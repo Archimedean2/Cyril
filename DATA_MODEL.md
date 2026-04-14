@@ -1247,4 +1247,44 @@ If a later-stage field is not yet supported in UI:
 - it may still appear in schema with default values
 - implementation may ignore it temporarily
 - save/load logic should preserve it if present
+
+
+---
+
+## Local Tool Cache Model
+
+Cyril may persist normalized lexical tool results locally so repeated lookups can be served without always calling an external provider.
+
+### Entity: ToolQueryCacheEntry
+
+Suggested fields:
+
+- `id: string`
+- `toolType: ToolType`
+- `query: string`
+- `provider: string`
+- `normalizedResults: ToolResultPayload`
+- `fetchedAt: string`
+- `lastUsedAt: string`
+- `version?: string`
+- `projectIds?: string[]`
+- `sourceMeta?: Record<string, unknown>`
+
+### Notes
+- `toolType` should distinguish lookup classes such as exact rhyme, near rhyme, dictionary, thesaurus, idioms, or related terms
+- `normalizedResults` should use Cyril-owned internal result shapes, not raw provider payloads as the canonical app contract
+- `projectIds` is optional metadata only; first implementation may use app-local cache rather than strict per-project partitioning
+- `sourceMeta` may store minimal provider/source details if useful, but avoid overcommitting to provider-specific schemas
+
+### Persistence rules
+- cache entries should be stored locally
+- repeated lookups should update `lastUsedAt`
+- if a provider response is refreshed, `fetchedAt` should update
+- if provider constraints make full payload storage undesirable, persist only the normalized subset needed for Cyril features and record the limitation in `PROGRESS.md`
+
+### Modeling guidance
+- treat cached lexical data as supporting reference data, not as part of the canonical song draft content
+- do not let cache storage bypass the provider abstraction layer
+- do not store UI-only formatting state as canonical cached data
+
 ```

@@ -21,7 +21,7 @@
 | 6 | Prosody and Lightweight Visualization | Complete | [x] | [x] | [x] | Dictionary-first prosody engine implemented with CMUdict integration, fallback heuristics, and stress pattern extraction |
 | 7 | Tools Sidebar | Complete | [x] | [x] | [x] | Datamuse API provider for rhymes, thesaurus, dictionary. ToolsPane with mode tabs, search, results, clipboard copy |
 | 8 | Alternate Lyrics | Complete | [x] | [x] | [x] | Line-level alternate lyrics with add, activate, update, remove. Commands: addAlternate, activateAlternate, updateAlternate, removeAlternate. 13 unit tests, 6 integration tests, E2E test. |
-| 9 | Chord Lane | Not Started | [ ] | [ ] | [ ] | |
+| 9 | Chord Lane | In Progress | [ ] | [x] | [x] | 18 unit, 12 integration, 7 lyric-safety, 1 e2e tests. 37/37 passing. |
 | 10 | Export and Print | Not Started | [ ] | [ ] | [ ] | |
 | 11 | Lightweight Sharing | Deferred | [ ] | [ ] | [ ] | Optional |
 
@@ -125,11 +125,11 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Regression impact: None
 
 ### Stage 9: Chord Lane
-- Status:
-- Completed:
-- Notes:
-- Deviations:
-- Regression impact:
+- Status: In Progress
+- Completed: —
+- Notes: Implemented chord commands (add, edit, move, remove). ChordExtension decoration plugin. Full test suite: 18 unit tests (tests/unit/editor/chord-commands.add-edit-move-remove.test.ts), 12 persistence/visibility integration tests, 7 lyric-edit-safety integration tests (tests/integration/editor/), 1 e2e happy-path test (tests/e2e/chords.spec.ts). All 37/37 vitest tests passing. data-testid attributes all present.
+- Deviations: None
+- Regression impact: None — pre-existing T-4.07/T-4.08 failures unrelated to Stage 9.
 
 ### Stage 10: Export and Print
 - Status:

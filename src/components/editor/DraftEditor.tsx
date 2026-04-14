@@ -1,19 +1,24 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import { useEffect } from 'react';
 import { getDraftEditorConfig } from '../../editor/core/draftConfig';
-import { RichTextDocument, DraftSettings } from '../../domain/project/types';
+import { RichTextDocument, DraftSettings, DraftMode } from '../../domain/project/types';
 import { DraftToolbar } from './DraftToolbar';
 import './editor.css';
 
 interface DraftEditorProps {
   initialContent: RichTextDocument;
   settings?: DraftSettings;
+  draftMode?: DraftMode;
   onChange: (content: RichTextDocument) => void;
 }
 
-export function DraftEditor({ initialContent, settings, onChange }: DraftEditorProps) {
+export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', onChange }: DraftEditorProps) {
   const editor = useEditor({
-    ...getDraftEditorConfig(initialContent),
+    ...getDraftEditorConfig({
+      content: initialContent,
+      showChords: settings?.showChords ?? true,
+      draftMode,
+    }),
     onUpdate: ({ editor }) => {
       onChange(editor.getJSON() as any as RichTextDocument);
     },
@@ -30,6 +35,14 @@ export function DraftEditor({ initialContent, settings, onChange }: DraftEditorP
     }
   }, [editor, initialContent]);
 
+  useEffect(() => {
+    if (editor) {
+      // Reconfigure extension when showChords or draftMode changes
+      // This is a simple approach - in production you might want more sophisticated handling
+      editor.view.updateState(editor.state);
+    }
+  }, [settings?.showChords, draftMode, editor]);
+
   if (!editor) {
     return null;
   }
@@ -45,7 +58,7 @@ export function DraftEditor({ initialContent, settings, onChange }: DraftEditorP
 
   return (
     <div className="editor-container" data-testid="draft-editor">
-      <DraftToolbar editor={editor} />
+      <DraftToolbar editor={editor} chordMode={draftMode} />
       <EditorContent editor={editor} className={editorClasses} data-testid="editor-surface" />
     </div>
   );

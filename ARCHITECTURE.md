@@ -638,6 +638,16 @@ Do not prepare speculative infrastructure for these in v1 unless it has clear im
 
 ---
 
+## Tool Provider Caching
+
+Lexical/rhyme tool integrations should remain provider-abstracted. UI components should consume Cyril-owned normalized result shapes rather than depending directly on raw provider response payloads.
+
+Where practical, user-triggered lookups may be cached locally so repeated requests can be served from a local-first cache layer. Cached storage should contain normalized results and basic lookup metadata, not UI-specific formatting state.
+
+This cache is intended as a pragmatic incremental reference layer built through normal usage, not as a bulk-ingestion or background-crawling system.
+
+---
+
 ## Recommended Initial Technical Decisions
 
 These should be assumed unless explicitly revised:

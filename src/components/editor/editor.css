@@ -308,3 +308,42 @@
   flex-direction: column;
 }
 
+/* Chord Lane Styles */
+.cyril-chord-lane {
+  display: flex;
+  position: relative;
+  height: 24px;
+  margin-bottom: 4px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.cyril-chord-marker {
+  position: absolute;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-color, #4a90d9);
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--panel-bg-alt, #f5f5f5);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.cyril-chord-marker:hover {
+  background: var(--hover-bg, rgba(0,0,0,0.05));
+  border-color: var(--accent-color, #4a90d9);
+}
+
+.cyril-chord-marker:focus {
+  outline: 2px solid var(--accent-color, #4a90d9);
+  outline-offset: 2px;
+}
+
+.hide-chords .cyril-chord-lane {
+  display: none;
+}

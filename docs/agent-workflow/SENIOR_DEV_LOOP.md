@@ -34,6 +34,8 @@ The goal is to improve implementation quality without giving the coding agent pe
 ### 8. Recommended implementation direction
 ### 9. Specific questions for senior dev
 
+*Use the relay-ready prompt in `prompt-templates/TEMPLATE_A_PRE_IMPLEMENTATION_HANDOFF.md` when sending this to the senior dev.*
+
 ## Post-Implementation Report Template
 
 ### 1. Task completed
@@ -44,6 +46,8 @@ The goal is to improve implementation quality without giving the coding agent pe
 ### 6. Current test state
 ### 7. Areas needing targeted regression coverage
 
+*Use the relay-ready prompt in `prompt-templates/POST_IMPLEMENTATION_TEST_PLAN.md` when sending this to the senior dev.*
+
 ## Break-Glass Template
 
 ### 1. What was attempted
@@ -52,6 +56,8 @@ The goal is to improve implementation quality without giving the coding agent pe
 ### 4. Evidence
 ### 5. Hypotheses
 ### 6. Smallest decision needed from senior dev
+
+*Use the relay-ready prompt in `prompt-templates/TEMPLATE_B_BREAK_GLASS_ESCALATION.md` when sending this to the senior dev.*
 
 ## Behavior Rules
 

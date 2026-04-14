@@ -1,11 +1,21 @@
 import { Editor } from '@tiptap/react';
+import { useState } from 'react';
 import { generateId } from '../../domain/project/ids';
+import {
+  addChordToCurrentLine,
+  editChordOnCurrentLine,
+  moveChordOnCurrentLine,
+  removeChordFromCurrentLine,
+} from '../../domain/editor/chord-commands';
 
 interface DraftToolbarProps {
   editor: Editor;
+  chordMode?: 'lyrics' | 'lyricsWithChords';
 }
 
-export function DraftToolbar({ editor }: DraftToolbarProps) {
+export function DraftToolbar({ editor, chordMode = 'lyrics' }: DraftToolbarProps) {
+  const [selectedChordId, setSelectedChordId] = useState<string | null>(null);
+
   const addSection = () => {
     editor.commands.insertSectionBlock({
       id: generateId('section'),
@@ -37,6 +47,43 @@ export function DraftToolbar({ editor }: DraftToolbarProps) {
       },
       content: [{ type: 'text', text: ' ' }]
     }).run();
+  };
+
+  const addChord = () => {
+    if (chordMode !== 'lyricsWithChords') return;
+    
+    const symbol = prompt('Enter chord symbol (e.g., A, D, Em):');
+    if (symbol) {
+      addChordToCurrentLine(editor, symbol);
+    }
+  };
+
+  const editChord = () => {
+    if (chordMode !== 'lyricsWithChords' || !selectedChordId) return;
+    
+    const newSymbol = prompt('Enter new chord symbol:');
+    if (newSymbol) {
+      editChordOnCurrentLine(editor, selectedChordId, newSymbol);
+    }
+  };
+
+  const removeChord = () => {
+    if (chordMode !== 'lyricsWithChords' || !selectedChordId) return;
+    
+    if (confirm('Remove this chord?')) {
+      removeChordFromCurrentLine(editor, selectedChordId);
+      setSelectedChordId(null);
+    }
+  };
+
+  const moveChordLeft = () => {
+    if (chordMode !== 'lyricsWithChords' || !selectedChordId) return;
+    moveChordOnCurrentLine(editor, selectedChordId, -1);
+  };
+
+  const moveChordRight = () => {
+    if (chordMode !== 'lyricsWithChords' || !selectedChordId) return;
+    moveChordOnCurrentLine(editor, selectedChordId, 1);
   };
 
   return (
@@ -76,6 +123,46 @@ export function DraftToolbar({ editor }: DraftToolbarProps) {
           + Lyric Line
         </button>
       </div>
+
+      {chordMode === 'lyricsWithChords' && (
+        <div className="toolbar-group">
+          <button onClick={addChord} data-testid="chord-add-button" title="Add Chord">
+            + Chord
+          </button>
+          <button 
+            onClick={editChord} 
+            disabled={!selectedChordId}
+            data-testid="chord-edit-button" 
+            title="Edit Chord"
+          >
+            Edit Chord
+          </button>
+          <button 
+            onClick={moveChordLeft} 
+            disabled={!selectedChordId}
+            data-testid="chord-move-left-button" 
+            title="Move Chord Left"
+          >
+            ←
+          </button>
+          <button 
+            onClick={moveChordRight} 
+            disabled={!selectedChordId}
+            data-testid="chord-move-right-button" 
+            title="Move Chord Right"
+          >
+            →
+          </button>
+          <button 
+            onClick={removeChord} 
+            disabled={!selectedChordId}
+            data-testid="chord-remove-button" 
+            title="Remove Chord"
+          >
+            - Chord
+          </button>
+        </div>
+      )}
 
       <div className="toolbar-group">
         <button 

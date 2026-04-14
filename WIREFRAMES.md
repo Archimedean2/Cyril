@@ -1,18 +1,3 @@
-Perfect. We’ll do both.
-
-I’ll start with **`WIREFRAMES.md`**, then **`DESIGN_SYSTEM.md`**.
-
-The goal is to make Windsurf build something that feels like:
-- a serious writing tool
-- an editor shell
-- sleek, dense, and calm
-- not like a generic productivity SaaS
-
----
-
-# `WIREFRAMES.md`
-
-```md
 # Cyril — Wireframes and Screen Specification
 
 ## Purpose
