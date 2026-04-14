@@ -1,10 +1,10 @@
 # Cyril — Build Progress
 
 ## Current Stage
-- Stage: 5
-- Status: Complete
+- Stage: 6
+- Status: In Progress (Prosody Engine Complete)
 - Started: 2026-04-14
-- Completed: 2026-04-14
+- Completed: TBD
 
 ---
 
@@ -18,7 +18,7 @@
 | 3 | Workspaces and Multiple Drafts | Complete | [x] | [x] | [x] | Stage 3 workspaces and drafts switching, creation, duplication |
 | 4 | Structured Sections and Metadata | Complete | [x] | [x] | [x] | Stage 4 custom editor nodes for song structure and metadata |
 | 5 | Inventory Pane | Complete | [x] | [x] | [x] | Stage 5 draft-specific scratchpad in right sidebar |
-| 6 | Prosody and Lightweight Visualization | Not Started | [ ] | [ ] | [ ] | |
+| 6 | Prosody and Lightweight Visualization | In Progress (Engine Complete, UI Pending) | [ ] | [x] | [x] | Dictionary-first prosody engine implemented with CMUdict integration, fallback heuristics, and stress pattern extraction |
 | 7 | Tools Sidebar | Not Started | [ ] | [ ] | [ ] | |
 | 8 | Alternate Lyrics | Not Started | [ ] | [ ] | [ ] | |
 | 9 | Chord Lane | Not Started | [ ] | [ ] | [ ] | |
@@ -31,11 +31,11 @@
 
 Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
 
-### Stage 5 Acceptance Checklist
-- [x] User can view inventory pane in right sidebar
-- [x] Inventory content persists per draft
-- [x] Editing inventory does not alter draft document
-- [x] Inventory follows duplication modes correctly
+### Stage 6 Acceptance Checklist
+- [ ] User can view prosody analysis for a line of text
+- [ ] Prosody analysis includes syllable breakdown and stress patterns
+- [ ] Prosody analysis uses CMU Pronouncing Dictionary for word lookup
+- [ ] Prosody analysis falls back to heuristic approach when word not found in dictionary
 
 ---
 
@@ -45,12 +45,14 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 
 | ID | Test | Type | Test File | Implemented | Passing | Notes |
 |----|------|------|-----------|-------------|---------|-------|
-| T-5.01 | Inventory persists as draft-specific data | unit | `tests/unit/domain/inventory-persistence.test.ts` | [x] | [x] | |
-| T-5.02 | Inventory duplication follows selected draft creation mode | unit | `tests/unit/domain/inventory-persistence.test.ts` | [x] | [x] | |
-| T-5.03 | Inventory pane renders in bottom-right panel | integration | `tests/integration/inventory/inventory-pane-integration.test.tsx` | [x] | [x] | |
-| T-5.04 | Switching drafts switches inventory content correctly | integration | `tests/integration/inventory/inventory-pane-integration.test.tsx` | [x] | [x] | |
-| T-5.05 | Editing inventory does not alter draft document | integration | `tests/integration/inventory/inventory-pane-integration.test.tsx` | [x] | [x] | |
-| T-5.06 | Inventory workflow passes in UI | e2e | `tests/e2e/stage-5-inventory.spec.ts` | [x] | [x] | |
+| T-6.01 | Dictionary provides accurate syllable counts for common words | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
+| T-6.02 | Tokenizer handles punctuation and normalizes for lookup | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
+| T-6.03 | Missing/unknown words fail gracefully (null for no content) | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
+| T-6.04 | Dictionary lookup takes priority over heuristics | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
+| T-6.05 | Complex multi-syllable words from dictionary | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
+| T-6.06 | analyzeLineProsody provides detailed token breakdown | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
+| T-6.07 | Fallback heuristic for unknown words | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
+| T-6.08 | Stress pattern extraction from phonemes | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
 
 ---
 
@@ -100,11 +102,12 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Regression impact: Fixed Stage 0 app shell tests to reflect new InventoryPane component in right sidebar.
 
 ### Stage 6: Prosody and Lightweight Visualization
-- Status:
+- Status: In Progress (Engine Complete, UI Pending)
+- Started: 2026-04-14
 - Completed:
-- Notes:
-- Deviations:
-- Regression impact:
+- Notes: Implemented dictionary-first prosody architecture using `cmudict` npm package with 134k+ word CMU Pronouncing Dictionary. Created modular structure: `types.ts`, `tokenizer.ts`, `dictionary.ts`, `syllables.ts`. Provides `analyzeLineProsody()` for detailed token breakdown with source tracking (dictionary vs fallback). Stress patterns extracted from phoneme stress markers. 8/8 unit tests passing.
+- Deviations: None
+- Regression impact: None
 
 ### Stage 7: Tools Sidebar
 - Status:

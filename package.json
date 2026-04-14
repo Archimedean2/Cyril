@@ -16,6 +16,8 @@
     "@tiptap/pm": "^3.22.3",
     "@tiptap/react": "^3.22.3",
     "@tiptap/starter-kit": "^3.22.3",
+    "cmu-pronouncing-dictionary": "^3.0.0",
+    "cmudict": "^1.0.2",
     "lucide-react": "^0.368.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
