@@ -1,0 +1,120 @@
+/**
+ * Datamuse API provider for rhyme, thesaurus, and dictionary lookups.
+ * 
+ * Datamuse is a free word-finding query engine with no API key required.
+ * https://www.datamuse.com/api/
+ * 
+ * Query parameters:
+ * - rel_rhy: exact rhymes (same final vowel and consonant sounds)
+ * - rel_nry: near rhymes (similar but not exact)
+ * - ml: means like (synonyms/thesaurus)
+ * - rel_ant: antonyms
+ * - md=d: definitions (adds definitions to result)
+ * - md=p: parts of speech
+ * - sl: sounds like
+ * - sp: spelled like
+ */
+
+import { ToolProvider, ToolMode, ToolResult } from './types';
+
+const DATAMUSE_API_URL = 'https://api.datamuse.com/words';
+
+export class DatamuseProvider implements ToolProvider {
+  name = 'datamuse';
+
+  supportsMode(mode: ToolMode): boolean {
+    return [
+      'rhyme-exact',
+      'rhyme-near',
+      'thesaurus',
+      'dictionary',
+      'related'
+    ].includes(mode);
+  }
+
+  async lookup(term: string, mode: ToolMode): Promise<ToolResult[]> {
+    const params = this.buildQueryParams(term, mode);
+    if (!params) return [];
+
+    try {
+      const response = await fetch(`${DATAMUSE_API_URL}?${params}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return this.transformResults(data, mode);
+    } catch (error) {
+      console.error('Datamuse API error:', error);
+      throw error;
+    }
+  }
+
+  private buildQueryParams(term: string, mode: ToolMode): string | null {
+    const encodedTerm = encodeURIComponent(term.toLowerCase().trim());
+
+    switch (mode) {
+      case 'rhyme-exact':
+        // rel_rhy = related rhyme (exact)
+        return `rel_rhy=${encodedTerm}&max=20`;
+      
+      case 'rhyme-near':
+        // rel_nry = related near rhyme
+        return `rel_nry=${encodedTerm}&max=20`;
+      
+      case 'thesaurus':
+        // ml = means like (synonyms)
+        return `ml=${encodedTerm}&max=20`;
+      
+      case 'dictionary':
+        // sp = spelled like + md=d (metadata definitions) + md=p (parts of speech)
+        return `sp=${encodedTerm}&md=d&md=p&max=10`;
+      
+      case 'related':
+        // sl = sounds like (broader relatedness)
+        return `sl=${encodedTerm}&max=20`;
+      
+      default:
+        return null;
+    }
+  }
+
+  private transformResults(data: any[], mode: ToolMode): ToolResult[] {
+    if (!Array.isArray(data)) return [];
+
+    return data.map(item => {
+      const result: ToolResult = {
+        word: item.word,
+        score: item.score,
+      };
+
+      // Extract definition and part of speech if available
+      if (item.defs && item.defs.length > 0) {
+        // defs format: "part\tdefinition" or just "definition"
+        const defParts = item.defs[0].split('\t');
+        if (defParts.length > 1) {
+          result.partOfSpeech = defParts[0];
+          result.definition = defParts[1];
+        } else {
+          result.definition = item.defs[0];
+        }
+      }
+
+      // For dictionary mode, ensure we have the exact match first
+      if (mode === 'dictionary' && item.tags) {
+        // tags include 'n', 'v', 'adj', 'adv' etc
+        const posTag = item.tags.find((t: string) => 
+          ['n', 'v', 'adj', 'adv', 'u'].includes(t)
+        );
+        if (posTag) {
+          result.partOfSpeech = posTag;
+        }
+      }
+
+      return result;
+    });
+  }
+}
+
+/** Singleton instance for app-wide use */
+export const datamuseProvider = new DatamuseProvider();

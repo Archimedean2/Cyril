@@ -89,14 +89,19 @@ describe('Stage 0: App Shell Integration', () => {
 
     it('T-0.04: Right sidebar renders', () => {
       render(<AppShell />);
-      expect(screen.getByText('Tools')).toBeInTheDocument();
+      // Right sidebar should have tools pane and inventory pane
+      expect(screen.getByTestId('tools-pane')).toBeInTheDocument();
+      expect(screen.getByTestId('inventory-pane')).toBeInTheDocument();
+      // Inventory section has a visible header
       expect(screen.getByText('Inventory')).toBeInTheDocument();
     });
 
     it('T-0.05: Right sidebar has top and bottom sections', () => {
       render(<AppShell />);
-      expect(screen.getByText('Rhyme, Dictionary, Thesaurus will go here...')).toBeInTheDocument();
-      // Inventory pane should now render with the textarea
+      // Tools pane should now render (with mode tabs and search input)
+      expect(screen.getByTestId('tools-pane')).toBeInTheDocument();
+      expect(screen.getByTestId('tools-search-input')).toBeInTheDocument();
+      // Inventory pane should render with the textarea
       expect(screen.getByTestId('inventory-pane')).toBeInTheDocument();
       expect(screen.getByTestId('inventory-textarea')).toBeInTheDocument();
     });

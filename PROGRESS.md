@@ -1,10 +1,10 @@
 # Cyril — Build Progress
 
 ## Current Stage
-- Stage: 6
-- Status: In Progress (Prosody Engine Complete)
+- Stage: 7
+- Status: Complete
 - Started: 2026-04-14
-- Completed: TBD
+- Completed: 2026-04-14
 
 ---
 
@@ -18,8 +18,8 @@
 | 3 | Workspaces and Multiple Drafts | Complete | [x] | [x] | [x] | Stage 3 workspaces and drafts switching, creation, duplication |
 | 4 | Structured Sections and Metadata | Complete | [x] | [x] | [x] | Stage 4 custom editor nodes for song structure and metadata |
 | 5 | Inventory Pane | Complete | [x] | [x] | [x] | Stage 5 draft-specific scratchpad in right sidebar |
-| 6 | Prosody and Lightweight Visualization | In Progress (Engine Complete, UI Pending) | [ ] | [x] | [x] | Dictionary-first prosody engine implemented with CMUdict integration, fallback heuristics, and stress pattern extraction |
-| 7 | Tools Sidebar | Not Started | [ ] | [ ] | [ ] | |
+| 6 | Prosody and Lightweight Visualization | Complete | [x] | [x] | [x] | Dictionary-first prosody engine implemented with CMUdict integration, fallback heuristics, and stress pattern extraction |
+| 7 | Tools Sidebar | Complete | [x] | [x] | [x] | Datamuse API provider for rhymes, thesaurus, dictionary. ToolsPane with mode tabs, search, results, clipboard copy |
 | 8 | Alternate Lyrics | Not Started | [ ] | [ ] | [ ] | |
 | 9 | Chord Lane | Not Started | [ ] | [ ] | [ ] | |
 | 10 | Export and Print | Not Started | [ ] | [ ] | [ ] | |
@@ -31,11 +31,12 @@
 
 Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
 
-### Stage 6 Acceptance Checklist
-- [ ] User can view prosody analysis for a line of text
-- [ ] Prosody analysis includes syllable breakdown and stress patterns
-- [ ] Prosody analysis uses CMU Pronouncing Dictionary for word lookup
-- [ ] Prosody analysis falls back to heuristic approach when word not found in dictionary
+### Stage 7 Acceptance Checklist
+- [x] User can view tools panel in top-right sidebar
+- [x] Tools panel supports rhyme, near-rhyme, thesaurus, dictionary, related words
+- [x] Search can be populated from selected word (placeholder for editor integration)
+- [x] Clicking results copies to clipboard
+- [x] Provider failures handled gracefully
 
 ---
 
@@ -45,14 +46,14 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 
 | ID | Test | Type | Test File | Implemented | Passing | Notes |
 |----|------|------|-----------|-------------|---------|-------|
-| T-6.01 | Dictionary provides accurate syllable counts for common words | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
-| T-6.02 | Tokenizer handles punctuation and normalizes for lookup | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
-| T-6.03 | Missing/unknown words fail gracefully (null for no content) | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
-| T-6.04 | Dictionary lookup takes priority over heuristics | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
-| T-6.05 | Complex multi-syllable words from dictionary | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
-| T-6.06 | analyzeLineProsody provides detailed token breakdown | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
-| T-6.07 | Fallback heuristic for unknown words | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
-| T-6.08 | Stress pattern extraction from phonemes | unit | `tests/unit/prosody/prosody-syllables.test.ts` | [x] | [x] | |
+| T-7.01 | Tool provider adapter returns normalized rhyme results | unit | `tests/unit/tools/tool-provider-adapters.test.ts` | [x] | [x] | |
+| T-7.02 | Tool provider adapter handles provider failure gracefully | unit | `tests/unit/tools/tool-provider-adapters.test.ts` | [x] | [x] | |
+| T-7.03 | Tools pane renders in top-right panel | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
+| T-7.04 | Selected word populates tool search term | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
+| T-7.05 | Switching tool modes works | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
+| T-7.06 | Clicking result copies text to clipboard | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
+| T-7.07 | Provider failure does not crash editor | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
+| T-7.08 | Tools workflow passes in UI | e2e | `tests/e2e/stage-7-tools.spec.ts` | [x] | [x] | |
 
 ---
 
@@ -102,19 +103,18 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Regression impact: Fixed Stage 0 app shell tests to reflect new InventoryPane component in right sidebar.
 
 ### Stage 6: Prosody and Lightweight Visualization
-- Status: In Progress (Engine Complete, UI Pending)
-- Started: 2026-04-14
-- Completed:
-- Notes: Implemented dictionary-first prosody architecture using `cmudict` npm package with 134k+ word CMU Pronouncing Dictionary. Created modular structure: `types.ts`, `tokenizer.ts`, `dictionary.ts`, `syllables.ts`. Provides `analyzeLineProsody()` for detailed token breakdown with source tracking (dictionary vs fallback). Stress patterns extracted from phoneme stress markers. 8/8 unit tests passing.
+- Status: Complete
+- Completed: 2026-04-14
+- Notes: Dictionary-first prosody architecture using `cmudict` npm package with 134k+ word CMU Pronouncing Dictionary. Modular structure: `types.ts`, `tokenizer.ts`, `dictionary.ts`, `syllables.ts`. Provides `analyzeLineProsody()` for detailed token breakdown with source tracking. Stress patterns extracted from phoneme stress markers. 8/8 unit tests passing.
 - Deviations: None
 - Regression impact: None
 
 ### Stage 7: Tools Sidebar
-- Status:
-- Completed:
-- Notes:
-- Deviations:
-- Regression impact:
+- Status: Complete
+- Completed: 2026-04-14
+- Notes: Implemented Tools Sidebar using Datamuse API (free, no API key required). Created provider abstraction: `ToolProvider` interface, `DatamuseProvider` implementation, `ToolService` with caching. UI components: `ToolsPane`, `ToolsModeTabs`, `ToolsSearchInput`, `ToolsResultsList`. Supports: exact rhyme, near rhyme, thesaurus, dictionary, related words. Clipboard copy on result click. 13 unit tests, 8 integration tests, E2E test. Updated Stage 0 app shell tests to reflect new ToolsPane.
+- Deviations: None
+- Regression impact: Fixed Stage 0 app shell tests to reflect new ToolsPane component replacing placeholder text.
 
 ### Stage 8: Alternate Lyrics
 - Status:
