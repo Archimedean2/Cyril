@@ -38,3 +38,40 @@ export interface ToolProvider {
   /** Whether this provider supports the given mode */
   supportsMode(mode: ToolMode): boolean;
 }
+
+/**
+ * Source of a tool lookup result
+ */
+export type ToolResultSource = 'cache' | 'live' | 'cache-fallback';
+
+/**
+ * Extended lookup response with cache metadata
+ */
+export interface ToolLookupResult extends ToolLookupResponse {
+  /** Where this result came from */
+  source: ToolResultSource;
+  /** When the result was originally fetched (ISO timestamp) */
+  fetchedAt?: string;
+  /** When this result was last used (ISO timestamp) */
+  lastUsedAt?: string;
+}
+
+/**
+ * Cache entry for persistent storage
+ */
+export interface ToolQueryCacheEntry {
+  /** Composite cache key */
+  key: string;
+  /** Normalized search term */
+  term: string;
+  /** Tool mode used */
+  mode: ToolMode;
+  /** Provider identifier */
+  provider: string;
+  /** Normalized results payload */
+  results: ToolResult[];
+  /** When originally fetched (ISO timestamp) */
+  fetchedAt: string;
+  /** When last used (ISO timestamp) */
+  lastUsedAt: string;
+}

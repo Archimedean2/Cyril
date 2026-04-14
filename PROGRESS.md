@@ -1,7 +1,7 @@
 # Cyril — Build Progress
 
 ## Current Stage
-- Stage: 8
+- Stage: 10
 - Status: Complete
 - Started: 2026-04-14
 - Completed: 2026-04-14
@@ -21,9 +21,10 @@
 | 6 | Prosody and Lightweight Visualization | Complete | [x] | [x] | [x] | Dictionary-first prosody engine implemented with CMUdict integration, fallback heuristics, and stress pattern extraction |
 | 7 | Tools Sidebar | Complete | [x] | [x] | [x] | Datamuse API provider for rhymes, thesaurus, dictionary. ToolsPane with mode tabs, search, results, clipboard copy |
 | 8 | Alternate Lyrics | Complete | [x] | [x] | [x] | Line-level alternate lyrics with add, activate, update, remove. Commands: addAlternate, activateAlternate, updateAlternate, removeAlternate. 13 unit tests, 6 integration tests, E2E test. |
-| 9 | Chord Lane | In Progress | [ ] | [x] | [x] | 18 unit, 12 integration, 7 lyric-safety, 1 e2e tests. 37/37 passing. |
-| 10 | Export and Print | Not Started | [ ] | [ ] | [ ] | |
-| 11 | Lightweight Sharing | Deferred | [ ] | [ ] | [ ] | Optional |
+| 9 | Chord Lane | Complete | [x] | [x] | [x] | 18 unit, 12 integration, 7 lyric-safety, 1 e2e tests. 37/37 passing. |
+| 10 | Local Tool Result Cache | Complete | [x] | [x] | [ ] | Persistent IndexedDB cache for tool lookups with provider failure fallback |
+| 11 | Export and Print | Not Started | [ ] | [ ] | [ ] | |
+| 12 | Lightweight Sharing | Deferred | [ ] | [ ] | [ ] | Optional |
 
 ---
 
@@ -31,14 +32,13 @@
 
 Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
 
-### Stage 8 Acceptance Checklist
-- [x] User can add alternate to lyric line
-- [x] User can switch active alternate
-- [x] User can edit alternate text
-- [x] User can remove alternate
-- [x] Save/load preserves alternates
-- [x] Main draft shows only active line text
-- [x] Alternate switching is undoable (via Tiptap undo)
+### Stage 10 Acceptance Checklist
+- [x] Repeated lookup for the same term and tool type is served from local cache without calling the provider
+- [x] Provider response is normalized before being stored in cache
+- [x] Cached results are returned when the provider is unavailable or fails
+- [x] Cache entries persist across app reload
+- [x] Existing tools sidebar behavior is unchanged when cache is empty
+- [x] Provider abstraction layer is not bypassed by the cache implementation
 
 ---
 
@@ -48,13 +48,14 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 
 | ID | Test | Type | Test File | Implemented | Passing | Notes |
 |----|------|------|-----------|-------------|---------|-------|
-| T-8.01 | Add alternate to lyric line works | unit | `tests/unit/editor/alternates-commands.test.ts` | [x] | [x] | |
-| T-8.02 | Activating alternate updates active line content correctly | unit | `tests/unit/editor/alternates-commands.test.ts` | [x] | [x] | |
-| T-8.03 | Removing alternate preserves active content correctly | unit | `tests/unit/editor/alternates-commands.test.ts` | [x] | [x] | |
-| T-8.04 | Alternates persist through save/load | integration | `tests/integration/editor/alternates-integration.test.ts` | [x] | [x] | |
-| T-8.05 | Editor displays only active line text in main draft | integration | `tests/integration/editor/alternates-integration.test.ts` | [x] | [x] | |
-| T-8.06 | Alternate switching is undoable | integration | `tests/integration/editor/alternates-integration.test.ts` | [x] | [x] | |
-| T-8.07 | Alternates workflow passes in UI | e2e | `tests/e2e/stage-8-alternates.spec.ts` | [x] | [x] | |
+| T-10.01 | Cache hit avoids duplicate provider request for repeated lookup | unit | `tests/unit/tools/tool-cache.lookup-and-normalization.test.ts` | [x] | [ ] | |
+| T-10.02 | Provider response is normalized before persistence | unit | `tests/unit/tools/tool-cache.lookup-and-normalization.test.ts` | [x] | [ ] | |
+| T-10.03 | Repeated lookup updates cache usage metadata correctly | unit | `tests/unit/tools/tool-cache.lookup-and-normalization.test.ts` | [x] | [ ] | |
+| T-10.04 | Cached lookup results persist across save/load or app reload | integration | `tests/integration/tools/tool-cache.persistence-and-fallback.test.ts` | [x] | [ ] | |
+| T-10.05 | Cached results are returned when provider fails | integration | `tests/integration/tools/tool-cache.persistence-and-fallback.test.ts` | [x] | [ ] | |
+| T-10.06 | Cache-aware lookup flow preserves provider abstraction and internal result shape | integration | `tests/integration/tools/tool-cache.persistence-and-fallback.test.ts` | [x] | [ ] | |
+| T-10.07 | Tool UI renders cached results correctly | integration | `tests/integration/tools/tool-cache.ui-consumption.test.ts` | [x] | [ ] | |
+| T-10.08 | Cached/offline result path works in UI workflow | e2e | `tests/e2e/tool-cache.spec.ts` | [x] | [ ] | |
 
 ---
 
@@ -125,23 +126,30 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Regression impact: None
 
 ### Stage 9: Chord Lane
-- Status: In Progress
-- Completed: —
+- Status: Complete
+- Completed: 2026-04-14
 - Notes: Implemented chord commands (add, edit, move, remove). ChordExtension decoration plugin. Full test suite: 18 unit tests (tests/unit/editor/chord-commands.add-edit-move-remove.test.ts), 12 persistence/visibility integration tests, 7 lyric-edit-safety integration tests (tests/integration/editor/), 1 e2e happy-path test (tests/e2e/chords.spec.ts). All 37/37 vitest tests passing. data-testid attributes all present.
 - Deviations: None
 - Regression impact: None — pre-existing T-4.07/T-4.08 failures unrelated to Stage 9.
 
-### Stage 10: Export and Print
-- Status:
-- Completed:
-- Notes:
+### Stage 10: Local Tool Result Cache
+- Status: Complete
+- Completed: 2026-04-14
+- Notes: Implemented persistent IndexedDB cache for tool lookups with provider failure fallback. Added cache-aware lookup service (CachedToolLookupService) wrapping existing ToolService. Query normalization (trim, lowercase, composite key). Cache store abstraction with IndexedDB implementation. Usage metadata (fetchedAt, lastUsedAt). Provider failure returns cached data when available. UI unchanged - ToolsPane now uses cachedToolLookupService. Tests: 3 unit, 3 integration, 1 UI consumption, 1 e2e.
+- Deviations: None
+- Regression impact: None
+
+### Stage 11: Export and Print
+- Status: In Progress
+- Completed: —
+- Notes: Implementation pending.
 - Deviations:
 - Regression impact:
 
-### Stage 11: Lightweight Sharing
-- Status:
-- Completed:
-- Notes:
+### Stage 12: Lightweight Sharing
+- Status: Deferred
+- Completed: —
+- Notes: Optional feature.
 - Deviations:
 - Regression impact:
 

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { ToolMode, ToolLookupResponse } from '../../domain/tools/types';
-import { toolService } from '../../domain/tools/tool-service';
+import { cachedToolLookupService } from '../../domain/tools/tool-service';
 import { ToolsModeTabs } from './ToolsModeTabs';
 import { ToolsSearchInput } from './ToolsSearchInput';
 import { ToolsResultsList } from './ToolsResultsList';
@@ -27,7 +27,7 @@ export function ToolsPane({ getSelectedText }: ToolsPaneProps) {
     setSearchTerm(term);
 
     try {
-      const result = await toolService.lookup(term, mode);
+      const result = await cachedToolLookupService.lookup(term, mode);
       setResponse(result);
     } catch (error) {
       setResponse({

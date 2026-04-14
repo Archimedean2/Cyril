@@ -690,9 +690,72 @@ Do not continue until chord-enabled drafts are practically usable.
 
 ---
 
-## Stage 10: Export and Print
+## Stage 10: Local Tool Result Cache
 
-**Tags:** `[EXPORT] [PRINT] [STAGE-10]`
+**Tags:** `[TOOLS] [CACHE] [LOCAL-FIRST] [STAGE-10]`
+
+### Objective
+Persist normalized results from user-triggered lexical tool lookups so repeated lookups can be served locally and cached data can be reused when a provider is unavailable.
+
+### Why this stage exists
+The tools sidebar (Stage 7) calls external providers on every lookup. Caching normalized results locally reduces redundant network calls, makes previously looked-up terms available offline, and makes the tool layer more resilient to provider failures — all without changing the provider abstraction or product direction.
+
+### Read First
+- `ARCHITECTURE.md` Tool Provider Caching section
+- `DATA_MODEL.md` Local Tool Cache Model section
+- `FEATURES.md` Feature 10: Local Tool Result Cache
+
+### Feature Sections to Read
+- Feature 10: Local Tool Result Cache
+
+### In Scope
+- Local-first cache store for normalized tool lookup results (exact rhyme, near rhyme, dictionary, thesaurus, idioms, related concepts)
+- Cache keyed by tool type + query term + provider
+- Cache hit path: serve from local cache instead of calling provider
+- Cache miss path: call provider, normalize, persist result, return to UI
+- Provider failure fallback: serve cached result if provider call fails
+- `lastUsedAt` updated on every cache hit
+- Cache stored in app-local persistent storage (IndexedDB or equivalent)
+- Provider abstraction layer remains intact; cache sits inside the service layer, not in UI components
+
+### Explicitly Out of Scope
+- Bulk ingestion or background pre-fetching of lookup data
+- Cache management UI (eviction, clearing, browsing) in this stage
+- Global vocabulary vault product
+- Per-project cache partitioning unless trivial
+- Cache TTL-based expiry in v1 unless straightforward to add
+
+### Files to Create
+- cache store interface and implementation
+- cache-aware lookup service wrapper
+- normalized result persistence utilities
+
+### Files to Modify
+- tool service layer to route through cache
+- provider integration path to persist on response
+
+### Implementation Notes
+- Cache must store Cyril-normalized result shapes, not raw provider response payloads
+- UI components must not need to know whether a result came from cache or a live provider call
+- Do not bypass the provider abstraction layer when writing to or reading from cache
+- Cache is supporting reference data; it is not part of canonical song draft content
+
+### Acceptance Criteria
+- Repeated lookup for the same term and tool type is served from local cache without calling the provider
+- Provider response is normalized before being stored in cache
+- Cached results are returned when the provider is unavailable or fails
+- Cache entries persist across app reload
+- Existing tools sidebar behavior is unchanged when cache is empty
+- Provider abstraction layer is not bypassed by the cache implementation
+
+### Stop Condition
+Do not continue until the cache layer is transparent to the UI and resilient to provider failure.
+
+---
+
+## Stage 11: Export and Print
+
+**Tags:** `[EXPORT] [PRINT] [STAGE-11]`
 
 ### Objective
 Produce clean output from canonical project data.
@@ -705,7 +768,7 @@ Printing and export are a core workflow, not just polish.
 - `ARCHITECTURE.md` export architecture
 
 ### Feature Sections to Read
-- Feature 16: Export and Print
+- Feature 11: Export and Print
 
 ### In Scope
 - Markdown export
@@ -753,9 +816,9 @@ Do not continue until exported output is usable without manual cleanup.
 
 ---
 
-## Stage 11: Lightweight Sharing (Optional / Deferred)
+## Stage 12: Lightweight Sharing (Optional / Deferred)
 
-**Tags:** `[SHARING] [STAGE-11]`
+**Tags:** `[SHARING] [STAGE-12]`
 
 ### Objective
 Add a minimal sharing mechanism only after the local-first core is strong.
@@ -768,7 +831,7 @@ Useful, but not part of the critical path for the initial product.
 - any updated architecture decision if sharing is pursued
 
 ### Feature Sections to Read
-- Feature 17: Lightweight Sharing
+- Feature 12: Lightweight Sharing
 
 ### In Scope
 - Minimal sharing workflow if explicitly chosen

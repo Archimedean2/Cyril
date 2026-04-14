@@ -705,7 +705,57 @@ Replaces fragile plain-text chord alignment with a usable notation/reference lay
 
 ---
 
-## Feature 16: Export and Print
+## Feature 10: Local Tool Result Cache
+
+**Tags:** `[TOOLS] [CACHE] [LOCAL-FIRST]`
+
+### Summary
+Persist normalized results from user-triggered lexical tool lookups in a local-first cache so repeated lookups can be served locally and cached data can be reused when a provider is unavailable.
+
+### User Value
+Reduces redundant network calls during writing sessions. Makes previously looked-up terms available when the provider is slow or offline. Builds an incremental local reference layer through normal usage without requiring any explicit data management from the user.
+
+### Included Behaviors
+- Cache check before any provider call: if a normalized result exists for the same tool type + query + provider key, serve it directly
+- Provider call on cache miss: call provider, normalize response, persist to cache, return to UI
+- Provider failure fallback: if a provider call fails and a cached result exists, return cached result instead of surfacing an error
+- `lastUsedAt` timestamp updated on every cache hit or refreshed response
+- `fetchedAt` updated when a fresh provider response is stored
+- Cache keyed by: tool type, normalized query string, provider identifier
+- Cache stored in app-local persistent storage (IndexedDB or equivalent); survives app reload
+- Provider abstraction layer unchanged: cache is inserted in the service layer, not in UI components or provider implementations
+
+### Excluded Behaviors
+- Bulk ingestion or background pre-fetching of lookup data
+- Cache management UI (eviction, clearing, browsing)
+- Global vocabulary vault product
+- Cloud sync of cache entries
+- Cache TTL-based automatic expiry in v1 unless trivial to add
+- Per-project cache partitioning in v1 (project association is optional metadata only)
+
+### Data Dependencies
+- `ToolQueryCacheEntry` (see `DATA_MODEL.md` Local Tool Cache Model section)
+- `ToolType` enum (existing provider abstraction)
+- Cyril-normalized `ToolResultPayload` shape (existing tool service contract)
+
+### Stage Dependency
+- Stage 10
+
+### Edge Cases
+- Cache miss: provider unavailable and no cached entry exists — surface provider failure state as before
+- Stale cached data returned during provider failure — acceptable in v1; no TTL enforcement required
+- Query normalization: ensure consistent casing/trimming so `"Moon"` and `"moon"` map to the same cache key
+- Empty result set returned by provider — may be cached as a valid empty result; implementation should distinguish this from a cache miss
+
+### Acceptance Notes
+- UI behavior must be identical whether result comes from cache or a live provider call
+- Cache must store Cyril-normalized result shapes, not raw provider response payloads
+- Provider abstraction layer must not be bypassed when reading from or writing to cache
+- Cache is supporting reference data; must not be treated as part of canonical song draft content
+
+---
+
+## Feature 11: Export and Print
 
 **Tags:** `[EXPORT] [PRINT]`
 
@@ -743,7 +793,7 @@ Produces clean lyric sheets and chord sheets without manual cleanup.
 - chord markers
 
 ### Stage Dependency
-- Stage 10
+- Stage 11
 
 ### Edge Cases
 - Empty draft
@@ -759,7 +809,7 @@ Produces clean lyric sheets and chord sheets without manual cleanup.
 
 ---
 
-## Feature 17: Lightweight Sharing
+## Feature 12: Lightweight Sharing
 
 **Tags:** `[SHARING]`
 
@@ -784,7 +834,7 @@ Allows easy reading or light editing by collaborators.
 - depends on later architecture choice
 
 ### Stage Dependency
-- Stage 11 or deferred
+- Stage 12 or deferred
 
 ### Edge Cases
 - Share target unavailable

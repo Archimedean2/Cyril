@@ -125,3 +125,15 @@ export class ToolService {
 import { datamuseProvider } from './datamuse-provider';
 
 export const toolService = new ToolService([datamuseProvider]);
+
+/**
+ * Cached tool lookup service instance with persistent storage.
+ * This is the recommended service for app-wide tool lookups.
+ */
+import { CachedToolLookupService } from './cachedToolLookupService';
+import { IndexedDBToolCacheStore } from '../../persistence/indexeddb/toolCacheStore';
+
+export const cachedToolLookupService = new CachedToolLookupService(
+  toolService,
+  new IndexedDBToolCacheStore()
+);
