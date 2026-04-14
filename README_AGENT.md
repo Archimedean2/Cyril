@@ -63,6 +63,39 @@ For each stage:
 
 ---
 
+## Canonical Working Order for Implementation
+
+When implementing a task, use this order of authority:
+
+1. `SCOPE.md`
+2. `STAGES.md`
+3. `FEATURES.md`
+4. `DATA_MODEL.md`
+5. Design guidance:
+   - `WIREFRAMES.md`
+   - `DESIGN_SYSTEM.md`
+   - `UI_TOKENS.md`
+   - `COMPONENT_MAP.md`
+   - `docs/interactions/*.md`
+6. `TASKING.md`
+7. `TESTING.md`
+8. `TEST_IDS.md` if present
+9. `PROGRESS.md`
+
+## Required Senior Dev Consultation Workflow
+
+For significant tasks, the coding agent must follow the consultation loop documented in:
+- `docs/agent-workflow/SENIOR_DEV_LOOP.md`
+- `docs/agent-workflow/prompt-templates/BREAK_GLASS_ESCALATION.md`
+- `docs/agent-workflow/prompt-templates/POST_IMPLEMENTATION_TEST_PLAN.md`
+- `docs/agent-workflow/prompt-templates/PRE_IMPLEMENTATION_HANDOFF.md`
+- `docs/agent-workflow/REPO_RECON_CHECKLIST.md`
+
+The coding agent acts as a junior dev with repo access.
+It should inspect the codebase first, then request a scoped implementation plan, then implement, then request a test plan, then implement tests.
+
+Do not skip this loop for tasks with meaningful ambiguity or broad impact.
+
 ## Rules
 
 1. Build one stage at a time.

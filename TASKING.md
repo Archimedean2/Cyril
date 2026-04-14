@@ -86,6 +86,100 @@ Every deviation entry should include:
 
 ---
 
+## Senior Dev Consultation Workflow
+
+Cyril uses a two-tier implementation workflow:
+
+- the coding agent acts as a junior dev with direct repo visibility
+- an external senior dev provides implementation plans, testing strategy, and unblock guidance based on the agent's summaries
+
+The coding agent must not jump directly from vague task intent to implementation when the task has meaningful ambiguity, broad UI impact, schema implications, or multiple viable implementation paths.
+
+### Mandatory Junior-to-Senior Handoff Before Significant Work
+
+Before starting any significant task, prepare a structured handoff for the senior dev.
+
+A task counts as significant if it involves any of the following:
+- multiple files
+- UI layout changes
+- editor behavior changes
+- persistence/data-flow changes
+- test architecture changes
+- stage interpretation
+- spec reconciliation
+- any ambiguity about the intended implementation
+
+The handoff must be written in a structured format and should be concise but complete.
+
+Required sections:
+1. Current stage
+2. Task goal
+3. Relevant specs/docs reviewed
+4. Relevant files/modules/components
+5. Current implementation state observed in repo
+6. Gaps/problems found
+7. Constraints/risks
+8. Recommended implementation direction
+9. Specific questions for senior dev
+
+The coding agent should then stop and wait for the senior dev plan unless explicitly instructed to proceed without consultation.
+
+### Implementation Follow-Through
+
+After receiving the senior dev plan, the coding agent should:
+1. restate the plan as a short execution checklist
+2. implement only within the approved scope
+3. record deviations in `PROGRESS.md` if necessary
+4. avoid expanding scope while coding
+
+### Post-Implementation Report
+
+After implementation and before writing or revising tests, prepare a structured implementation summary for the senior dev.
+
+Required sections:
+1. Task completed
+2. Files changed
+3. Key implementation decisions made
+4. Deviations from requested plan
+5. Open concerns / likely regression risk
+6. Current test state
+7. Any areas needing targeted regression coverage
+
+Then stop and wait for the senior dev testing plan unless explicitly instructed otherwise.
+
+### Test Planning Handoff
+
+After receiving the test plan, the coding agent should:
+1. implement the specified tests
+2. prefer stable `data-testid` selectors where available
+3. avoid brittle exact-text selectors when a stable test id is appropriate
+4. run relevant tests
+5. summarize results
+
+### Break-Glass Escalation
+
+If the coding agent becomes blocked, confused, or uncertain, it must stop and prepare a break-glass handoff for the senior dev.
+
+Use break-glass when:
+- implementation no longer matches the expected repo reality
+- multiple attempts fail
+- tests are failing for unclear reasons
+- editor/framework behavior is fighting the intended UX
+- a spec contradiction is discovered
+- the smallest safe implementation is unclear
+
+Break-glass handoff format:
+1. What was attempted
+2. Exact failure/blocker
+3. Files involved
+4. Evidence (error output, failing test, UI behavior)
+5. Hypotheses
+6. Smallest decision needed from senior dev
+
+Do not continue guessing after break-glass is triggered.
+
+---
+
 ## Required Workflow for Every Task
 
 1. Identify the current stage in `PROGRESS.md`

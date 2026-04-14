@@ -1,7 +1,7 @@
 # Cyril — Build Progress
 
 ## Current Stage
-- Stage: 7
+- Stage: 8
 - Status: Complete
 - Started: 2026-04-14
 - Completed: 2026-04-14
@@ -20,7 +20,7 @@
 | 5 | Inventory Pane | Complete | [x] | [x] | [x] | Stage 5 draft-specific scratchpad in right sidebar |
 | 6 | Prosody and Lightweight Visualization | Complete | [x] | [x] | [x] | Dictionary-first prosody engine implemented with CMUdict integration, fallback heuristics, and stress pattern extraction |
 | 7 | Tools Sidebar | Complete | [x] | [x] | [x] | Datamuse API provider for rhymes, thesaurus, dictionary. ToolsPane with mode tabs, search, results, clipboard copy |
-| 8 | Alternate Lyrics | Not Started | [ ] | [ ] | [ ] | |
+| 8 | Alternate Lyrics | Complete | [x] | [x] | [x] | Line-level alternate lyrics with add, activate, update, remove. Commands: addAlternate, activateAlternate, updateAlternate, removeAlternate. 13 unit tests, 6 integration tests, E2E test. |
 | 9 | Chord Lane | Not Started | [ ] | [ ] | [ ] | |
 | 10 | Export and Print | Not Started | [ ] | [ ] | [ ] | |
 | 11 | Lightweight Sharing | Deferred | [ ] | [ ] | [ ] | Optional |
@@ -31,12 +31,14 @@
 
 Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
 
-### Stage 7 Acceptance Checklist
-- [x] User can view tools panel in top-right sidebar
-- [x] Tools panel supports rhyme, near-rhyme, thesaurus, dictionary, related words
-- [x] Search can be populated from selected word (placeholder for editor integration)
-- [x] Clicking results copies to clipboard
-- [x] Provider failures handled gracefully
+### Stage 8 Acceptance Checklist
+- [x] User can add alternate to lyric line
+- [x] User can switch active alternate
+- [x] User can edit alternate text
+- [x] User can remove alternate
+- [x] Save/load preserves alternates
+- [x] Main draft shows only active line text
+- [x] Alternate switching is undoable (via Tiptap undo)
 
 ---
 
@@ -46,14 +48,13 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 
 | ID | Test | Type | Test File | Implemented | Passing | Notes |
 |----|------|------|-----------|-------------|---------|-------|
-| T-7.01 | Tool provider adapter returns normalized rhyme results | unit | `tests/unit/tools/tool-provider-adapters.test.ts` | [x] | [x] | |
-| T-7.02 | Tool provider adapter handles provider failure gracefully | unit | `tests/unit/tools/tool-provider-adapters.test.ts` | [x] | [x] | |
-| T-7.03 | Tools pane renders in top-right panel | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
-| T-7.04 | Selected word populates tool search term | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
-| T-7.05 | Switching tool modes works | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
-| T-7.06 | Clicking result copies text to clipboard | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
-| T-7.07 | Provider failure does not crash editor | integration | `tests/integration/tools/tools-sidebar-integration.test.tsx` | [x] | [x] | |
-| T-7.08 | Tools workflow passes in UI | e2e | `tests/e2e/stage-7-tools.spec.ts` | [x] | [x] | |
+| T-8.01 | Add alternate to lyric line works | unit | `tests/unit/editor/alternates-commands.test.ts` | [x] | [x] | |
+| T-8.02 | Activating alternate updates active line content correctly | unit | `tests/unit/editor/alternates-commands.test.ts` | [x] | [x] | |
+| T-8.03 | Removing alternate preserves active content correctly | unit | `tests/unit/editor/alternates-commands.test.ts` | [x] | [x] | |
+| T-8.04 | Alternates persist through save/load | integration | `tests/integration/editor/alternates-integration.test.ts` | [x] | [x] | |
+| T-8.05 | Editor displays only active line text in main draft | integration | `tests/integration/editor/alternates-integration.test.ts` | [x] | [x] | |
+| T-8.06 | Alternate switching is undoable | integration | `tests/integration/editor/alternates-integration.test.ts` | [x] | [x] | |
+| T-8.07 | Alternates workflow passes in UI | e2e | `tests/e2e/stage-8-alternates.spec.ts` | [x] | [x] | |
 
 ---
 
@@ -117,11 +118,11 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Regression impact: Fixed Stage 0 app shell tests to reflect new ToolsPane component replacing placeholder text.
 
 ### Stage 8: Alternate Lyrics
-- Status:
-- Completed:
-- Notes:
-- Deviations:
-- Regression impact:
+- Status: Complete
+- Completed: 2026-04-14
+- Notes: Implemented line-level alternate lyrics. Commands: `addAlternate`, `activateAlternate`, `updateAlternate`, `removeAlternate`. Each lyric line stores alternates in `meta.alternates`. When activating an alternate, the current content is swapped and the old content is preserved as a non-active alternate. Main draft always shows only the active line content. 13 unit tests, 6 integration tests, E2E test.
+- Deviations: None
+- Regression impact: None
 
 ### Stage 9: Chord Lane
 - Status:
