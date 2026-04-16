@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import { createDefaultProject } from '../../../src/domain/project/defaults';
-import { createDraft, DuplicationMode } from '../../../src/domain/project/drafts';
+import { createDraft } from '../../../src/domain/project/drafts';
 import { Draft } from '../../../src/domain/project/types';
 
 describe('Inventory Persistence', () => {

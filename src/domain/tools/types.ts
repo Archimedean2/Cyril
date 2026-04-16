@@ -9,6 +9,8 @@ export interface ToolResult {
   word: string;
   /** Optional score/frequency info */
   score?: number;
+  /** Syllable count from provider metadata */
+  numSyllables?: number;
   /** For dictionary: definition */
   definition?: string;
   /** For dictionary: part of speech */

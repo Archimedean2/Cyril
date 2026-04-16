@@ -84,12 +84,12 @@ export interface LyricLineNode extends RichTextNode {
 
 export interface StageDirectionNode extends RichTextNode {
   type: 'stageDirection';
-  attrs: { text: string };
+  content?: RichTextNode[];
 }
 
 export interface SpeakerLineNode extends RichTextNode {
   type: 'speakerLine';
-  attrs: { speaker: string };
+  content?: RichTextNode[];
 }
 
 export interface SectionBlockAttrs {

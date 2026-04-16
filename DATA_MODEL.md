@@ -310,6 +310,7 @@ This preserves structure while allowing flexible writing.
 ### Allowed `sectionType` values in v1
 - `verse`
 - `chorus`
+- `pre-chorus`
 - `bridge`
 - `intro`
 - `outro`
@@ -317,7 +318,7 @@ This preserves structure while allowing flexible writing.
 - `reprise`
 - `custom`
 
-If `sectionType = "custom"`, `label` should normally be present.
+If `sectionType = "custom"`, `label` (or `customLabel`) should normally be present.
 
 ---
 

@@ -55,16 +55,16 @@ export class DatamuseProvider implements ToolProvider {
 
     switch (mode) {
       case 'rhyme-exact':
-        // rel_rhy = related rhyme (exact)
-        return `rel_rhy=${encodedTerm}&max=20`;
+        // rel_rhy = related rhyme (exact), md=s = syllable count
+        return `rel_rhy=${encodedTerm}&md=s&max=200`;
       
       case 'rhyme-near':
-        // rel_nry = related near rhyme
-        return `rel_nry=${encodedTerm}&max=20`;
+        // rel_nry = related near rhyme, md=s = syllable count
+        return `rel_nry=${encodedTerm}&md=s&max=200`;
       
       case 'thesaurus':
         // ml = means like (synonyms)
-        return `ml=${encodedTerm}&max=20`;
+        return `ml=${encodedTerm}&max=50`;
       
       case 'dictionary':
         // sp = spelled like + md=d (metadata definitions) + md=p (parts of speech)
@@ -72,7 +72,7 @@ export class DatamuseProvider implements ToolProvider {
       
       case 'related':
         // sl = sounds like (broader relatedness)
-        return `sl=${encodedTerm}&max=20`;
+        return `sl=${encodedTerm}&max=50`;
       
       default:
         return null;
@@ -100,15 +100,17 @@ export class DatamuseProvider implements ToolProvider {
         }
       }
 
-      // For dictionary mode, ensure we have the exact match first
-      if (mode === 'dictionary' && item.tags) {
-        // tags include 'n', 'v', 'adj', 'adv' etc
-        const posTag = item.tags.find((t: string) => 
+      // numSyllables is returned as a top-level field when md=s is requested
+      if (typeof item.numSyllables === 'number') {
+        result.numSyllables = item.numSyllables;
+      }
+
+      // For dictionary mode, extract part of speech from tags
+      if (mode === 'dictionary' && item.tags && Array.isArray(item.tags)) {
+        const posTag = item.tags.find((t: string) =>
           ['n', 'v', 'adj', 'adv', 'u'].includes(t)
         );
-        if (posTag) {
-          result.partOfSpeech = posTag;
-        }
+        if (posTag) result.partOfSpeech = posTag;
       }
 
       return result;

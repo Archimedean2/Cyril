@@ -17,7 +17,7 @@ export function CenterPane() {
 
   return (
     <main className="center-pane panel" aria-label="Center content area">
-      <div className="center-pane-body" style={{ padding: '24px 0' }}>
+      <div className="center-pane-body">
         {activeView.type === 'workspace' ? <WorkspaceView /> : <DraftView />}
       </div>
     </main>

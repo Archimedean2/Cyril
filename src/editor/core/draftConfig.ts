@@ -2,8 +2,6 @@ import { EditorOptions } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { Indent } from '../extensions/indent';
 import { SectionBlock } from '../nodes/sectionBlock/sectionBlock';
-import { SpeakerLine } from '../nodes/speakerLine/speakerLine';
-import { StageDirection } from '../nodes/stageDirection/stageDirection';
 import { LyricLine } from '../nodes/lyricLine/lyricLine';
 import { ChordExtension } from '../extensions/chords';
 
@@ -21,8 +19,6 @@ export const draftExtensions = [
   }),
   Indent,
   SectionBlock,
-  SpeakerLine,
-  StageDirection,
   LyricLine,
 ];
 

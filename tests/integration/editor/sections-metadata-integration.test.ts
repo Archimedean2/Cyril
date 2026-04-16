@@ -12,13 +12,12 @@ describe('Sections and Metadata Integration', () => {
           attrs: {
             id: 'section-1',
             sectionType: 'chorus',
-            label: 'Chorus',
-            summary: null,
-            color: null
+            customLabel: '',
           },
           content: [
             {
-              type: 'paragraph',
+              type: 'lyricLine',
+              attrs: { id: 'line-1', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
               content: [{ type: 'text', text: 'Inside section' }]
             }
           ]
@@ -26,10 +25,13 @@ describe('Sections and Metadata Integration', () => {
       ]
     };
 
-    const editor = new Editor(getDraftEditorConfig(initialContent));
-    const json = editor.getJSON();
+    const editor = new Editor(getDraftEditorConfig({ content: initialContent }));
+    const json = editor.getJSON() as any;
 
-    expect(json).toEqual(initialContent);
+    expect(json.content?.[0].type).toBe('sectionBlock');
+    expect(json.content?.[0].attrs?.sectionType).toBe('chorus');
+    expect(json.content?.[0].content?.[0].type).toBe('lyricLine');
+    expect(json.content?.[0].content?.[0].content?.[0]).toMatchObject({ type: 'text', text: 'Inside section' });
     editor.destroy();
   });
 
@@ -38,25 +40,31 @@ describe('Sections and Metadata Integration', () => {
       type: 'doc',
       content: [
         {
-          type: 'speakerLine',
-          attrs: { speaker: 'BUZZ' }
-        },
-        {
-          type: 'stageDirection',
-          attrs: { text: 'Looks around' }
+          type: 'lyricLine',
+          attrs: { id: 'spk-1', delivery: 'sung', rhymeGroup: null, lineType: 'speaker', meta: { alternates: [], prosody: null, chords: [] } },
+          content: [{ type: 'text', text: 'BUZZ' }]
         },
         {
           type: 'lyricLine',
-          attrs: { id: 'line-1', delivery: 'spoken', rhymeGroup: null, meta: '{"alternates":[],"prosody":null,"chords":[]}' },
+          attrs: { id: 'dir-1', delivery: 'sung', rhymeGroup: null, lineType: 'stageDirection', meta: { alternates: [], prosody: null, chords: [] } },
+          content: [{ type: 'text', text: 'Looks around' }]
+        },
+        {
+          type: 'lyricLine',
+          attrs: { id: 'line-1', delivery: 'spoken', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
           content: [{ type: 'text', text: 'Where am I?' }]
         }
       ]
     };
 
-    const editor = new Editor(getDraftEditorConfig(initialContent));
-    const json = editor.getJSON();
+    const editor = new Editor(getDraftEditorConfig({ content: initialContent }));
+    const json = editor.getJSON() as any;
 
-    expect(json).toEqual(initialContent);
+    expect(json.content?.[0].attrs?.lineType).toBe('speaker');
+    expect(json.content?.[0].content?.[0]).toMatchObject({ type: 'text', text: 'BUZZ' });
+    expect(json.content?.[1].attrs?.lineType).toBe('stageDirection');
+    expect(json.content?.[1].content?.[0]).toMatchObject({ type: 'text', text: 'Looks around' });
+    expect(json.content?.[2].attrs?.delivery).toBe('spoken');
     editor.destroy();
   });
 

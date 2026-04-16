@@ -5,7 +5,7 @@ import { DraftList } from '../../features/draft-manager/DraftList';
 import { DisplayControls } from '../../features/display-controls/DisplayControls';
 
 export function LeftNav() {
-  const { currentProject, renameProject, saveProject, saveProjectAs, duplicateProject, closeProject } = useProjectStore();
+  const { currentProject, renameProject, saveProject, saveProjectAs, duplicateProject, closeProject, openProject } = useProjectStore();
   const [isEditing, setIsEditing] = React.useState(false);
   const [editTitle, setEditTitle] = React.useState('');
 
@@ -62,6 +62,7 @@ export function LeftNav() {
         </div>
         
         <div style={{ display: 'flex', gap: '0.25rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+          <button onClick={() => openProject()} style={{ fontSize: '0.75rem', padding: '2px 6px' }}>Open</button>
           <button onClick={() => saveProject()} style={{ fontSize: '0.75rem', padding: '2px 6px' }}>Save</button>
           <button onClick={() => saveProjectAs()} style={{ fontSize: '0.75rem', padding: '2px 6px' }}>Save As</button>
           <button onClick={handleDuplicate} style={{ fontSize: '0.75rem', padding: '2px 6px' }}>Duplicate</button>

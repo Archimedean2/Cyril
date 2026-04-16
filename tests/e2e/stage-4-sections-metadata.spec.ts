@@ -25,17 +25,18 @@ test.describe('Stage 4: Sections and Metadata', () => {
     // Check that section is added by inspecting the editor surface
     await expect(page.locator('[data-type="sectionBlock"]')).toBeVisible();
 
-    // Try to insert speaker
-    await page.click('[data-testid="editor-add-speaker-button"]');
-    await expect(page.locator('[data-type="speakerLine"]')).toBeAttached();
+    // Type some text then toggle it to a speaker line
+    await page.locator('[data-testid="editor-surface"] .ProseMirror').click();
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('WOODY');
+    await page.click('[data-testid="toolbar-speaker"]');
+    await expect(page.locator('[data-line-type="speaker"]')).toBeAttached();
 
-    // Try to insert stage direction
-    await page.click('[data-testid="editor-add-stagedir-button"]');
-    await expect(page.locator('[data-type="stageDirection"]')).toBeAttached();
-
-    // Try to insert lyric line
-    await page.click('[data-testid="editor-add-lyricline-button"]');
-    await expect(page.locator('[data-type="lyricLine"]')).toBeAttached();
+    // Type some text then toggle it to a stage direction
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Sighs heavily');
+    await page.click('[data-testid="toolbar-stage-dir"]');
+    await expect(page.locator('[data-line-type="stageDirection"]')).toBeAttached();
 
     // Toggle display settings
     const sectionToggle = page.locator('[data-testid="toggle-show-sections"]');

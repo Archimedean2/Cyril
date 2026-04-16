@@ -1,6 +1,75 @@
 import { CyrilProject, CyrilFile } from './types';
 import { createDefaultProject, SCHEMA_VERSION } from './defaults';
 
+// ─── Document node migration ──────────────────────────────────────────────────
+
+const DEFAULT_LYRIC_LINE_ATTRS = {
+  delivery: 'sung',
+  rhymeGroup: null,
+  lineType: 'lyric',
+  meta: { alternates: [], prosody: null, chords: [] },
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function migrateDocNode(node: any): any {
+  if (!node || typeof node !== 'object') return node;
+
+  // Migrate old speakerLine node type → lyricLine with lineType: 'speaker'
+  if (node.type === 'speakerLine') {
+    const { speaker, id, ...restAttrs } = node.attrs || {};
+    const content = node.content?.length
+      ? node.content
+      : speaker
+        ? [{ type: 'text', text: speaker }]
+        : [];
+    return migrateDocNode({
+      ...node,
+      type: 'lyricLine',
+      attrs: {
+        ...DEFAULT_LYRIC_LINE_ATTRS,
+        ...restAttrs,
+        id: id || '',
+        lineType: 'speaker',
+      },
+      content,
+    });
+  }
+
+  // Migrate old stageDirection node type → lyricLine with lineType: 'stageDirection'
+  if (node.type === 'stageDirection') {
+    const { text, id, ...restAttrs } = node.attrs || {};
+    const content = node.content?.length
+      ? node.content
+      : text
+        ? [{ type: 'text', text }]
+        : [];
+    return migrateDocNode({
+      ...node,
+      type: 'lyricLine',
+      attrs: {
+        ...DEFAULT_LYRIC_LINE_ATTRS,
+        ...restAttrs,
+        id: id || '',
+        lineType: 'stageDirection',
+      },
+      content,
+    });
+  }
+
+  // Recurse into content array
+  if (Array.isArray(node.content)) {
+    return { ...node, content: node.content.map(migrateDocNode) };
+  }
+
+  return node;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function migrateDraftDoc(doc: any): any {
+  if (!doc) return doc;
+  return migrateDocNode(doc);
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function migrateProject(data: any): CyrilFile {
   // If no schema version, or it's empty, assume it's a raw project or invalid
@@ -53,7 +122,8 @@ export function migrateProject(data: any): CyrilFile {
           draftSettings: {
             ...defaultDraftSettings,
             ...draft.draftSettings,
-          }
+          },
+          doc: draft.doc ? migrateDraftDoc(draft.doc) : draft.doc,
         };
       })
     : [];

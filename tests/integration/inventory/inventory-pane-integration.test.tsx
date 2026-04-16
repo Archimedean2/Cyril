@@ -1,15 +1,8 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { InventoryPane } from '../../../src/features/inventory/InventoryPane';
 import { useProjectStore } from '../../../src/app/state/projectStore';
 import { createDefaultProject } from '../../../src/domain/project/defaults';
-import React from 'react';
-
-// Mock the project store for testing
-const mockStore: any = {
-  currentProject: null,
-  activeView: { type: 'draft', draftId: '' },
-};
 
 // Create a mock project with drafts for testing
 function createMockProject() {
@@ -63,10 +56,10 @@ describe('Inventory Pane Integration', () => {
       activeView: { type: 'draft', draftId: mockProject.project.drafts[0].id }
     });
 
-    const { rerender } = render(<InventoryPane />);
+    render(<InventoryPane />);
     
     const textarea = screen.getByTestId('inventory-textarea') as HTMLTextAreaElement;
-    const initialValue = textarea.value;
+    // Store initial value for comparison if needed later
 
     // Simulate switching to a different draft (if one existed)
     // For this test, we'll just verify the component responds to store changes

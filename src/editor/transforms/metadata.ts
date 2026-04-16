@@ -1,19 +1,5 @@
 import { Command } from '@tiptap/core';
 
-export const insertSpeakerLine = (speaker: string): Command => ({ commands }) => {
-  return commands.insertContent({
-    type: 'speakerLine',
-    attrs: { speaker },
-  });
-};
-
-export const insertStageDirection = (text: string): Command => ({ commands }) => {
-  return commands.insertContent({
-    type: 'stageDirection',
-    attrs: { text },
-  });
-};
-
 export const toggleDelivery = (): Command => ({ tr, state, dispatch }) => {
   const { selection } = state;
   const { $from, $to } = selection;
