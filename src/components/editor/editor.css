@@ -1,9 +1,11 @@
 .editor-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   cursor: text;
+  background: #ffffff;
 }
 
 /* Tiptap renders EditorContent as a div wrapping .ProseMirror.
@@ -12,6 +14,7 @@
 .editor-container > .editor-surface {
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
 }
 
 .editor-surface {
@@ -19,11 +22,32 @@
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border: 1px solid #c8d0db;
-  border-radius: 4px;
-  overflow-y: scroll;
+  overflow-y: auto;
   scrollbar-gutter: stable;
-  cursor: text;
+  cursor: default;
+  border-bottom: 1px solid var(--border-default, #c8d0db);
+}
+
+.editor-surface::-webkit-scrollbar {
+  width: 15px;
+}
+
+.editor-surface::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor-surface::-webkit-scrollbar-thumb {
+  background: var(--border-default, #c8d0db);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  cursor: pointer;
+}
+
+.editor-surface::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong, #8a96a8);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .editor-surface .ProseMirror {
@@ -32,6 +56,7 @@
   max-width: 46rem;
   outline: none;
   box-sizing: border-box;
+  cursor: text;
 }
 
 .cyril-editor-container {

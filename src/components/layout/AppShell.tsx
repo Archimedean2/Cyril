@@ -5,12 +5,28 @@ import { RightSidebar } from './RightSidebar';
 import { TopBar } from './TopBar';
 import { ExportDialog } from '../../features/export-panel/ExportDialog';
 import { useProjectStore } from '../../app/state/projectStore';
+import { useResizable } from '../../hooks/useResizable';
 
 export function AppShell() {
   const isProjectLoaded = useProjectStore((state) => state.isProjectLoaded);
   const isInitializing = useProjectStore((state) => state.isInitializing);
   const initApp = useProjectStore((state) => state.initApp);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+
+  const leftNav = useResizable({
+    initialWidth: 240,
+    minWidth: 160,
+    maxWidth: 9999,
+    storageKey: 'cyril:left-nav-width',
+  });
+
+  const rightSidebar = useResizable({
+    initialWidth: 320,
+    minWidth: 200,
+    maxWidth: 9999,
+    storageKey: 'cyril:right-sidebar-width',
+    direction: 'left',
+  });
 
   useEffect(() => {
     if (isInitializing && !isProjectLoaded) {
@@ -20,14 +36,14 @@ export function AppShell() {
 
   if (!isProjectLoaded) {
     return (
-      <div className="app-shell-loading" style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+      <div className="app-shell-loading" style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         height: '100vh',
-        background: '#f8fafc'
+        background: 'var(--bg-app, #f5f6f8)',
       }}>
-        <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</span>
+        <span style={{ color: 'var(--text-muted, #738093)', fontSize: '14px' }}>Loading...</span>
       </div>
     );
   }
@@ -37,9 +53,46 @@ export function AppShell() {
       <div className="app-shell-topbar">
         <TopBar onExportClick={() => setIsExportDialogOpen(true)} />
       </div>
-      <LeftNav />
-      <CenterPane />
-      <RightSidebar />
+
+      <div className="app-shell-body" style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        {/* Left Navigation */}
+        <nav
+          className="left-nav panel"
+          style={leftNav.style}
+          aria-label="Left navigation"
+        >
+          <LeftNav />
+        </nav>
+
+        {/* Resize Handle - Left */}
+        <div
+          className={`resize-handle ${leftNav.isResizing ? 'resizing' : ''}`}
+          onMouseDown={leftNav.startResizing}
+          title="Drag to resize"
+        />
+
+        {/* Center Pane */}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <CenterPane />
+        </div>
+
+        {/* Resize Handle - Right */}
+        <div
+          className={`resize-handle ${rightSidebar.isResizing ? 'resizing' : ''}`}
+          onMouseDown={rightSidebar.startResizing}
+          title="Drag to resize"
+        />
+
+        {/* Right Sidebar */}
+        <aside
+          className="right-sidebar panel"
+          style={rightSidebar.style}
+          aria-label="Right sidebar"
+        >
+          <RightSidebar />
+        </aside>
+      </div>
+
       <ExportDialog
         isOpen={isExportDialogOpen}
         onClose={() => setIsExportDialogOpen(false)}
