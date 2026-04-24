@@ -1,9 +1,13 @@
 import * as React from 'react';
-import { FolderOpen, Save, SaveAll, Copy, X } from 'lucide-react';
+import { FolderOpen, Save, SaveAll, Copy, X, Import } from 'lucide-react';
 import { useProjectStore } from '../../app/state/projectStore';
 import { WorkspaceNav } from '../../features/workspace-nav/WorkspaceNav';
 import { DraftList } from '../../features/draft-manager/DraftList';
 import { DisplayControls } from '../../features/display-controls/DisplayControls';
+
+interface LeftNavProps {
+  onImportShare?: () => void;
+}
 
 const styles: Record<string, React.CSSProperties> = {
   header: {
@@ -63,7 +67,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-export function LeftNav() {
+export function LeftNav({ onImportShare }: LeftNavProps) {
   const { currentProject, renameProject, saveProject, saveProjectAs, duplicateProject, closeProject, openProject } = useProjectStore();
   const [isEditing, setIsEditing] = React.useState(false);
   const [editTitle, setEditTitle] = React.useState('');
@@ -196,6 +200,24 @@ export function LeftNav() {
             <X size={12} />
             Close
           </button>
+          {onImportShare && (
+            <button
+              onClick={onImportShare}
+              style={styles.actionButton}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--bg-hover)';
+                e.currentTarget.style.borderColor = 'var(--border-default)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = 'var(--border-subtle)';
+              }}
+              data-testid="import-share-button"
+            >
+              <Import size={12} />
+              Import Share
+            </button>
+          )}
         </div>
       </div>
       <div className="left-nav-body">

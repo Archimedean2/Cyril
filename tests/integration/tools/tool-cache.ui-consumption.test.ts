@@ -104,7 +104,8 @@ describe('Tool Cache UI Consumption', () => {
 
       const result = await cachedService.lookup(term, mode, provider);
 
-      expect(result.source).toBe('cache-fallback');
+      // Cache-first lookup returns the cached entry with source='cache'
+      expect(result.source).toBe('cache');
       expect(result.results).toEqual(mockResults);
       expect(result.error).toBeUndefined();
       expect(result.loading).toBe(false);

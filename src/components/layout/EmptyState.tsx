@@ -1,6 +1,10 @@
 import { useProjectStore } from '../../app/state/projectStore';
 
-export function EmptyState() {
+interface EmptyStateProps {
+  onImportShare?: () => void;
+}
+
+export function EmptyState({ onImportShare }: EmptyStateProps) {
   const { createProject, openProject, error, clearError } = useProjectStore();
 
   return (
@@ -23,6 +27,11 @@ export function EmptyState() {
           <button className="secondary-button" onClick={() => openProject()}>
             Open Project
           </button>
+          {onImportShare && (
+            <button className="secondary-button" onClick={onImportShare}>
+              Import from Share
+            </button>
+          )}
         </div>
       </div>
     </div>

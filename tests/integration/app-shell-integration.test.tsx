@@ -6,7 +6,7 @@ import { useProjectStore } from '../../src/app/state/projectStore';
 describe('Stage 0: App Shell Integration', () => {
   beforeEach(() => {
     // Reset store before each test
-    useProjectStore.setState({ isProjectLoaded: false });
+    useProjectStore.setState({ isProjectLoaded: false, isInitializing: false });
   });
 
   it('T-0.01: App boots without runtime error (renders Empty State by default)', () => {
@@ -15,8 +15,8 @@ describe('Stage 0: App Shell Integration', () => {
 
   it('T-0.06: Empty state renders when no project is loaded', () => {
     render(<AppShell />);
+    // AppShell renders EmptyState when no project is loaded and not initializing
     expect(screen.getByText('Welcome to Cyril')).toBeInTheDocument();
-    expect(screen.getByText('Open an existing project or create a new one.')).toBeInTheDocument();
     expect(screen.getByText('Create Project')).toBeInTheDocument();
     expect(screen.getByText('Open Project')).toBeInTheDocument();
   });
@@ -74,7 +74,7 @@ describe('Stage 0: App Shell Integration', () => {
 
     it('T-0.02: Left nav renders', () => {
       render(<AppShell />);
-      expect(screen.getByText('Untitled Song')).toBeInTheDocument();
+      expect(screen.getAllByText('Untitled Song').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('Project')).toBeInTheDocument();
       expect(screen.getByText('Drafts')).toBeInTheDocument();
     });

@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
-import { X, FileText, Printer } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { X, FileText, Printer, Share2 } from 'lucide-react';
 import { useProjectStore } from '../../app/state/projectStore';
 import { ExportSettings } from '../../domain/project/types';
 import { exportToMarkdown, exportToPrint } from '../../domain/export/exportService';
+import { copyShareLink } from '../../domain/share/shareService';
 
 interface ExportDialogProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
   const activeView = useProjectStore((state) => state.activeView);
   const exportSettings = useProjectStore((state) => state.currentProject?.project.exportSettings);
   const updateExportSetting = useProjectStore((state) => state.updateExportSetting);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   const handleExportMarkdown = useCallback(() => {
     if (!currentProject) return;
@@ -30,6 +32,18 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
       onClose();
     }
   }, [currentProject, activeView, onClose]);
+
+  const handleShareCopy = useCallback(async () => {
+    if (!currentProject) return;
+    const result = await copyShareLink(currentProject, activeView.type === 'draft' ? activeView.draftId : null);
+    if (result.success) {
+      setShareStatus('copied');
+      setTimeout(() => setShareStatus('idle'), 2000);
+    } else {
+      setShareStatus('error');
+      setTimeout(() => setShareStatus('idle'), 3000);
+    }
+  }, [currentProject, activeView]);
 
   const handleToggle = (key: keyof ExportSettings) => {
     if (!exportSettings) return;
@@ -192,6 +206,40 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                 }}
               >
                 Print / PDF
+              </span>
+            </button>
+            <button
+              onClick={handleShareCopy}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '16px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-default, #c8d0db)',
+                backgroundColor: 'var(--bg-panel, #f8f9fb)',
+                cursor: 'pointer',
+                transition: 'background-color 0.1s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--bg-hover, #e8edf3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--bg-panel, #f8f9fb)';
+              }}
+              data-testid="export-share-button"
+            >
+              <Share2 size={24} color="var(--text-secondary, #4a5565)" />
+              <span
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: 'var(--text-secondary, #4a5565)',
+                }}
+              >
+                {shareStatus === 'copied' ? 'Copied!' : shareStatus === 'error' ? 'Failed' : 'Copy Share'}
               </span>
             </button>
           </div>

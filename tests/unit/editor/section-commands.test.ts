@@ -26,7 +26,7 @@ describe('Section Commands', () => {
     expect(json.content?.[0].type).toBe('sectionBlock');
     expect(json.content?.[0].attrs?.id).toBe('section-1');
     expect(json.content?.[0].attrs?.sectionType).toBe('verse');
-    expect(json.content?.[0].attrs?.label).toBe('Verse 1');
+    expect(json.content?.[0].attrs?.customLabel).toBe('Verse 1');
   });
 
   test('T-4.02: Reorder section preserves content and metadata', () => {

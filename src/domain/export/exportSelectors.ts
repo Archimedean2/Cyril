@@ -79,12 +79,16 @@ function processSectionBlock(node: RichTextNode, options: ResolvedExportOptions)
  */
 function processNode(node: RichTextNode, options: ResolvedExportOptions): ExportableLine | null {
   switch (node.type) {
-    case 'lyricLine':
+    case 'lyricLine': {
+      const lineType = (node.attrs?.lineType as string) || 'lyric';
+      if (lineType === 'speaker') {
+        return processSpeakerLine(node, options);
+      }
+      if (lineType === 'stageDirection') {
+        return processStageDirection(node, options);
+      }
       return processLyricLine(node, options);
-    case 'speakerLine':
-      return processSpeakerLine(node, options);
-    case 'stageDirection':
-      return processStageDirection(node, options);
+    }
     case 'paragraph':
       return processParagraph(node);
     default:
@@ -103,7 +107,7 @@ function processLyricLine(node: RichTextNode, options: ResolvedExportOptions): E
   let chords: ExportableChord[] | undefined;
 
   if (options.includeChords) {
-    const meta = (node as any).meta;
+    const meta = node.attrs?.meta;
     if (meta?.chords && Array.isArray(meta.chords)) {
       chords = meta.chords.map((chord: any) => ({
         symbol: chord.symbol,

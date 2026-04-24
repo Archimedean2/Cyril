@@ -88,7 +88,7 @@ export function DraftToolbar({ editor }: DraftToolbarProps) {
 
       <div className="toolbar-group">
         <button
-          onClick={() => editor.commands.toggleLineType('speaker')}
+          onClick={() => editor.chain().focus().toggleLineType('speaker').run()}
           className={isSpeakerActive ? 'active' : ''}
           data-testid="toolbar-speaker"
           title="Toggle Speaker Line"
@@ -96,7 +96,7 @@ export function DraftToolbar({ editor }: DraftToolbarProps) {
           Speaker
         </button>
         <button
-          onClick={() => editor.commands.toggleLineType('stageDirection')}
+          onClick={() => editor.chain().focus().toggleLineType('stageDirection').run()}
           className={isStageDirActive ? 'active' : ''}
           data-testid="toolbar-stage-dir"
           title="Toggle Stage Direction"
@@ -104,7 +104,7 @@ export function DraftToolbar({ editor }: DraftToolbarProps) {
           Stage Dir
         </button>
         <button
-          onClick={() => editor.commands.toggleDelivery()}
+          onClick={() => editor.chain().focus().toggleDelivery().run()}
           disabled={!editor.isActive('lyricLine')}
           data-testid="editor-toggle-delivery-button"
           title="Toggle Sung/Spoken"

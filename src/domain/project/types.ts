@@ -74,6 +74,7 @@ export interface LyricLineAttrs {
   id: string;
   delivery: DeliveryMode;
   rhymeGroup: string | null;
+  lineType: 'lyric' | 'speaker' | 'stageDirection';
 }
 
 export interface LyricLineNode extends RichTextNode {

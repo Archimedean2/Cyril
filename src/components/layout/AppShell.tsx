@@ -4,6 +4,8 @@ import { CenterPane } from './CenterPane';
 import { RightSidebar } from './RightSidebar';
 import { TopBar } from './TopBar';
 import { ExportDialog } from '../../features/export-panel/ExportDialog';
+import { ShareImportDialog } from '../../features/share/ShareImportDialog';
+import { EmptyState } from './EmptyState';
 import { useProjectStore } from '../../app/state/projectStore';
 import { useResizable } from '../../hooks/useResizable';
 
@@ -12,6 +14,8 @@ export function AppShell() {
   const isInitializing = useProjectStore((state) => state.isInitializing);
   const initApp = useProjectStore((state) => state.initApp);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isShareImportOpen, setIsShareImportOpen] = useState(false);
+  const importShare = useProjectStore((state) => state.importShare);
 
   const leftNav = useResizable({
     initialWidth: 240,
@@ -33,6 +37,19 @@ export function AppShell() {
       initApp();
     }
   }, [isInitializing, isProjectLoaded, initApp]);
+
+  if (!isProjectLoaded && !isInitializing) {
+    return (
+      <div style={{ height: '100vh', background: 'var(--bg-app, #f5f6f8)' }}>
+        <EmptyState onImportShare={() => setIsShareImportOpen(true)} />
+        <ShareImportDialog
+          isOpen={isShareImportOpen}
+          onClose={() => setIsShareImportOpen(false)}
+          onImport={(blob) => importShare(blob)}
+        />
+      </div>
+    );
+  }
 
   if (!isProjectLoaded) {
     return (
@@ -61,7 +78,7 @@ export function AppShell() {
           style={leftNav.style}
           aria-label="Left navigation"
         >
-          <LeftNav />
+          <LeftNav onImportShare={() => setIsShareImportOpen(true)} />
         </nav>
 
         {/* Resize Handle - Left */}
@@ -96,6 +113,11 @@ export function AppShell() {
       <ExportDialog
         isOpen={isExportDialogOpen}
         onClose={() => setIsExportDialogOpen(false)}
+      />
+      <ShareImportDialog
+        isOpen={isShareImportOpen}
+        onClose={() => setIsShareImportOpen(false)}
+        onImport={(blob) => importShare(blob)}
       />
     </div>
   );

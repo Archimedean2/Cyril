@@ -386,6 +386,8 @@ export const SectionBlock = Node.create<SectionBlockOptions>({
           const cursorPos = insertPos + 2;
           const resolvedPos = tr.doc.resolve(Math.min(cursorPos, tr.doc.content.size - 1));
           tr.setSelection(Selection.near(resolvedPos));
+
+          return tr as any;
         },
       }),
     ];

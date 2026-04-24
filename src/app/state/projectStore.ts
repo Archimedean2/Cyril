@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { CyrilFile, ExportSettings } from '../../domain/project/types';
 import { createDraft, DuplicationMode } from '../../domain/project/drafts';
 import { openProject, saveProject, createNewProject, duplicateProject, tryReopenLastProject } from '../../persistence/fileSystem/fileManager';
+import { importFromShareBlob } from '../../domain/share/shareService';
 
 export type WorkspaceType = 'brief' | 'structure' | 'hookLab' | 'vocabularyWorld';
 export type ActiveView = { type: 'workspace'; workspace: WorkspaceType } | { type: 'draft'; draftId: string };
@@ -46,6 +47,9 @@ interface ProjectState {
   // Export Settings Actions
   updateExportSetting: (settingKey: keyof ExportSettings, value: boolean | string) => void;
   updateExportSettings: (settings: Partial<ExportSettings>) => void;
+
+  // Share Actions
+  importShare: (shareBlob: string) => void;
 }
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
@@ -377,6 +381,20 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           updatedAt: new Date().toISOString(),
         }
       }
+    });
+  },
+
+  importShare: (shareBlob: string) => {
+    const result = importFromShareBlob(shareBlob);
+    if (!result.success || !result.file) {
+      set({ error: result.error || 'Failed to import share' });
+      return;
+    }
+    set({
+      currentProject: result.file,
+      isProjectLoaded: true,
+      error: null,
+      activeView: { type: 'draft', draftId: result.file.project.activeDraftId || result.file.project.drafts[0]?.id || '' }
     });
   },
 }));

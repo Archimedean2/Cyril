@@ -1,11 +1,11 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ToolsPane } from '../../../src/features/tools-pane/ToolsPane';
-import { toolService } from '../../../src/domain/tools/tool-service';
+import { cachedToolLookupService } from '../../../src/domain/tools/tool-service';
 
-// Mock the tool service
+// Mock the cached tool lookup service
 vi.mock('../../../src/domain/tools/tool-service', () => ({
-  toolService: {
+  cachedToolLookupService: {
     lookup: vi.fn(),
   },
 }));
@@ -67,7 +67,7 @@ describe('Tools Sidebar Integration', () => {
       results: [{ word: 'best', score: 1000 }],
       loading: false,
     });
-    (toolService.lookup as any) = mockLookup;
+    (cachedToolLookupService.lookup as any) = mockLookup;
 
     render(<ToolsPane />);
 
@@ -100,7 +100,7 @@ describe('Tools Sidebar Integration', () => {
       ],
       loading: false,
     });
-    (toolService.lookup as any) = mockLookup;
+    (cachedToolLookupService.lookup as any) = mockLookup;
 
     // Mock clipboard
     const mockClipboard = {
@@ -130,7 +130,7 @@ describe('Tools Sidebar Integration', () => {
 
   test('T-7.07: Provider failure does not crash editor', async () => {
     const mockLookup = vi.fn().mockRejectedValue(new Error('API Error'));
-    (toolService.lookup as any) = mockLookup;
+    (cachedToolLookupService.lookup as any) = mockLookup;
 
     render(<ToolsPane />);
 
@@ -156,7 +156,7 @@ describe('Tools Sidebar Integration', () => {
       results: [],
       loading: false,
     });
-    (toolService.lookup as any) = mockLookup;
+    (cachedToolLookupService.lookup as any) = mockLookup;
 
     render(<ToolsPane />);
 
@@ -176,7 +176,7 @@ describe('Tools Sidebar Integration', () => {
       results: [{ word: 'bat', score: 1000 }],
       loading: false,
     });
-    (toolService.lookup as any) = mockLookup;
+    (cachedToolLookupService.lookup as any) = mockLookup;
 
     render(<ToolsPane />);
 

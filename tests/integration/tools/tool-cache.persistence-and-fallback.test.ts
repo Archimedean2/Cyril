@@ -3,6 +3,7 @@
  * Tests IndexedDB persistence, fallback behavior, and result shape preservation.
  */
 
+import 'fake-indexeddb/auto';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { CachedToolLookupService } from '../../../src/domain/tools/cachedToolLookupService';
 import { ToolService } from '../../../src/domain/tools/tool-service';
@@ -127,7 +128,8 @@ describe('Tool Cache Persistence and Fallback', () => {
 
       const result = await cachedService.lookup(term, mode, provider);
 
-      expect(result.source).toBe('cache-fallback');
+      // Cache-first lookup returns the cached entry with source='cache'
+      expect(result.source).toBe('cache');
       expect(result.results).toEqual(mockResults);
       expect(result.error).toBeUndefined();
     });

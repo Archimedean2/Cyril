@@ -233,19 +233,19 @@ export const LyricLine = Node.create<LyricLineOptions>({
           const posAfterDelete = Math.min(range.from, tr.doc.content.size);
           const $from = tr.doc.resolve(posAfterDelete);
 
-          for (let depth = $from.depth; depth > 0; depth--) {
-            if ($from.node(depth).type.name === 'lyricLine') {
-              const blockPos = $from.before(depth);
-              const node = tr.doc.nodeAt(blockPos);
-              if (node && node.type.name === 'lyricLine') {
-                tr.setNodeMarkup(blockPos, undefined, {
-                  ...node.attrs,
-                  lineType: 'speaker',
-                });
-              }
-              break;
+          // Check if we're inside a lyricLine (works at any depth - inside or outside section)
+          if ($from.parent.type.name === 'lyricLine') {
+            const blockPos = $from.before($from.depth);
+            const node = tr.doc.nodeAt(blockPos);
+            if (node && node.type.name === 'lyricLine') {
+              tr.setNodeMarkup(blockPos, undefined, {
+                ...node.attrs,
+                lineType: 'speaker',
+              });
             }
           }
+
+          return tr as any;
         },
       }),
       // (( → stageDirection-typed line (opening-only trigger)
@@ -259,19 +259,19 @@ export const LyricLine = Node.create<LyricLineOptions>({
           const posAfterDelete = Math.min(range.from, tr.doc.content.size);
           const $from = tr.doc.resolve(posAfterDelete);
 
-          for (let depth = $from.depth; depth > 0; depth--) {
-            if ($from.node(depth).type.name === 'lyricLine') {
-              const blockPos = $from.before(depth);
-              const node = tr.doc.nodeAt(blockPos);
-              if (node && node.type.name === 'lyricLine') {
-                tr.setNodeMarkup(blockPos, undefined, {
-                  ...node.attrs,
-                  lineType: 'stageDirection',
-                });
-              }
-              break;
+          // Check if we're inside a lyricLine (works at any depth - inside or outside section)
+          if ($from.parent.type.name === 'lyricLine') {
+            const blockPos = $from.before($from.depth);
+            const node = tr.doc.nodeAt(blockPos);
+            if (node && node.type.name === 'lyricLine') {
+              tr.setNodeMarkup(blockPos, undefined, {
+                ...node.attrs,
+                lineType: 'stageDirection',
+              });
             }
           }
+
+          return tr as any;
         },
       }),
     ];
