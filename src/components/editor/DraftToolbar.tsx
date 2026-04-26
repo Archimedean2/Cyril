@@ -1,16 +1,23 @@
 import { useRef, useState } from 'react';
-import { Editor } from '@tiptap/react';
+import { Editor, useEditorState } from '@tiptap/react';
 import { isInsideSection } from '../../editor/nodes/sectionBlock/sectionBlock';
 import { SectionTypePicker, SectionPickerMode } from './SectionTypePicker';
+import { InsertConcurrentBlockDialog } from './InsertConcurrentBlockDialog';
+import { addChordToCurrentLine, isInLyricLine } from '../../domain/editor/chord-commands';
+import { DraftMode, DraftSettings } from '../../domain/project/types';
 
 interface DraftToolbarProps {
   editor: Editor;
+  draftMode?: DraftMode;
+  settings?: DraftSettings;
 }
 
-export function DraftToolbar({ editor }: DraftToolbarProps) {
+export function DraftToolbar({ editor, draftMode, settings }: DraftToolbarProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerMode, setPickerMode] = useState<SectionPickerMode>('insert');
   const sectionButtonRef = useRef<HTMLButtonElement>(null);
+  const [concurrentDialogOpen, setConcurrentDialogOpen] = useState(false);
+  const concurrentButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleSectionButtonClick = () => {
     const mode: SectionPickerMode = isInsideSection(editor.state) ? 'change-or-new' : 'insert';
@@ -41,6 +48,26 @@ export function DraftToolbar({ editor }: DraftToolbarProps) {
   const isInSection = isInsideSection(editor.state);
   const isSpeakerActive = editor.isActive('lyricLine', { lineType: 'speaker' });
   const isStageDirActive = editor.isActive('lyricLine', { lineType: 'stageDirection' });
+  const isChordMode = draftMode === 'lyricsWithChords';
+  const chordsVisible = settings?.showChords !== false;
+
+  const inLyricLine = useEditorState({
+    editor,
+    selector: ({ editor: e }) => isInLyricLine(e),
+  });
+  const canAddChord = isChordMode && chordsVisible && inLyricLine;
+
+  const handleAddChord = () => {
+    const symbol = window.prompt('Chord symbol (e.g. Am, G, C/E):');
+    if (!symbol || !symbol.trim()) return;
+    addChordToCurrentLine(editor, symbol.trim());
+    editor.commands.focus();
+  };
+
+  const handleInsertConcurrent = (speakers: string[]) => {
+    setConcurrentDialogOpen(false);
+    editor.commands.insertConcurrentBlock({ speakers });
+  };
 
   return (
     <div className="editor-toolbar" data-testid="editor-toolbar" style={{ position: 'relative' }}>
@@ -112,6 +139,38 @@ export function DraftToolbar({ editor }: DraftToolbarProps) {
           Delivery
         </button>
       </div>
+
+      <div className="toolbar-group" style={{ position: 'relative' }}>
+        <button
+          ref={concurrentButtonRef}
+          onClick={() => setConcurrentDialogOpen(v => !v)}
+          className={concurrentDialogOpen ? 'active' : ''}
+          data-testid="toolbar-insert-concurrent"
+          title="Insert Concurrent Block (Ctrl+Shift+K)"
+        >
+          ⇉ Concurrent
+        </button>
+        {concurrentDialogOpen && (
+          <InsertConcurrentBlockDialog
+            anchorRef={concurrentButtonRef}
+            onConfirm={handleInsertConcurrent}
+            onClose={() => setConcurrentDialogOpen(false)}
+          />
+        )}
+      </div>
+
+      {isChordMode && (
+        <div className="toolbar-group">
+          <button
+            onClick={handleAddChord}
+            disabled={!canAddChord}
+            data-testid="chord-add-button"
+            title={canAddChord ? 'Add chord at cursor position' : 'Place cursor in a lyric line to add a chord'}
+          >
+            ♩ Add Chord
+          </button>
+        </div>
+      )}
 
       <div className="toolbar-group" style={{ marginLeft: 'auto' }}>
         <button

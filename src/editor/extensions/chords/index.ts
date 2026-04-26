@@ -21,7 +21,12 @@ export interface ChordExtensionOptions {
   draftMode?: 'lyrics' | 'lyricsWithChords';
 }
 
-const chordPluginKey = new PluginKey('chord');
+interface ChordPluginState {
+  showChords: boolean;
+  draftMode: 'lyrics' | 'lyricsWithChords';
+}
+
+export const chordPluginKey = new PluginKey<ChordPluginState>('chord');
 
 export const ChordExtension = Extension.create<ChordExtensionOptions>({
   name: 'chord',
@@ -34,27 +39,39 @@ export const ChordExtension = Extension.create<ChordExtensionOptions>({
   },
 
   addProseMirrorPlugins() {
-    const { showChords, draftMode } = this.options;
+    const initialShowChords = this.options.showChords ?? true;
+    const initialDraftMode = this.options.draftMode ?? 'lyrics';
 
     return [
-      new Plugin({
+      new Plugin<ChordPluginState>({
         key: chordPluginKey,
+
+        state: {
+          init(): ChordPluginState {
+            return { showChords: initialShowChords, draftMode: initialDraftMode };
+          },
+          apply(tr, pluginState): ChordPluginState {
+            const meta = tr.getMeta(chordPluginKey);
+            if (meta) {
+              return { ...pluginState, ...meta };
+            }
+            return pluginState;
+          },
+        },
+
         props: {
           decorations(state) {
-            // Only render chords if mode is lyricsWithChords and showChords is true
+            const { showChords, draftMode } = chordPluginKey.getState(state) ?? {
+              showChords: false,
+              draftMode: 'lyrics' as const,
+            };
             if (draftMode !== 'lyricsWithChords' || !showChords) {
               return DecorationSet.empty;
             }
-            
             return buildAllChordDecorations(state.doc);
           },
         },
       }),
     ];
-  },
-
-  onUpdate() {
-    // Re-render decorations when document changes
-    // The plugin's decorations prop will be called automatically
   },
 });

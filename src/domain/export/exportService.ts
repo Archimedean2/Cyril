@@ -18,6 +18,7 @@ function resolveExportOptions(exportSettings: ExportSettings): ResolvedExportOpt
     includeStageDirections: exportSettings.includeStageDirections,
     includeChords: exportSettings.includeChords,
     pageDensity: exportSettings.pageDensity,
+    concurrentLayout: exportSettings.concurrentLayout ?? 'squash',
   };
 }
 

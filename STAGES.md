@@ -860,3 +860,96 @@ Useful, but not part of the critical path for the initial product.
 
 ### Stop Condition
 This stage is optional and should not block a usable v1.
+
+---
+
+## Stage 13: Concurrent Speakers
+
+**Tags:** `[CONCURRENT] [METADATA] [EXPORT] [STAGE-13]`
+
+### Objective
+Add a structured authoring mode for passages where two or more characters sing or speak simultaneously.
+
+### Why this stage exists
+Musical theatre lyric writing frequently involves duets, trios, and counter-melody passages. Without this feature, writers must manually interleave concurrent content — an error-prone process that makes the draft unreadable while writing. Cyril can represent columns natively, display them side-by-side, and emit interleaved sequential output on export.
+
+### Read First
+- `DATA_MODEL.md` (DraftDocument, SectionBlock, LyricLine, ExportSettings)
+- `ARCHITECTURE.md` editor node architecture
+- `docs/features/feature-concurrent-speakers.md`
+
+### Feature Sections to Read
+- Feature 13: Concurrent Speakers
+
+### In Scope
+- New `concurrentBlock` editor node containing ordered `speakerColumn` child nodes
+- New `speakerColumn` node containing ordered `lyricLine` nodes
+- Insert concurrent block via toolbar or shortcut (2–4 speakers chosen at creation)
+- Independent editing per column: cursor, typing, Enter, Backspace, undo
+- Tab / Shift-Tab column navigation
+- Enter at end of last column's last row creates a new row across all columns
+- Per-column copy and paste without cross-contamination
+- Editable speaker name above each column
+- Add/remove/reorder columns
+- Display toggle for speaker labels hides column headers only
+- Export squash mode: interleaved left-to-right-per-row sequential lines
+- Export side-by-side mode: print/PDF only
+- Markdown export always squashes
+- Full lyricLine feature support within columns (delivery, rhymeGroup, alternates, chords)
+- Save/load round-trip
+- `ExportSettings.concurrentLayout` field: `"squash"` | `"sideBySide"`
+
+### Explicitly Out of Scope
+- Musical or beat-grid aware interleaving
+- More than 4 columns
+- Per-row metadata (bar numbers, timestamps)
+- Auto-detection or merging of existing sequential speaker passages into a concurrent block
+- MIDI, audio, or playback
+- Notation-style vocal score output
+
+### Files to Create
+- `src/editor/nodes/concurrentBlock/concurrentBlock.ts`
+- `src/editor/nodes/speakerColumn/speakerColumn.ts`
+- `src/components/editor/ConcurrentBlockView.tsx` (NodeView renderer)
+- `src/domain/export/concurrentExport.ts` (squash and side-by-side logic)
+- `tests/unit/editor/concurrent-block.test.ts`
+- `tests/integration/editor/concurrent-block-integration.test.ts`
+- `tests/e2e/stage-13-concurrent-speakers.spec.ts`
+- `tests/specs/stage-13.md`
+
+### Files to Modify
+- `src/editor/core/draftConfig.ts` — register new nodes
+- `src/components/editor/DraftToolbar.tsx` — add insert button
+- `src/domain/export/exportSelectors.ts` — handle `concurrentBlock` in traversal
+- `src/domain/export/markdownTransformer.ts` — squash concurrent blocks
+- `src/domain/export/printRenderer.ts` — squash or side-by-side rendering
+- `src/domain/project/types.ts` — add `concurrentBlock`, `speakerColumn` types
+- `src/domain/project/migration.ts` — handle missing `concurrentLayout` default
+- `DATA_MODEL.md` — add new node schemas and ExportSettings field
+- `FEATURES.md` — Feature 13 (already added)
+
+### Implementation Notes
+- `speakerColumn` is a ProseMirror node containing `lyricLine+`
+- `concurrentBlock` is a ProseMirror node containing `speakerColumn{2,4}`
+- Column editing isolation requires careful keyboard shortcut scoping — Enter and Tab must be intercepted inside `concurrentBlock` and not bubble up to section/document level
+- The NodeView for `concurrentBlock` renders columns as CSS flex children
+- Undo isolation per column is the hardest constraint; consider whether a single shared Tiptap history with column-scoped transactions is sufficient, or whether per-column history is needed
+- Squash export traverses rows by index, emitting speaker label + lines left-to-right, skipping empty cells
+- Side-by-side print uses CSS `display: flex` or `table` on the print HTML output
+
+### Acceptance Criteria
+- User can insert a concurrent block with 2–4 named speaker columns
+- Each column is independently editable
+- Tab / Shift-Tab navigates between columns
+- Enter at the end of the last column in the last row creates a new row in all columns
+- Copy/paste works per-column without cross-contamination
+- Speaker names are editable above columns
+- Columns can be added, removed, and reordered
+- Squash export produces correctly interleaved sequential lines
+- Print side-by-side mode renders columns adjacently
+- Markdown export always uses squash
+- Save/load fully round-trips all concurrent block content
+- No existing lyricLine, sectionBlock, alternates, or chord behavior is broken
+
+### Stop Condition
+Do not continue until concurrent blocks can be authored, navigated, saved, loaded, and exported without data loss or regressions against earlier stage tests.

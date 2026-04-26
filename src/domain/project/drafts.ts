@@ -11,6 +11,7 @@ export function createDefaultDraftSettings(): DraftSettings {
     showStageDirections: true,
     showSummaries: true,
     showSyllableCounts: false,
+    showStressMarks: false,
   };
 }
 

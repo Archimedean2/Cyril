@@ -26,6 +26,7 @@ Do not attempt to implement the whole product from a single reading.
 | `UI_TOKENS.md` | Specific CSS variables for spacing, color, and typography | Reference constantly while styling |
 | `COMPONENT_MAP.md` | Component hierarchy and responsibility boundaries | Read before creating or refactoring components |
 | `docs/interactions/*.md` | Detailed user flows and interaction rules | Read before implementing complex state changes or UI flows |
+| `docs/features/feature-concurrent-speakers.md` | Full specification for the Concurrent Speakers (Stage 13) feature | Read before implementing Stage 13 |
 | `TEST_IDS.md` | Test ID specification and stable selectors | Use for test implementation |
 | `docs/agent-workflow/SENIOR_DEV_LOOP.md` | The junior-to-senior consultation loop and templates | Read before any significant task |
 | `docs/agent-workflow/REPO_RECON_CHECKLIST.md` | Repo inspection checklist before handoff | Run before producing a Pre-Implementation Handoff |
@@ -140,12 +141,14 @@ Core tags include:
 - `[NAV]`
 - `[PRINT]`
 - `[UNDO]`
+- `[CONCURRENT]`
 
 Stage tags:
 
 - `[STAGE-0]`
 - `[STAGE-1]`
 - `[STAGE-2]`
+- `[STAGE-13]`
 - etc.
 
 ---

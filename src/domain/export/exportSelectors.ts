@@ -3,7 +3,8 @@
  */
 
 import { CyrilFile, Draft, RichTextNode, SectionType } from '../project/types';
-import { ExportableDraft, ExportableSection, ExportableLine, ExportableChord, ResolvedExportOptions } from './exportTypes';
+import { ExportableDraft, ExportableSection, ExportableLine, ExportableChord, ResolvedExportOptions, ConcurrentSectionExport } from './exportTypes';
+import { squashConcurrentBlock, buildSideBySideConcurrentBlock } from './concurrentExport';
 
 /**
  * Select the current active draft from project state
@@ -32,6 +33,12 @@ export function buildExportableDraft(
       if (section) {
         sections.push(section);
       }
+    } else if (node.type === 'concurrentBlock') {
+      // Top-level concurrent block — wrap as a synthetic section
+      const concLines = processConcurrentBlockNode(node, options);
+      if (concLines.lines.length > 0 || concLines.concurrent) {
+        sections.push(concLines);
+      }
     }
   }
 
@@ -39,6 +46,36 @@ export function buildExportableDraft(
     draftName: draft.name,
     projectTitle: projectFile.project.title,
     sections,
+  };
+}
+
+/**
+ * Build an ExportableSection from a top-level concurrentBlock node.
+ * (Concurrent blocks at top-level get a synthetic wrapper section.)
+ */
+function processConcurrentBlockNode(
+  node: RichTextNode,
+  options: ResolvedExportOptions
+): ExportableSection {
+  const isSideBySide = options.concurrentLayout === 'sideBySide';
+
+  if (isSideBySide) {
+    const built = buildSideBySideConcurrentBlock(node, options);
+    const concurrent: ConcurrentSectionExport = { type: 'concurrent', columns: built.columns };
+    return {
+      id: node.attrs?.id || '',
+      sectionType: 'concurrent' as SectionType,
+      lines: [],
+      concurrent,
+    };
+  }
+
+  // Squash
+  const lines = squashConcurrentBlock(node, options);
+  return {
+    id: node.attrs?.id || '',
+    sectionType: 'concurrent' as SectionType,
+    lines,
   };
 }
 
@@ -56,6 +93,21 @@ function processSectionBlock(node: RichTextNode, options: ResolvedExportOptions)
   // Process children of section block
   const children = node.content || [];
   for (const child of children) {
+    if (child.type === 'concurrentBlock') {
+      const concSection = processConcurrentBlockNode(child, options);
+      lines.push(...concSection.lines);
+      // For side-by-side, we embed the concurrent export as a special line
+      if (concSection.concurrent) {
+        // side-by-side concurrent blocks embedded in a section are
+        // represented as a special line type for the print renderer
+        lines.push({
+          type: 'lyric',
+          content: '',
+          _concurrent: concSection.concurrent,
+        } as any);
+      }
+      continue;
+    }
     const line = processNode(child, options);
     if (line) {
       lines.push(line);
@@ -79,6 +131,8 @@ function processSectionBlock(node: RichTextNode, options: ResolvedExportOptions)
  */
 function processNode(node: RichTextNode, options: ResolvedExportOptions): ExportableLine | null {
   switch (node.type) {
+    case 'concurrentBlock':
+      return null; // handled separately above
     case 'lyricLine': {
       const lineType = (node.attrs?.lineType as string) || 'lyric';
       if (lineType === 'speaker') {

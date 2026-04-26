@@ -72,15 +72,15 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       });
       return;
     }
-    
-    // No previous project or couldn't reopen - create a new one
-    const newProj = createNewProject();
+
+    // No previous project or couldn't reopen - just initialize without creating a project
+    // User will need to manually create a project
     set({
-      currentProject: newProj,
-      isProjectLoaded: true,
+      currentProject: null,
+      isProjectLoaded: false,
       isInitializing: false,
       error: null,
-      activeView: { type: 'draft', draftId: newProj.project.drafts[0]?.id || '' }
+      activeView: { type: 'draft', draftId: '' }
     });
   },
 
@@ -267,10 +267,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
     const draft = currentProject.project.drafts[draftIndex];
     const newDrafts = [...currentProject.project.drafts];
-    
+
+    // When entering lyricsWithChords mode, auto-enable showChords
+    const newDraftSettings = mode === 'lyricsWithChords'
+      ? { ...draft.draftSettings, showChords: true }
+      : draft.draftSettings;
+
     newDrafts[draftIndex] = {
       ...draft,
       mode,
+      draftSettings: newDraftSettings,
       updatedAt: new Date().toISOString()
     };
 

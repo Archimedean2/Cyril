@@ -202,6 +202,11 @@ export const LyricLine = Node.create<LyricLineOptions>({
 
       toggleLineType: (lineType: string) => ({ tr, state, dispatch }) => {
         const { $from } = state.selection;
+
+        // Check if we're inside a lyricLine
+        if ($from.parent.type.name !== 'lyricLine') return false;
+
+        // Get the position of the lyricLine node
         const pos = $from.before($from.depth);
         const node = state.doc.nodeAt(pos);
 

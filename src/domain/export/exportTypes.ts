@@ -10,6 +10,7 @@ export interface ResolvedExportOptions {
   includeStageDirections: boolean;
   includeChords: boolean;
   pageDensity: 'normal' | 'compact';
+  concurrentLayout: 'squash' | 'sideBySide';
 }
 
 export interface ExportableLine {
@@ -25,12 +26,23 @@ export interface ExportableChord {
   offset: number;
 }
 
+export interface ConcurrentColumnExport {
+  speakerName: string;
+  lines: ExportableLine[];
+}
+
+export interface ConcurrentSectionExport {
+  type: 'concurrent';
+  columns: ConcurrentColumnExport[];
+}
+
 export interface ExportableSection {
   id: string;
   sectionType: string;
   label?: string;
   summary?: string;
   lines: ExportableLine[];
+  concurrent?: ConcurrentSectionExport;
 }
 
 export interface ExportableDraft {

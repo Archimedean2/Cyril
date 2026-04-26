@@ -13,6 +13,7 @@ export const defaultDraftSettings: DraftSettings = {
   showStageDirections: true,
   showChords: false,
   showSyllableCounts: false,
+  showStressMarks: false,
   showSummaries: true,
 };
 
@@ -61,6 +62,7 @@ export function createDefaultProject(title: string = 'Untitled Song'): CyrilProj
       includeChords: false,
       fontPreset: 'default',
       pageDensity: 'normal',
+      concurrentLayout: 'squash',
     },
     projectSettings: {
       autosave: true,

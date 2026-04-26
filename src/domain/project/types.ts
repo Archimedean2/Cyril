@@ -1,4 +1,5 @@
 export type DeliveryMode = 'sung' | 'spoken';
+export type ConcurrentLayout = 'squash' | 'sideBySide';
 export type SectionType = 'verse' | 'chorus' | 'bridge' | 'intro' | 'outro' | 'spoken' | 'reprise' | 'custom';
 export type DraftMode = 'lyrics' | 'lyricsWithChords';
 export type RhymeColorMode = 'off' | 'manual';
@@ -106,9 +107,30 @@ export interface SectionBlockNode extends RichTextNode {
   attrs: SectionBlockAttrs;
 }
 
+export interface SpeakerColumnAttrs {
+  id: string;
+  speakerName: string;
+}
+
+export interface SpeakerColumnNode extends RichTextNode {
+  type: 'speakerColumn';
+  attrs: SpeakerColumnAttrs;
+  content?: LyricLineNode[];
+}
+
+export interface ConcurrentBlockAttrs {
+  id: string;
+}
+
+export interface ConcurrentBlockNode extends RichTextNode {
+  type: 'concurrentBlock';
+  attrs: ConcurrentBlockAttrs;
+  content?: SpeakerColumnNode[];
+}
+
 export interface DraftDocument {
   type: 'doc';
-  content: SectionBlockNode[];
+  content: (SectionBlockNode | ConcurrentBlockNode | RichTextNode)[];
 }
 
 export interface InventoryDocument {
@@ -123,6 +145,7 @@ export interface DraftSettings {
   showStageDirections: boolean;
   showSummaries: boolean;
   showSyllableCounts: boolean;
+  showStressMarks: boolean;
 }
 
 export interface Draft {
@@ -153,6 +176,7 @@ export interface ExportSettings {
   includeChords: boolean;
   fontPreset: ExportFontPreset;
   pageDensity: PageDensity;
+  concurrentLayout: ConcurrentLayout;
 }
 
 export interface ProjectSettings {

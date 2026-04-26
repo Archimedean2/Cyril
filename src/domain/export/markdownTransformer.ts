@@ -34,6 +34,15 @@ export function draftToMarkdown(draft: ExportableDraft): string {
 function sectionToMarkdown(section: ExportableSection): string[] {
   const lines: string[] = [];
 
+  // Concurrent blocks at top level: no section header (content is already squashed)
+  if (section.sectionType === 'concurrent') {
+    for (const line of section.lines) {
+      const lineText = lineToMarkdown(line);
+      if (lineText) lines.push(lineText);
+    }
+    return lines;
+  }
+
   // Section header
   if (section.label) {
     lines.push(`## ${section.label}`);

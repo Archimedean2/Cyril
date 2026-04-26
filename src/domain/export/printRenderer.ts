@@ -3,7 +3,7 @@
  * Renders exportable draft to print-ready HTML
  */
 
-import { ExportableDraft, ExportableSection, ExportableLine, ExportableChord } from './exportTypes';
+import { ExportableDraft, ExportableSection, ExportableLine, ExportableChord, ConcurrentSectionExport } from './exportTypes';
 
 /**
  * Render exportable draft to print HTML document
@@ -47,6 +47,11 @@ function renderHeader(draft: ExportableDraft): string {
  * Render a section
  */
 function renderSection(section: ExportableSection): string {
+  // Top-level concurrent block (side-by-side mode)
+  if (section.sectionType === 'concurrent' && section.concurrent) {
+    return renderConcurrentBlock(section.concurrent);
+  }
+
   const label = section.label || capitalizeFirst(section.sectionType);
   const summary = section.summary ? `<div class="section-summary">${escapeHtml(section.summary)}</div>` : '';
 
@@ -62,9 +67,28 @@ function renderSection(section: ExportableSection): string {
 }
 
 /**
+ * Render a concurrent block side-by-side
+ */
+function renderConcurrentBlock(concurrent: ConcurrentSectionExport): string {
+  const cols = concurrent.columns
+    .map(col => {
+      const header = `<div class="concurrent-col-header">${escapeHtml(col.speakerName)}</div>`;
+      const lines = col.lines.map(l => renderLine(l)).join('');
+      return `<div class="concurrent-col">${header}<div class="concurrent-col-lines">${lines}</div></div>`;
+    })
+    .join('');
+
+  return `<div class="concurrent-block-print">${cols}</div>`;
+}
+
+/**
  * Render a single line
  */
-function renderLine(line: ExportableLine): string {
+function renderLine(line: ExportableLine | any): string {
+  // Inline concurrent block (embedded in a section, side-by-side mode)
+  if ((line as any)._concurrent) {
+    return renderConcurrentBlock((line as any)._concurrent);
+  }
   switch (line.type) {
     case 'lyric':
       return renderLyricLine(line);
@@ -258,6 +282,40 @@ function getPrintStyles(density: 'normal' | 'compact'): string {
     }
 
     .paragraph {
+      margin-bottom: ${lineGap};
+    }
+
+    .concurrent-block-print {
+      display: flex;
+      gap: 12px;
+      margin-bottom: ${sectionGap};
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 8px;
+    }
+
+    .concurrent-col {
+      flex: 1;
+      min-width: 0;
+      border-right: 1px solid #eee;
+      padding-right: 8px;
+    }
+
+    .concurrent-col:last-child {
+      border-right: none;
+      padding-right: 0;
+    }
+
+    .concurrent-col-header {
+      font-weight: bold;
+      font-size: ${density === 'compact' ? '9px' : '11px'};
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .concurrent-col-lines .lyric-line {
       margin-bottom: ${lineGap};
     }
   `;

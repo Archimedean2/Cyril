@@ -1,18 +1,32 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 
 let originalCreateObjectURL: typeof URL.createObjectURL | undefined;
 let originalRevokeObjectURL: typeof URL.revokeObjectURL | undefined;
+let originalWindowOpen: typeof window.open | undefined;
 
 beforeAll(() => {
   originalCreateObjectURL = URL.createObjectURL;
   originalRevokeObjectURL = URL.revokeObjectURL;
   URL.createObjectURL = () => 'blob:mock';
   URL.revokeObjectURL = () => {};
+
+  // Mock window.open for print tests (JSDOM doesn't implement it)
+  originalWindowOpen = window.open;
+  window.open = vi.fn(() => ({
+    document: {
+      write: vi.fn(),
+      close: vi.fn(),
+      readyState: 'complete',
+    },
+    onload: null,
+    print: vi.fn(),
+  })) as unknown as typeof window.open;
 });
 
 afterAll(() => {
   if (originalCreateObjectURL) URL.createObjectURL = originalCreateObjectURL;
   if (originalRevokeObjectURL) URL.revokeObjectURL = originalRevokeObjectURL;
+  if (originalWindowOpen) window.open = originalWindowOpen;
 });
 import { buildExportableDraft, selectActiveDraft } from '../../../src/domain/export/exportSelectors';
 import { getExportableDraft, getMarkdownPreview, exportToMarkdown, exportToPrint } from '../../../src/domain/export/exportService';
@@ -98,6 +112,7 @@ describe('Export Integration', () => {
         includeStageDirections: true,
         includeChords: true,
         pageDensity: 'normal',
+        concurrentLayout: 'squash',
       }
     );
 
@@ -116,6 +131,7 @@ describe('Export Integration', () => {
         includeStageDirections: false,
         includeChords: false,
         pageDensity: 'normal',
+        concurrentLayout: 'squash',
       }
     );
 

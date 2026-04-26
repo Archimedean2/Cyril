@@ -11,7 +11,7 @@ export function DisplayControls() {
 
   if (!draft) return null;
 
-  const { showSectionLabels, showSpeakerLabels, showStageDirections, showChords, showSyllableCounts } = draft.draftSettings;
+  const { showSectionLabels, showSpeakerLabels, showStageDirections, showChords, showSyllableCounts, showStressMarks } = draft.draftSettings;
   const isChordMode = draft.mode === 'lyricsWithChords';
 
   const handleModeChange = (mode: DraftMode) => {
@@ -108,14 +108,23 @@ export function DisplayControls() {
           />
           <span>Chords</span>
         </label>
-        <label className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', opacity: 0.5 }}>
+        <label className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
           <input 
             type="checkbox" 
             checked={showSyllableCounts} 
-            disabled
-            title="Coming in Stage 6"
+            onChange={() => toggleDraftSetting(draftId, 'showSyllableCounts')}
+            data-testid="toggle-show-syllables"
           />
           <span>Syllables</span>
+        </label>
+        <label className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          <input 
+            type="checkbox" 
+            checked={showStressMarks} 
+            onChange={() => toggleDraftSetting(draftId, 'showStressMarks')}
+            data-testid="toggle-show-stress-marks"
+          />
+          <span>Stress marks</span>
         </label>
       </div>
     </div>

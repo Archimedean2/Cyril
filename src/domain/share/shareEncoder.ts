@@ -86,6 +86,7 @@ export function buildProjectFromShare(payload: SharePayload): CyrilFile {
       showStageDirections: true,
       showSummaries: true,
       showSyllableCounts: false,
+      showStressMarks: false,
     } as DraftSettings;
   }
 

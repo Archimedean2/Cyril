@@ -40,8 +40,17 @@ export function AppShell() {
 
   if (!isProjectLoaded && !isInitializing) {
     return (
-      <div style={{ height: '100vh', background: 'var(--bg-app, #f5f6f8)' }}>
-        <EmptyState onImportShare={() => setIsShareImportOpen(true)} />
+      <div style={{ height: '100vh', background: 'var(--bg-app, #f5f6f8)', display: 'flex', flexDirection: 'column' }}>
+        <div className="app-shell-topbar">
+          <TopBar onExportClick={() => setIsExportDialogOpen(true)} />
+        </div>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <EmptyState onImportShare={() => setIsShareImportOpen(true)} />
+        </div>
+        <ExportDialog
+          isOpen={isExportDialogOpen}
+          onClose={() => setIsExportDialogOpen(false)}
+        />
         <ShareImportDialog
           isOpen={isShareImportOpen}
           onClose={() => setIsShareImportOpen(false)}

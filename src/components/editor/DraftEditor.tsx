@@ -1,11 +1,13 @@
 import { useEditor, EditorContent } from '@tiptap/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { getDraftEditorConfig } from '../../editor/core/draftConfig';
 import { RichTextDocument, DraftSettings, DraftMode } from '../../domain/project/types';
 import { DraftToolbar } from './DraftToolbar';
 import { SectionContextMenu } from './SectionContextMenu';
 import { LineContextMenu } from './LineContextMenu';
 import { useLineMenuStore } from '../../app/state/lineMenuStore';
+import { chordPluginKey } from '../../editor/extensions/chords';
+import { syllablePluginKey } from '../../editor/extensions/syllables';
 import './editor.css';
 
 const LINE_TYPES = new Set(['lyricLine']);
@@ -18,33 +20,50 @@ interface DraftEditorProps {
 }
 
 export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', onChange }: DraftEditorProps) {
+  // Track whether the last content change came from the editor itself.
+  // If true, we skip setContent when initialContent prop bounces back through the store.
+  const lastEmittedContent = useRef<string | null>(null);
+
   const editor = useEditor({
     ...getDraftEditorConfig({
       content: initialContent,
       showChords: settings?.showChords ?? true,
       draftMode,
+      showSyllableCounts: settings?.showSyllableCounts ?? false,
+      showStressMarks: settings?.showStressMarks ?? false,
     }),
     onUpdate: ({ editor }) => {
-      onChange(editor.getJSON() as any as RichTextDocument);
+      const json = editor.getJSON() as any as RichTextDocument;
+      lastEmittedContent.current = JSON.stringify(json);
+      onChange(json);
     },
   });
 
   useEffect(() => {
-    if (editor && initialContent && !editor.isDestroyed) {
-      const currentContent = editor.getJSON();
-      if (JSON.stringify(currentContent) !== JSON.stringify(initialContent)) {
-        setTimeout(() => {
-          editor.commands.setContent(initialContent, { emitUpdate: false });
-        }, 0);
-      }
+    if (!editor || !initialContent || editor.isDestroyed) return;
+    const incomingStr = JSON.stringify(initialContent);
+    // Skip if this content is what we just emitted — it's our own onChange bouncing back
+    if (incomingStr === lastEmittedContent.current) return;
+    const currentStr = JSON.stringify(editor.getJSON());
+    if (currentStr !== incomingStr) {
+      lastEmittedContent.current = incomingStr;
+      editor.commands.setContent(initialContent, { emitUpdate: false });
     }
   }, [editor, initialContent]);
 
   useEffect(() => {
-    if (editor) {
-      editor.view.updateState(editor.state);
-    }
-  }, [settings?.showChords, draftMode, editor]);
+    if (!editor || editor.isDestroyed) return;
+    const { tr } = editor.state;
+    tr.setMeta(chordPluginKey, {
+      showChords: settings?.showChords ?? true,
+      draftMode: draftMode ?? 'lyrics',
+    });
+    tr.setMeta(syllablePluginKey, {
+      showSyllableCounts: settings?.showSyllableCounts ?? false,
+      showStressMarks: settings?.showStressMarks ?? false,
+    });
+    editor.view.dispatch(tr);
+  }, [settings?.showChords, settings?.showSyllableCounts, settings?.showStressMarks, draftMode, editor]);
 
   const openLineMenu = useLineMenuStore(s => s.open);
 
@@ -104,7 +123,7 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
       data-testid="draft-editor"
       onClick={handleContainerClick}
     >
-      <DraftToolbar editor={editor} />
+      <DraftToolbar editor={editor} draftMode={draftMode} settings={settings} />
       <EditorContent editor={editor} className={editorClasses} data-testid="editor-surface" />
       <SectionContextMenu editor={editor} />
       <LineContextMenu editor={editor} />

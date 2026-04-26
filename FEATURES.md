@@ -843,3 +843,61 @@ Allows easy reading or light editing by collaborators.
 ### Acceptance Notes
 - Sharing must not compromise local-first core
 - If omitted from v1, no workaround architecture is required yet
+
+---
+
+## Feature 13: Concurrent Speakers
+
+**Tags:** `[CONCURRENT] [METADATA] [EXPORT] [STAGE-13]`
+
+### Summary
+A structured authoring mode for passages where two or more characters sing or speak simultaneously. Writers enter each speaker's lines in independent columns, navigate between columns with Tab, and export the passage as interleaved sequential lines or (for print) side-by-side columns.
+
+### User Value
+Enables duets, trios, and counter-melody passages to be authored and read correctly during drafting without resorting to manual interleaving hacks or table workarounds.
+
+### Included Behaviors
+- Insert a `concurrentBlock` with 2–4 named speaker columns
+- Each column independently editable (typing, Enter, Backspace, undo)
+- Tab / Shift-Tab navigation between columns
+- Enter at end of last column in last row creates a new row across all columns
+- Per-column copy/paste without cross-contamination
+- Editable speaker name above each column
+- Add/remove/reorder columns
+- Display toggle for speaker labels hides column headers only
+- Export squash mode: interleaved sequential lines, left-to-right per row
+- Export side-by-side mode: print/PDF only, columns laid out adjacently
+- Markdown export always uses squash
+- Full alternates, delivery, rhymeGroup, and chord support per-line within columns
+- Save/load round-trip preserves all column content and attributes
+
+### Excluded Behaviors
+- Musical or beat-grid aware interleaving
+- More than 4 columns in v1
+- Per-row metadata (bar numbers, timestamps)
+- Auto-detection or auto-merging of sequential speaker passages
+- MIDI, audio, or playback
+- Notation-style vocal score output
+
+### Data Dependencies
+- New node: `concurrentBlock` (contains ordered `speakerColumn` nodes)
+- New node: `speakerColumn` (contains ordered `lyricLine` nodes with `speakerName` attr)
+- `DraftDocument` top-level content and `sectionBlock` content extended to allow `concurrentBlock`
+- `ExportSettings` gains `concurrentLayout`: `"squash"` | `"sideBySide"`
+- See `docs/features/feature-concurrent-speakers.md` for full schema
+
+### Stage Dependency
+- Stage 13
+- Depends on Stage 4 (unified lyricLine), Stage 11 (export pipeline)
+
+### Edge Cases
+- One column much longer than others: shorter columns padded for display, absent rows skipped on squash
+- All lines deleted in a column: minimum 1 empty line remains
+- Last column deleted: block converts to standalone lyric lines
+- Undo within a column: scoped to that column, does not affect others
+
+### Acceptance Notes
+- Each column must behave as an independently editable surface
+- Squash export must produce correct speaker-labeled interleaved output
+- No existing lyricLine, sectionBlock, alternates, or chord behavior may be broken
+- If omitted from v1, no workaround architecture is required yet

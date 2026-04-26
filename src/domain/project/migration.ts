@@ -96,6 +96,7 @@ export function migrateProject(data: any): CyrilFile {
   const exportSettings = {
     ...defaultProj.exportSettings,
     ...projectData.exportSettings,
+    concurrentLayout: projectData.exportSettings?.concurrentLayout ?? 'squash',
   };
 
   // Merge project settings
@@ -115,6 +116,7 @@ export function migrateProject(data: any): CyrilFile {
           showStageDirections: true,
           showSummaries: true,
           showSyllableCounts: false,
+          showStressMarks: false,
         };
         
         return {

@@ -21,14 +21,14 @@ export function EmptyState({ onImportShare }: EmptyStateProps) {
         )}
 
         <div className="empty-state-actions">
-          <button className="primary-button" onClick={() => createProject()}>
+          <button className="primary-button" data-testid="create-project-button" onClick={() => createProject()}>
             Create Project
           </button>
           <button className="secondary-button" onClick={() => openProject()}>
             Open Project
           </button>
           {onImportShare && (
-            <button className="secondary-button" onClick={onImportShare}>
+            <button className="secondary-button" onClick={onImportShare} data-testid="import-share-button">
               Import from Share
             </button>
           )}

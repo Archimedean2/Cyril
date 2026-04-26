@@ -172,5 +172,23 @@ export function computeStressPattern(line: string): StressMark[] | null {
   return pattern;
 }
 
+/**
+ * Browser-safe syllable counter using heuristics only.
+ * Does not import cmudict. Use this in browser extensions/decorations.
+ * Returns the estimated count (always >= 1 for non-empty words), or 0 for empty.
+ */
+export function countSyllablesFallback(line: string): number {
+  if (!line || line.trim().length === 0) return 0;
+
+  const words = line.trim().split(/\s+/).filter(w => /[a-zA-Z]/.test(w));
+  if (words.length === 0) return 0;
+
+  let total = 0;
+  for (const word of words) {
+    total += countSyllablesHeuristic(word);
+  }
+  return total;
+}
+
 // Re-export types for consumers
 export type { LineProsody, TokenProsody, ProsodyConfig, StressMark } from './types';

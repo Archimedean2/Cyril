@@ -35,4 +35,5 @@ For a given stage:
 Stage files:
 - `stage-0.md`
 - `stage-1.md`
-- etc.
+- ...
+- `stage-13.md` — Concurrent Speakers (multi-column authoring mode)

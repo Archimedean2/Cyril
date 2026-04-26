@@ -17,6 +17,17 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
   const updateExportSetting = useProjectStore((state) => state.updateExportSetting);
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
+  // Default export settings when no project is loaded
+  const defaultExportSettings: ExportSettings = {
+    includeSectionLabels: true,
+    includeSpeakerLabels: true,
+    includeStageDirections: true,
+    includeChords: true,
+    pageDensity: 'normal',
+  };
+
+  const currentExportSettings = exportSettings || defaultExportSettings;
+
   const handleExportMarkdown = useCallback(() => {
     if (!currentProject) return;
     const success = exportToMarkdown(currentProject, activeView.type === 'draft' ? activeView.draftId : null);
@@ -34,7 +45,11 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
   }, [currentProject, activeView, onClose]);
 
   const handleShareCopy = useCallback(async () => {
-    if (!currentProject) return;
+    if (!currentProject) {
+      setShareStatus('error');
+      setTimeout(() => setShareStatus('idle'), 3000);
+      return;
+    }
     const result = await copyShareLink(currentProject, activeView.type === 'draft' ? activeView.draftId : null);
     if (result.success) {
       setShareStatus('copied');
@@ -47,7 +62,7 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
 
   const handleToggle = (key: keyof ExportSettings) => {
     if (!exportSettings) return;
-    const currentValue = exportSettings[key];
+    const currentValue = currentExportSettings[key];
     updateExportSetting(key, !currentValue);
   };
 
@@ -55,7 +70,7 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
     updateExportSetting('pageDensity', density);
   };
 
-  if (!isOpen || !exportSettings) return null;
+  if (!isOpen) return null;
 
   return (
     <div
@@ -263,25 +278,25 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <Checkbox
               label="Section labels"
-              checked={exportSettings.includeSectionLabels}
+              checked={currentExportSettings.includeSectionLabels}
               onChange={() => handleToggle('includeSectionLabels')}
               testId="toggle-section-labels"
             />
             <Checkbox
               label="Speaker labels"
-              checked={exportSettings.includeSpeakerLabels}
+              checked={currentExportSettings.includeSpeakerLabels}
               onChange={() => handleToggle('includeSpeakerLabels')}
               testId="toggle-speaker-labels"
             />
             <Checkbox
               label="Stage directions"
-              checked={exportSettings.includeStageDirections}
+              checked={currentExportSettings.includeStageDirections}
               onChange={() => handleToggle('includeStageDirections')}
               testId="toggle-stage-directions"
             />
             <Checkbox
               label="Chords"
-              checked={exportSettings.includeChords}
+              checked={currentExportSettings.includeChords}
               onChange={() => handleToggle('includeChords')}
               testId="toggle-chords"
             />
@@ -306,13 +321,13 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
           <div style={{ display: 'flex', gap: '8px' }}>
             <DensityOption
               label="Normal"
-              selected={exportSettings.pageDensity === 'normal'}
+              selected={currentExportSettings.pageDensity === 'normal'}
               onClick={() => handleDensityChange('normal')}
               testId="density-normal"
             />
             <DensityOption
               label="Compact"
-              selected={exportSettings.pageDensity === 'compact'}
+              selected={currentExportSettings.pageDensity === 'compact'}
               onClick={() => handleDensityChange('compact')}
               testId="density-compact"
             />
