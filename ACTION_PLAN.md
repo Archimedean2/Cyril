@@ -8,16 +8,6 @@ Each step has a **measurable outcome** — a concrete, verifiable condition that
 
 These steps make what already exists trustworthy. No new features.
 
-### Step 2: Write round-trip serialization tests
-
-**Do:** Create `tests/integration/persistence/round-trip.test.ts`. Build complex project fixtures that include every node type (section blocks, lyric lines with chords, speaker lines, stage directions, alternates, concurrent blocks, inventory content, workspace content). Serialize with `serializeProject`, deserialize with `deserializeProject`, and assert deep equality.
-
-**Measurable outcome:**
-- At least 5 round-trip tests pass covering: minimal project, project with all node types, project with concurrent blocks, project with alternates and chords, project with populated workspaces
-- `npm run test` passes with no regressions
-
----
-
 ### Step 3: Write migration tests
 
 **Do:** Create `tests/unit/domain/migration.test.ts`. Test that `migrateProject` correctly handles: legacy `speakerLine` nodes, legacy `stageDirection` nodes, missing `draftSettings` fields, missing `exportSettings.concurrentLayout`, projects with no `schemaVersion`. Also test that migration preserves unknown fields.
@@ -290,29 +280,12 @@ Bump the schema version to `1.1.0` to reflect the unified `lineType` model and n
 
 ---
 
-### Step 22: Set up CI pipeline
-
-**Do:** Create a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push/PR:
-- `npm ci`
-- `npm run build`
-- `npm run test`
-- `npm run test:coverage` (with minimum thresholds: 70% overall for now)
-- `npx playwright install && npm run test:e2e`
-
-**Measurable outcome:**
-- A push to main triggers the CI workflow
-- CI runs all unit, integration, and E2E tests
-- CI fails if coverage drops below 70%
-- Badge in README shows CI status
-
----
-
 ## Progress Tracking
 
 | Step | Phase | Status | Notes |
 |------|-------|--------|-------|
 | 1  | Reliability | **done** | Completed 2026-04-30. Baseline: 68.8% lines, 50.77% functions, 74.08% branches |
-| 2  | Reliability | pending | |
+| 2  | Reliability | **done** | Completed 2026-04-30. 5 round-trip tests, 223/223 passing |
 | 3  | Reliability | pending | |
 | 4  | Reliability | pending | |
 | 5  | Reliability | pending | |
@@ -332,4 +305,3 @@ Bump the schema version to `1.1.0` to reflect the unified `lineType` model and n
 | 19 | UX Polish | pending | |
 | 20 | UX Polish | pending | |
 | 21 | UX Polish | pending | |
-| 22 | UX Polish | pending | |

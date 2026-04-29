@@ -2,6 +2,7 @@ import * as React from 'react';
 import { InventoryPane } from '../../features/inventory/InventoryPane';
 import { ToolsPane } from '../../features/tools-pane/ToolsPane';
 import { Search, BookMarked } from 'lucide-react';
+import { ErrorBoundary } from './ErrorBoundary';
 
 const styles: Record<string, React.CSSProperties> = {
   toolsHeader: {
@@ -49,7 +50,9 @@ export function RightSidebar() {
           <span style={styles.headerText}>Tools</span>
         </div>
         <div style={styles.toolsBody}>
-          <ToolsPane getSelectedText={getSelectedText} />
+          <ErrorBoundary paneName="tools pane">
+            <ToolsPane getSelectedText={getSelectedText} />
+          </ErrorBoundary>
         </div>
       </section>
 
@@ -62,7 +65,9 @@ export function RightSidebar() {
           <span style={styles.headerText}>Inventory</span>
         </div>
         <div className="sidebar-section-body">
-          <InventoryPane />
+          <ErrorBoundary paneName="inventory pane">
+            <InventoryPane />
+          </ErrorBoundary>
         </div>
       </section>
     </>
