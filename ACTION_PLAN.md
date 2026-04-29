@@ -8,17 +8,6 @@ Each step has a **measurable outcome** — a concrete, verifiable condition that
 
 These steps make what already exists trustworthy. No new features.
 
-### Step 3: Write migration tests
-
-**Do:** Create `tests/unit/domain/migration.test.ts`. Test that `migrateProject` correctly handles: legacy `speakerLine` nodes, legacy `stageDirection` nodes, missing `draftSettings` fields, missing `exportSettings.concurrentLayout`, projects with no `schemaVersion`. Also test that migration preserves unknown fields.
-
-**Measurable outcome:**
-- At least 6 migration tests pass
-- Each test uses a hand-crafted legacy fixture (not generated from `createDefaultProject`)
-- `npm run test` passes with no regressions
-
----
-
 ### Step 4: Tighten validation tests
 
 **Do:** Expand `tests/unit/domain/project-validation.test.ts` to cover: invalid draft mode values, missing workspace keys, malformed section blocks (missing `id` or `sectionType`), invalid chord positions (negative offset, missing `anchorType`), bad alternate structures (missing `isActive`), schema version mismatch. Also tighten the Zod schemas where `.passthrough()` currently hides structural errors.
@@ -286,7 +275,7 @@ Bump the schema version to `1.1.0` to reflect the unified `lineType` model and n
 |------|-------|--------|-------|
 | 1  | Reliability | **done** | Completed 2026-04-30. Baseline: 68.8% lines, 50.77% functions, 74.08% branches |
 | 2  | Reliability | **done** | Completed 2026-04-30. 5 round-trip tests, 223/223 passing |
-| 3  | Reliability | pending | |
+| 3  | Reliability | **done** | Completed 2026-04-30. 9 migration tests covering legacy nodes, missing fields, unknown fields |
 | 4  | Reliability | pending | |
 | 5  | Reliability | pending | |
 | 6  | Reliability | pending | |

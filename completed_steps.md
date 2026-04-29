@@ -31,6 +31,20 @@
 
 ---
 
+## Step 3: Write migration tests (completed 2026-04-30)
+
+**Do:** Create `tests/unit/domain/migration.test.ts`. Test that `migrateProject` correctly handles legacy `speakerLine`/`stageDirection` nodes, missing `draftSettings` fields, missing `exportSettings.concurrentLayout`, projects with no `schemaVersion`, and preserves unknown fields.
+
+**Measurable outcome:**
+- [x] At least 6 migration tests pass (9 written)
+- [x] Each test uses a hand-crafted legacy fixture
+- [x] `npm run test` passes with no regressions
+
+**Notes:**
+- 9 tests covering: speakerLine→lyricLine migration, speakerLine speaker-attr fallback, stageDirection→lyricLine migration, recursive migration inside sectionBlock, missing draftSettings field defaults, missing concurrentLayout default, raw project data (no schemaVersion wrapper) gets stamped, unknown fields preserved, missing drafts array handled gracefully
+
+---
+
 ## Step 22: Set up CI pipeline (completed 2026-04-29)
 
 **Do:** Create a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push/PR:
