@@ -170,17 +170,28 @@ Add every bug/regression here with a linked test.
 
 Record any intentional differences from the spec docs.
 
-| Date | Stage | Document | Section | Deviation | Reason | Approved |
-|------|-------|----------|---------|-----------|--------|----------|
-|      |       |          |         |           |        | [ ]      |
-
 ---
 
 ## Coverage Tracking
 
-| Date | Unit Coverage | Integration Coverage | E2E Smoke | Overall Coverage | Notes |
-|------|---------------|----------------------|-----------|------------------|-------|
-|      |               |                      |           |                  |       |
+### Baseline Coverage (2026-04-30)
+
+Measured with `npm run test:coverage` (vitest + @vitest/coverage-v8). No thresholds enforced.
+
+| Area | Lines | Functions | Branches |
+|------|-------|-----------|----------|
+| domain | 90.3% | 84.4% | 78.1% |
+| persistence | 43.8% | 43.3% | 95.2% |
+| editor | 50.9% | 50.9% | 72.6% |
+| features | 72.1% | 43.1% | 76.0% |
+| components (UI) | 51.4% | 16.5% | 54.7% |
+| app | 62.0% | 39.1% | 63.3% |
+| hooks | 65.6% | 100.0% | 66.7% |
+| **Overall** | **68.8%** | **50.77%** | **74.08%** |
+
+| Date | Overall Lines | Overall Functions | Overall Branches | Notes |
+|------|---------------|-------------------|------------------|-------|
+| 2026-04-30 | 68.8% | 50.77% | 74.08% | Baseline — no thresholds enforced |
 
 ---
 

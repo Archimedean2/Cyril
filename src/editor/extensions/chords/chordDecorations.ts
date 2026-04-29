@@ -1,104 +1,82 @@
 /**
  * Chord decoration builder for Tiptap/ProseMirror.
- * 
- * Creates widget decorations for chord markers above lyric lines.
+ *
+ * Each chord is placed as a widget decoration at its exact character offset
+ * within the lyric line text. ProseMirror resolves the pixel position
+ * automatically, so chord markers appear above the correct character
+ * regardless of font metrics.
  */
 
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { ChordMarker } from '../../../domain/project/types';
 
 /**
- * Calculate horizontal position for a chord marker based on character offset.
- * 
- * This is an approximation using character offset ratio.
- * For v1, we use a simple monospace-ish approximation.
- */
-function calculateChordPosition(charOffset: number, textLength: number): string {
-  if (textLength === 0) return '0px';
-  const ratio = charOffset / textLength;
-  // Clamp ratio to 0-1
-  const clampedRatio = Math.max(0, Math.min(1, ratio));
-  // Convert to percentage
-  return `${clampedRatio * 100}%`;
-}
-
-/**
- * Create a DOM element for a chord marker.
+ * Create a DOM element for a chord marker widget.
  */
 function createChordMarkerElement(chord: ChordMarker, lineId: string): HTMLElement {
-  const element = document.createElement('span');
-  element.className = 'cyril-chord-marker';
-  element.setAttribute('data-testid', 'chord-marker');
-  element.setAttribute('data-chord-id', chord.id);
-  element.setAttribute('data-line-id', lineId);
-  element.textContent = chord.symbol;
-  return element;
-}
+  // Zero-width anchor — takes no horizontal space in the text flow
+  const anchor = document.createElement('span');
+  anchor.className = 'cyril-chord-anchor';
+  anchor.setAttribute('contenteditable', 'false');
 
-/**
- * Build decorations for chord markers on a lyric line.
- * 
- * @param pos - Position of the lyric line node in the document
- * @param lineId - ID of the lyric line
- * @param chords - Array of chord markers for this line
- * @param textLength - Length of the lyric line text
- * @returns Array of decorations
- */
-export function buildChordDecorations(
-  pos: number,
-  lineId: string,
-  chords: ChordMarker[],
-  textLength: number
-): Decoration[] {
-  if (chords.length === 0) return [];
+  // Visible pill — absolutely positioned above the anchor
+  const pill = document.createElement('span');
+  pill.className = 'cyril-chord-marker';
+  pill.setAttribute('data-testid', 'chord-marker');
+  pill.setAttribute('data-chord-id', chord.id);
+  pill.setAttribute('data-line-id', lineId);
+  pill.setAttribute('data-symbol', chord.symbol);
+  pill.textContent = chord.symbol;
 
-  // Create a container for the chord lane
-  const container = document.createElement('div');
-  container.className = 'cyril-chord-lane';
-  container.setAttribute('data-testid', 'chord-lane');
-  container.setAttribute('data-line-id', lineId);
-
-  // Add chord markers to the container
-  chords.forEach(chord => {
-    const marker = createChordMarkerElement(chord, lineId);
-    const leftPosition = calculateChordPosition(chord.position.charOffset, textLength);
-    marker.style.left = leftPosition;
-    container.appendChild(marker);
-  });
-
-  // Create a widget decoration for the chord lane
-  // Position it at the start of the lyric line
-  const decoration = Decoration.widget(pos, container, {
-    side: -1, // Place before the line
-  });
-
-  return [decoration];
+  anchor.appendChild(pill);
+  return anchor;
 }
 
 /**
  * Build all chord decorations for a document.
- * 
- * @param doc - ProseMirror document
- * @returns DecorationSet with all chord decorations
+ *
+ * Each chord becomes a widget placed at `lineTextStart + charOffset`,
+ * i.e. exactly at the character it was attached to.
  */
 export function buildAllChordDecorations(doc: any): DecorationSet {
   const decorations: Decoration[] = [];
 
   doc.descendants((node: any, pos: number) => {
-    if (node.type.name === 'lyricLine') {
-      const meta = node.attrs.meta || { chords: [] };
-      const chords = meta.chords || [];
-      
-      if (chords.length > 0) {
-        // Get the text length of this line
-        const textLength = node.textContent.length;
-        const lineId = node.attrs.id || 'unknown';
-        
-        const lineDecorations = buildChordDecorations(pos, lineId, chords, textLength);
-        decorations.push(...lineDecorations);
-      }
-    }
+    if (node.type.name !== 'lyricLine') return true;
+
+    const meta = node.attrs.meta || { chords: [] };
+    const chords: ChordMarker[] = meta.chords || [];
+    if (chords.length === 0) return true;
+
+    const lineId = node.attrs.id || 'unknown';
+    const textLength = node.textContent.length;
+    // pos + 1 = first content position inside the lyricLine node
+    const textStart = pos + 1;
+
+    chords.forEach(chord => {
+      const offset = Math.max(0, Math.min(chord.position.charOffset, textLength));
+      const widgetPos = textStart + offset;
+      const element = createChordMarkerElement(chord, lineId);
+      decorations.push(
+        Decoration.widget(widgetPos, element, {
+          side: -1, // render before the character at this position
+          key: `chord-${chord.id}`,
+        })
+      );
+    });
+
+    return true;
   });
 
   return DecorationSet.create(doc, decorations);
+}
+
+/** @deprecated Use buildAllChordDecorations directly */
+export function buildChordDecorations(
+  _pos: number,
+  _lineId: string,
+  _chords: ChordMarker[],
+  _textLength: number
+): Decoration[] {
+  return [];
 }

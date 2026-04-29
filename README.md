@@ -1,5 +1,7 @@
 # Cyril — Stage Test Specs
 
+[![CI](https://github.com/Archimedean2/Cyril/actions/workflows/ci.yml/badge.svg)](https://github.com/Archimedean2/Cyril/actions/workflows/ci.yml)
+
 ## Purpose
 
 This folder contains stage-specific test checklists.

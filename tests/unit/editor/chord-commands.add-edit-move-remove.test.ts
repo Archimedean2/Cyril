@@ -33,6 +33,7 @@ describe('Chord Commands', () => {
     // Setup mock doc
     mockDoc = {
       nodesBetween: vi.fn(),
+      descendants: vi.fn(),
       textBetween: vi.fn().mockReturnValue('Current line text content'),
     };
 

@@ -21,11 +21,11 @@ describe('Workspaces and Drafts Integration', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       mode: 'lyrics',
-      doc: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Draft 1 Content' }] }] } as any,
+      doc: { type: 'doc', content: [{ type: 'lyricLine', attrs: { id: 'line_1', delivery: 'sung', lineType: 'lyric', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } }, content: [{ type: 'text', text: 'Draft 1 Content' }] }] } as any,
       inventory: { type: 'inventory', doc: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Inventory 1' }] }] } } as any,
       draftSettings: {
         showChords: true, showSectionLabels: true, showSpeakerLabels: true,
-        showStageDirections: true, showSummaries: true, showSyllableCounts: false
+        showStageDirections: true, showSummaries: true, showSyllableCounts: false, showStressMarks: false
       }
     }];
     
@@ -73,7 +73,7 @@ describe('Workspaces and Drafts Integration', () => {
       ...currentProject.project.drafts[0],
       id: 'draft_2',
       name: 'Draft 2',
-      doc: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Draft 2 Content' }] }] } as any,
+      doc: { type: 'doc', content: [{ type: 'lyricLine', attrs: { id: 'line_2', delivery: 'sung', lineType: 'lyric', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } }, content: [{ type: 'text', text: 'Draft 2 Content' }] }] } as any,
     };
     
     currentProject.project.drafts.push(draft2);

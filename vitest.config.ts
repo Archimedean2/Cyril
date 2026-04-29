@@ -9,6 +9,17 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'text-summary', 'json-summary'],
+      reportsDirectory: './coverage',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/main.tsx',
+        'src/**/*.d.ts',
+      ],
+      reportOnFailure: true,
+    },
   },
   resolve: {
     alias: {

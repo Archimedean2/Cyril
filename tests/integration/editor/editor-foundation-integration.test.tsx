@@ -16,12 +16,12 @@ describe('Editor Foundation Integration', () => {
       mode: 'lyrics',
       doc: {
         type: 'doc',
-        content: [{ type: 'paragraph', content: [] }] as any
+        content: [{ type: 'lyricLine', attrs: { id: 'line_1', delivery: 'sung', lineType: 'lyric', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] as any
       },
       inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
       draftSettings: {
         showChords: true, showSectionLabels: true, showSpeakerLabels: true,
-        showStageDirections: true, showSummaries: true, showSyllableCounts: false
+        showStageDirections: true, showSummaries: true, showSyllableCounts: false, showStressMarks: false
       }
     }];
     
@@ -44,12 +44,12 @@ describe('Editor Foundation Integration', () => {
       mode: 'lyrics',
       doc: {
         type: 'doc',
-        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Loaded content' }] }] as any
+        content: [{ type: 'lyricLine', attrs: { id: 'line_2', delivery: 'sung', lineType: 'lyric', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } }, content: [{ type: 'text', text: 'Loaded content' }] }] as any
       },
       inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
       draftSettings: {
         showChords: true, showSectionLabels: true, showSpeakerLabels: true,
-        showStageDirections: true, showSummaries: true, showSyllableCounts: false
+        showStageDirections: true, showSummaries: true, showSyllableCounts: false, showStressMarks: false
       }
     }];
     useProjectStore.setState({ 

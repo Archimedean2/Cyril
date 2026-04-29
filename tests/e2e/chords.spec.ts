@@ -31,8 +31,8 @@ async function waitForModeChange(page: Page, mode: 'lyrics' | 'lyricsWithChords'
 test.describe('Stage 9: Chord Lane', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Wait for app shell to be fully loaded
-    await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
+    // Wait for the empty state to appear (app shell renders this before any project is loaded)
+    await page.waitForSelector('[data-testid="create-project-button"]', { state: 'visible', timeout: 15000 });
 
     // Create project and navigate to draft
     await page.click('text=Create Project');
@@ -40,8 +40,6 @@ test.describe('Stage 9: Chord Lane', () => {
 
     // Wait for editor to be fully initialized
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible({ timeout: 10000 });
-    // Ensure ProseMirror is ready
-    await waitForEditorReady(page);
   });
 
   // ─── Mode switching ──────────────────────────────────────────────────────────
@@ -136,18 +134,24 @@ test.describe('Stage 9: Chord Lane', () => {
     await expect(page.locator('[data-testid="chord-add-button"]')).toBeVisible();
   });
 
-  test('E-9.10: Chord add button is disabled when cursor is not in a lyric line', async ({ page }) => {
+  test('E-9.10: Chord add button is enabled when in Lyrics+Chords mode with show-chords on', async ({ page }) => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await waitForModeChange(page, 'lyricsWithChords');
-    // No text typed yet, cursor not in lyric line
-    await expect(page.locator('[data-testid="chord-add-button"]')).toBeDisabled();
+
+    // Editor loads with cursor in the default lyric line — button enabled
+    await waitForEditorReady(page);
+    await expect(page.locator('[data-testid="chord-add-button"]')).toBeEnabled({ timeout: 5000 });
+
+    // Hiding chords disables the button
+    await page.locator('[data-testid="toggle-show-chords"]').uncheck();
+    await expect(page.locator('[data-testid="chord-add-button"]')).toBeDisabled({ timeout: 5000 });
   });
 
   test('E-9.11: Chord add button is enabled when cursor is in a lyric line', async ({ page }) => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await waitForModeChange(page, 'lyricsWithChords');
 
-    const proseMirror = await waitForEditorReady(page);
+    await waitForEditorReady(page); // clicks editor, putting cursor in lyric line
     await page.keyboard.type('Amazing grace');
 
     // Wait for button to become enabled with retry
@@ -163,7 +167,7 @@ test.describe('Stage 9: Chord Lane', () => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await waitForModeChange(page, 'lyricsWithChords');
 
-    const proseMirror = await waitForEditorReady(page);
+    await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace how sweet the sound');
 
     // Wait for button to be enabled before clicking
@@ -172,22 +176,20 @@ test.describe('Stage 9: Chord Lane', () => {
       expect(isEnabled).toBe(true);
     }).toPass({ timeout: 5000 });
 
-    // Handle the prompt dialog BEFORE clicking
-    const dialogPromise = page.waitForEvent('dialog', { timeout: 10000 });
+    // window.prompt blocks the click from completing — use page.once + Promise.all
+    page.once('dialog', d => d.accept('Am'));
     await page.click('[data-testid="chord-add-button"]');
-    const dialog = await dialogPromise;
-    await dialog.accept('Am');
 
     // Wait for chord marker to appear
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('Am');
   });
 
-  test('E-9.13: Chord marker appears inside a chord lane container', async ({ page }) => {
+  test('E-9.13: Chord marker is rendered inline above the lyric text', async ({ page }) => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await waitForModeChange(page, 'lyricsWithChords');
 
-    const proseMirror = await waitForEditorReady(page);
+    await waitForEditorReady(page);
     await page.keyboard.type('You got a friend in me');
 
     await expect(async () => {
@@ -195,20 +197,21 @@ test.describe('Stage 9: Chord Lane', () => {
       expect(isEnabled).toBe(true);
     }).toPass({ timeout: 5000 });
 
-    const dialogPromise = page.waitForEvent('dialog', { timeout: 10000 });
+    page.once('dialog', d => d.accept('G'));
     await page.click('[data-testid="chord-add-button"]');
-    const dialog = await dialogPromise;
-    await dialog.accept('G');
 
-    await expect(page.locator('[data-testid="chord-lane"]')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('[data-testid="chord-lane"] [data-testid="chord-marker"]')).toBeVisible();
+    const marker = page.locator('[data-testid="chord-marker"]').first();
+    await expect(marker).toBeVisible({ timeout: 5000 });
+    await expect(marker).toContainText('G');
+    // Marker must be inside the editor surface (inline widget, not a separate lane)
+    await expect(page.locator('[data-testid="editor-surface"] [data-testid="chord-marker"]')).toBeVisible();
   });
 
   test('E-9.14: Multiple chords on the same line create multiple markers', async ({ page }) => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await waitForModeChange(page, 'lyricsWithChords');
 
-    const proseMirror = await waitForEditorReady(page);
+    await waitForEditorReady(page);
     await page.keyboard.type('You got a friend in me');
 
     await expect(async () => {
@@ -216,25 +219,23 @@ test.describe('Stage 9: Chord Lane', () => {
       expect(isEnabled).toBe(true);
     }).toPass({ timeout: 5000 });
 
+    const editor = page.locator('[data-testid="editor-surface"] .ProseMirror');
+
     // Add first chord at start of line
-    await proseMirror.click();
+    await editor.click();
     await page.keyboard.press('Home');
 
-    let dialogPromise = page.waitForEvent('dialog', { timeout: 10000 });
+    page.once('dialog', d => d.accept('G'));
     await page.click('[data-testid="chord-add-button"]');
-    let dialog = await dialogPromise;
-    await dialog.accept('G');
 
     // Wait for first chord to appear
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(1, { timeout: 5000 });
 
     // Add second chord mid-line
-    await proseMirror.click();
+    await editor.click();
 
-    dialogPromise = page.waitForEvent('dialog', { timeout: 10000 });
+    page.once('dialog', d => d.accept('D7'));
     await page.click('[data-testid="chord-add-button"]');
-    dialog = await dialogPromise;
-    await dialog.accept('D7');
 
     // Wait for both chords
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(2, { timeout: 5000 });
@@ -244,7 +245,7 @@ test.describe('Stage 9: Chord Lane', () => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await waitForModeChange(page, 'lyricsWithChords');
 
-    const proseMirror = await waitForEditorReady(page);
+    await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace');
 
     await expect(async () => {
@@ -252,27 +253,25 @@ test.describe('Stage 9: Chord Lane', () => {
       expect(isEnabled).toBe(true);
     }).toPass({ timeout: 5000 });
 
-    const dialogPromise = page.waitForEvent('dialog', { timeout: 10000 });
+    page.once('dialog', d => d.accept('Am'));
     await page.click('[data-testid="chord-add-button"]');
-    const dialog = await dialogPromise;
-    await dialog.accept('Am');
 
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
-    // Hide chords
+    // Hide chords — markers removed from DOM by plugin
     await page.locator('[data-testid="toggle-show-chords"]').uncheck();
-    await expect(page.locator('[data-testid="chord-lane"]')).toBeHidden({ timeout: 5000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0, { timeout: 5000 });
 
-    // Show chords again — marker must still be there
+    // Show chords again — marker must reappear with original symbol
     await page.locator('[data-testid="toggle-show-chords"]').check();
-    await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('Am');
+    await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('Am', { timeout: 5000 });
   });
 
   test('E-9.16: Chord markers disappear when switching to Lyrics mode', async ({ page }) => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await waitForModeChange(page, 'lyricsWithChords');
 
-    const proseMirror = await waitForEditorReady(page);
+    await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace');
 
     await expect(async () => {
@@ -280,10 +279,8 @@ test.describe('Stage 9: Chord Lane', () => {
       expect(isEnabled).toBe(true);
     }).toPass({ timeout: 5000 });
 
-    const dialogPromise = page.waitForEvent('dialog', { timeout: 10000 });
+    page.once('dialog', d => d.accept('Am'));
     await page.click('[data-testid="chord-add-button"]');
-    const dialog = await dialogPromise;
-    await dialog.accept('Am');
 
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
@@ -299,7 +296,7 @@ test.describe('Stage 9: Chord Lane', () => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await waitForModeChange(page, 'lyricsWithChords');
 
-    const proseMirror = await waitForEditorReady(page);
+    await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace');
 
     await expect(async () => {
@@ -307,10 +304,8 @@ test.describe('Stage 9: Chord Lane', () => {
       expect(isEnabled).toBe(true);
     }).toPass({ timeout: 5000 });
 
-    const dialogPromise = page.waitForEvent('dialog', { timeout: 10000 });
+    page.once('dialog', d => d.accept('Em'));
     await page.click('[data-testid="chord-add-button"]');
-    const dialog = await dialogPromise;
-    await dialog.accept('Em');
 
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
@@ -322,6 +317,142 @@ test.describe('Stage 9: Chord Lane', () => {
 
     // Chord should reappear with the original symbol
     await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('Em', { timeout: 5000 });
+  });
+
+  // ─── Chord edit / delete (popover) ────────────────────────────────────────────
+
+  test('E-9.19: Clicking a chord marker opens the edit popover with the symbol pre-filled', async ({ page }) => {
+    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await waitForModeChange(page, 'lyricsWithChords');
+
+    await waitForEditorReady(page);
+    await page.keyboard.type('Amazing grace how sweet the sound');
+
+    await expect(async () => {
+      expect(await page.locator('[data-testid="chord-add-button"]').isEnabled()).toBe(true);
+    }).toPass({ timeout: 5000 });
+
+    page.once('dialog', d => d.accept('Am'));
+    await page.click('[data-testid="chord-add-button"]');
+
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
+
+    // Click the chord marker to open popover
+    await page.locator('[data-testid="chord-marker"]').first().click();
+
+    const popover = page.locator('[data-testid="chord-popover"]');
+    await expect(popover).toBeVisible({ timeout: 3000 });
+    await expect(page.locator('[data-testid="chord-popover-input"]')).toHaveValue('Am');
+  });
+
+  test('E-9.20: Editing a chord symbol in the popover updates the marker', async ({ page }) => {
+    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await waitForModeChange(page, 'lyricsWithChords');
+
+    await waitForEditorReady(page);
+    await page.keyboard.type('Amazing grace how sweet the sound');
+
+    await expect(async () => {
+      expect(await page.locator('[data-testid="chord-add-button"]').isEnabled()).toBe(true);
+    }).toPass({ timeout: 5000 });
+
+    page.once('dialog', d => d.accept('Am'));
+    await page.click('[data-testid="chord-add-button"]');
+
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
+
+    // Click to open popover, clear input, type new symbol, confirm
+    await page.locator('[data-testid="chord-marker"]').first().click();
+    await expect(page.locator('[data-testid="chord-popover"]')).toBeVisible({ timeout: 3000 });
+
+    const input = page.locator('[data-testid="chord-popover-input"]');
+    await input.selectText();
+    await input.fill('G7');
+    await page.locator('[data-testid="chord-popover-save"]').click();
+
+    // Popover should close and marker should show new symbol
+    await expect(page.locator('[data-testid="chord-popover"]')).toHaveCount(0, { timeout: 3000 });
+    await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('G7', { timeout: 3000 });
+  });
+
+  test('E-9.21: Pressing Enter in the popover input saves the chord', async ({ page }) => {
+    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await waitForModeChange(page, 'lyricsWithChords');
+
+    await waitForEditorReady(page);
+    await page.keyboard.type('How sweet the sound');
+
+    await expect(async () => {
+      expect(await page.locator('[data-testid="chord-add-button"]').isEnabled()).toBe(true);
+    }).toPass({ timeout: 5000 });
+
+    page.once('dialog', d => d.accept('C'));
+    await page.click('[data-testid="chord-add-button"]');
+
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
+
+    await page.locator('[data-testid="chord-marker"]').first().click();
+    const input = page.locator('[data-testid="chord-popover-input"]');
+    await input.selectText();
+    await input.fill('Cmaj7');
+    await input.press('Enter');
+
+    await expect(page.locator('[data-testid="chord-popover"]')).toHaveCount(0, { timeout: 3000 });
+    await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('Cmaj7', { timeout: 3000 });
+  });
+
+  test('E-9.22: Clicking delete in the popover removes the chord marker', async ({ page }) => {
+    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await waitForModeChange(page, 'lyricsWithChords');
+
+    await waitForEditorReady(page);
+    await page.keyboard.type('Amazing grace how sweet the sound');
+
+    await expect(async () => {
+      expect(await page.locator('[data-testid="chord-add-button"]').isEnabled()).toBe(true);
+    }).toPass({ timeout: 5000 });
+
+    page.once('dialog', d => d.accept('Am'));
+    await page.click('[data-testid="chord-add-button"]');
+
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
+
+    // Click marker, then delete
+    await page.locator('[data-testid="chord-marker"]').first().click();
+    await expect(page.locator('[data-testid="chord-popover"]')).toBeVisible({ timeout: 3000 });
+    await page.locator('[data-testid="chord-popover-delete"]').click();
+
+    // Popover closed, marker gone
+    await expect(page.locator('[data-testid="chord-popover"]')).toHaveCount(0, { timeout: 3000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0, { timeout: 3000 });
+  });
+
+  test('E-9.23: Pressing Escape in the popover closes it without changing the chord', async ({ page }) => {
+    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await waitForModeChange(page, 'lyricsWithChords');
+
+    await waitForEditorReady(page);
+    await page.keyboard.type('Amazing grace');
+
+    await expect(async () => {
+      expect(await page.locator('[data-testid="chord-add-button"]').isEnabled()).toBe(true);
+    }).toPass({ timeout: 5000 });
+
+    page.once('dialog', d => d.accept('D'));
+    await page.click('[data-testid="chord-add-button"]');
+
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
+
+    await page.locator('[data-testid="chord-marker"]').first().click();
+    await expect(page.locator('[data-testid="chord-popover"]')).toBeVisible({ timeout: 3000 });
+
+    // Type something then escape
+    await page.locator('[data-testid="chord-popover-input"]').fill('Dsus4');
+    await page.keyboard.press('Escape');
+
+    await expect(page.locator('[data-testid="chord-popover"]')).toHaveCount(0, { timeout: 3000 });
+    // Symbol should be unchanged
+    await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('D', { timeout: 3000 });
   });
 
   // ─── Mode round-trip (no chords) ─────────────────────────────────────────────

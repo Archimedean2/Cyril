@@ -1,10 +1,12 @@
 import { useEditor, EditorContent } from '@tiptap/react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getDraftEditorConfig } from '../../editor/core/draftConfig';
 import { RichTextDocument, DraftSettings, DraftMode } from '../../domain/project/types';
 import { DraftToolbar } from './DraftToolbar';
 import { SectionContextMenu } from './SectionContextMenu';
 import { LineContextMenu } from './LineContextMenu';
+import { ChordPopover, ChordPopoverTarget } from './ChordPopover';
 import { useLineMenuStore } from '../../app/state/lineMenuStore';
 import { chordPluginKey } from '../../editor/extensions/chords';
 import { syllablePluginKey } from '../../editor/extensions/syllables';
@@ -65,6 +67,7 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
     editor.view.dispatch(tr);
   }, [settings?.showChords, settings?.showSyllableCounts, settings?.showStressMarks, draftMode, editor]);
 
+  const [chordPopover, setChordPopover] = useState<ChordPopoverTarget | null>(null);
   const openLineMenu = useLineMenuStore(s => s.open);
 
   useEffect(() => {
@@ -98,6 +101,24 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
     return () => dom.removeEventListener('contextmenu', handleContextMenu);
   }, [editor, openLineMenu]);
 
+  useEffect(() => {
+    if (!editor) return;
+    function handleChordClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      const pill = target.closest('.cyril-chord-marker') as HTMLElement | null;
+      if (!pill) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const chordId = pill.getAttribute('data-chord-id');
+      const symbol = pill.getAttribute('data-symbol') ?? pill.textContent ?? '';
+      if (!chordId) return;
+      setChordPopover({ chordId, symbol, anchorEl: pill });
+    }
+    const dom = editor.view.dom;
+    dom.addEventListener('click', handleChordClick);
+    return () => dom.removeEventListener('click', handleChordClick);
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
@@ -127,6 +148,14 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
       <EditorContent editor={editor} className={editorClasses} data-testid="editor-surface" />
       <SectionContextMenu editor={editor} />
       <LineContextMenu editor={editor} />
+      {chordPopover && createPortal(
+        <ChordPopover
+          target={chordPopover}
+          editor={editor}
+          onClose={() => setChordPopover(null)}
+        />,
+        document.body
+      )}
     </div>
   );
 }

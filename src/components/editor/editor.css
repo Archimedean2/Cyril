@@ -552,29 +552,41 @@
   flex-direction: column;
 }
 
-/* Chord Lane Styles */
+/* Chord Lane — legacy, hidden */
 .cyril-chord-lane {
-  display: flex;
-  position: relative;
-  height: 24px;
-  margin-bottom: 4px;
-  width: 100%;
-  pointer-events: none;
+  display: none;
 }
 
+/* Chord anchor — zero-width inline widget, no layout impact */
+.cyril-chord-anchor {
+  display: inline-block;
+  width: 0;
+  overflow: visible;
+  position: relative;
+  vertical-align: baseline;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Chord pill — absolutely positioned above the anchor point */
 .cyril-chord-marker {
   position: absolute;
-  font-size: 0.85rem;
+  bottom: 1.15em;
+  left: 0;
+  transform: translateX(-50%);
+  display: inline-block;
+  font-size: 0.8rem;
   font-weight: 600;
+  line-height: 1;
   color: var(--accent-color, #4a90d9);
-  padding: 2px 6px;
+  padding: 1px 6px;
   border-radius: 3px;
   background: var(--panel-bg-alt, #f5f5f5);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color, #ddd);
   white-space: nowrap;
-  transform: translateX(-50%);
   pointer-events: auto;
   cursor: pointer;
+  user-select: none;
   transition: background 0.15s, border-color 0.15s;
 }
 
@@ -583,13 +595,14 @@
   border-color: var(--accent-color, #4a90d9);
 }
 
-.cyril-chord-marker:focus {
-  outline: 2px solid var(--accent-color, #4a90d9);
-  outline-offset: 2px;
+.cyril-chord-marker.is-editing {
+  border-color: var(--accent-color, #4a90d9);
+  background: #fff;
 }
 
-.hide-chords .cyril-chord-lane {
-  display: none;
+/* Give lyric lines enough room above for chord pills */
+.lyric-line:has(.cyril-chord-anchor) {
+  line-height: 2.6;
 }
 
 /* Stress marks: give lyric lines extra line-height so marks don't clip */
@@ -949,4 +962,61 @@
 
 .stp-custom-confirm:hover {
   background: #bfdbfe;
+}
+
+/* Chord edit/delete popover */
+.chord-popover {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #c8d0db;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  padding: 5px 7px;
+}
+
+.chord-popover-input {
+  width: 80px;
+  padding: 3px 6px;
+  border: 1px solid #c8d0db;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-color, #4a90d9);
+  outline: none;
+}
+
+.chord-popover-input:focus {
+  border-color: var(--accent-color, #4a90d9);
+}
+
+.chord-popover-save,
+.chord-popover-delete {
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.chord-popover-save {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.chord-popover-save:hover {
+  background: #bfdbfe;
+}
+
+.chord-popover-delete {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.chord-popover-delete:hover {
+  background: #fecaca;
 }

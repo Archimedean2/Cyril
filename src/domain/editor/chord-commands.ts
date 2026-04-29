@@ -18,6 +18,24 @@ interface LyricLineInfo {
 }
 
 /**
+ * Find a lyric line anywhere in the doc that contains the given chord ID.
+ */
+function findLineByChordId(editor: Editor, chordId: string): LyricLineInfo | null {
+  let result: LyricLineInfo | null = null;
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === 'lyricLine') {
+      const attrs = node.attrs as unknown as LyricLineNode;
+      if (attrs.meta?.chords?.some((c: any) => c.id === chordId)) {
+        result = { node, pos, attrs, meta: attrs.meta };
+        return false;
+      }
+    }
+    return true;
+  });
+  return result;
+}
+
+/**
  * Get the lyric line node at the current selection.
  */
 export function getLyricLineAtSelection(editor: Editor): LyricLineInfo | null {
@@ -147,7 +165,7 @@ export function editChordOnCurrentLine(
   chordId: string,
   newSymbol: string
 ): boolean {
-  const lineInfo = getLyricLineAtSelection(editor);
+  const lineInfo = getLyricLineAtSelection(editor) ?? findLineByChordId(editor, chordId);
   if (!lineInfo) return false;
   
   const { meta } = lineInfo;
@@ -236,7 +254,7 @@ export function removeChordFromCurrentLine(
   editor: Editor,
   chordId: string
 ): boolean {
-  const lineInfo = getLyricLineAtSelection(editor);
+  const lineInfo = getLyricLineAtSelection(editor) ?? findLineByChordId(editor, chordId);
   if (!lineInfo) return false;
   
   const { meta } = lineInfo;
