@@ -19,6 +19,8 @@ export interface ExportableLine {
   speaker?: string;
   stageDirection?: string;
   chords?: ExportableChord[];
+  // Side-by-side concurrent block embedded inline within a section
+  _concurrent?: ConcurrentSectionExport;
 }
 
 export interface ExportableChord {

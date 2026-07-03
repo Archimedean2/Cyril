@@ -4,7 +4,7 @@ import { generateId } from '../../../domain/project/ids';
 import { createConcurrentBlockView } from '../../../components/editor/ConcurrentBlockView';
 
 export interface ConcurrentBlockOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
 }
 
 function makeLyricLineJSON() {

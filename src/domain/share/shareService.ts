@@ -43,8 +43,9 @@ export function importFromShareBlob(blob: string): { success: boolean; file?: Cy
   try {
     const file = buildProjectFromShare(payload);
     return { success: true, file };
-  } catch (err: any) {
-    return { success: false, error: `Failed to build project: ${err.message}` };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { success: false, error: `Failed to build project: ${message}` };
   }
 }
 
@@ -55,7 +56,7 @@ export async function importFromClipboard(): Promise<{ success: boolean; file?: 
   try {
     const text = await navigator.clipboard.readText();
     return importFromShareBlob(text);
-  } catch (err: any) {
+  } catch {
     return { success: false, error: 'Clipboard access denied or unavailable' };
   }
 }

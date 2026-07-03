@@ -35,7 +35,7 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
       showStressMarks: settings?.showStressMarks ?? false,
     }),
     onUpdate: ({ editor }) => {
-      const json = editor.getJSON() as any as RichTextDocument;
+      const json = editor.getJSON() as unknown as RichTextDocument;
       lastEmittedContent.current = JSON.stringify(json);
       onChange(json);
     },

@@ -7,18 +7,26 @@
 
 import { TokenProsody, StressMark } from './types';
 
+interface CMUDictInstance {
+  get(word: string): string | undefined;
+}
+
+interface CMUDictModule {
+  CMUDict: new () => CMUDictInstance;
+}
+
 // Lazy-loaded dictionary instance
-let dictionary: any = null;
+let dictionary: CMUDictInstance | null = null;
 
 /**
  * Get or create the CMUdict instance.
  * Lazy initialization to avoid loading at import time.
  */
-function getDictionary(): any {
+function getDictionary(): CMUDictInstance {
   if (!dictionary) {
     // Dynamic require for CJS-only interop with the 'cmudict' package.
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const cmudict = require('cmudict');
+    const cmudict = require('cmudict') as CMUDictModule;
     dictionary = new cmudict.CMUDict();
   }
   return dictionary;

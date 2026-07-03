@@ -3,7 +3,7 @@ import { TextSelection, Plugin } from '@tiptap/pm/state';
 import { generateId } from '../../../domain/project/ids';
 
 export interface SpeakerColumnOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
 }
 
 export const SpeakerColumn = Node.create<SpeakerColumnOptions>({

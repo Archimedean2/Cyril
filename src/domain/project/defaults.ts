@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CyrilProject, CyrilFile, DraftSettings } from './types';
+import { CyrilProject, CyrilFile, DraftSettings, DraftDocument, InventoryDocument } from './types';
 
 export const SCHEMA_VERSION = '1.0.0';
 
@@ -40,8 +40,8 @@ export function createDefaultProject(title: string = 'Untitled Song'): CyrilProj
         createdAt: now,
         updatedAt: now,
         mode: 'lyrics',
-        doc: { type: 'doc', content: [{ type: 'lyricLine', attrs: { id: generateId('line'), delivery: 'sung', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] } as any,
-        inventory: { type: 'inventory', doc: { type: 'doc', content: [{ type: 'paragraph' }] } } as any,
+        doc: { type: 'doc', content: [{ type: 'lyricLine', attrs: { id: generateId('line'), delivery: 'sung', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] } as DraftDocument,
+        inventory: { type: 'inventory', doc: { type: 'doc', content: [{ type: 'paragraph' }] } } as InventoryDocument,
         draftSettings: defaultDraftSettings,
       }
     ],

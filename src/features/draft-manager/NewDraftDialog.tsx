@@ -13,7 +13,10 @@ export function NewDraftDialog({ isOpen, onClose }: NewDraftDialogProps) {
   const [mode, setMode] = React.useState<DuplicationMode>('blank');
   const [sourceDraftId, setSourceDraftId] = React.useState('');
 
-  const drafts = currentProject?.project.drafts || [];
+  const drafts = React.useMemo(
+    () => currentProject?.project.drafts || [],
+    [currentProject?.project.drafts]
+  );
 
   React.useEffect(() => {
     if (isOpen && drafts.length > 0) {

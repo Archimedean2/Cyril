@@ -24,8 +24,9 @@ describe('Project Serialization (T-1.05)', () => {
     const loaded = deserializeProject(serialized);
 
     // Assert the unknown field remains intact
-    expect(loaded.project.customExperimentalPluginData).toBeDefined();
-    expect(loaded.project.customExperimentalPluginData.foo).toBe('bar');
-    expect(loaded.project.customExperimentalPluginData.count).toBe(42);
+    const pluginData = loaded.project.customExperimentalPluginData as Record<string, unknown>;
+    expect(pluginData).toBeDefined();
+    expect(pluginData.foo).toBe('bar');
+    expect(pluginData.count).toBe(42);
   });
 });

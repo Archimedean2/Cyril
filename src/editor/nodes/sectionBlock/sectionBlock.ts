@@ -1,4 +1,6 @@
 import { Node, mergeAttributes, InputRule, NodeViewRendererProps } from '@tiptap/core';
+import { Node as PMNode } from '@tiptap/pm/model';
+import { ViewMutationRecord } from '@tiptap/pm/view';
 import { EditorState, Selection } from '@tiptap/pm/state';
 import { Editor } from '@tiptap/core';
 import { generateId } from '../../../domain/project/ids';
@@ -8,7 +10,7 @@ import { useSectionMenuStore } from '../../../app/state/sectionMenuStore';
 
 export function findParentSection(
   state: EditorState
-): { node: any; pos: number; depth: number } | null {
+): { node: PMNode; pos: number; depth: number } | null {
   const { $from } = state.selection;
   for (let depth = $from.depth; depth > 0; depth--) {
     if ($from.node(depth).type.name === 'sectionBlock') {
@@ -44,7 +46,7 @@ function resolveSectionType(text: string): { sectionType: string; customLabel: s
   return { sectionType: 'custom', customLabel: text };
 }
 
-function getDisplayLabel(node: any): string {
+function getDisplayLabel(node: PMNode): string {
   if (node.attrs.sectionType === 'custom') {
     const label = (node.attrs.customLabel || '').toUpperCase();
     return label || 'NEW SECTION';
@@ -71,7 +73,7 @@ function exitEditMode(labelEl: HTMLElement, fallbackText: string) {
 
 function confirmLabelEdit(
   rawValue: string,
-  node: any,
+  node: PMNode,
   getPos: () => number | undefined,
   editor: Editor,
   labelEl: HTMLElement
@@ -111,7 +113,7 @@ function confirmLabelEdit(
 
 function enterEditMode(
   labelEl: HTMLElement,
-  node: any,
+  node: PMNode,
   getPos: () => number | undefined,
   editor: Editor
 ) {
@@ -156,7 +158,7 @@ function enterEditMode(
 // ─── Tiptap declarations ──────────────────────────────────────────────────────
 
 export interface SectionBlockOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
 }
 
 function makeLyricLineNodeJSON() {
@@ -252,9 +254,9 @@ export const SectionBlock = Node.create<SectionBlockOptions>({
     return ({ node: initialNode, getPos, editor }: NodeViewRendererProps): {
       dom: HTMLDivElement;
       contentDOM: HTMLDivElement;
-      update: (updatedNode: any) => boolean;
+      update: (updatedNode: PMNode) => boolean;
       stopEvent: (event: Event) => boolean;
-      ignoreMutation: (mutation: any) => boolean;
+      ignoreMutation: (mutation: ViewMutationRecord) => boolean;
     } => {
       // Mutable reference to track the current node (prevents stale closure)
       let currentNode = initialNode;
@@ -306,7 +308,7 @@ export const SectionBlock = Node.create<SectionBlockOptions>({
       return {
         dom,
         contentDOM,
-        update(updatedNode: any) {
+        update(updatedNode: PMNode) {
           if (updatedNode.type.name !== 'sectionBlock') return false;
 
           // Update the mutable reference to keep closure current
@@ -322,7 +324,7 @@ export const SectionBlock = Node.create<SectionBlockOptions>({
         stopEvent(event: Event) {
           return label.contains(event.target as globalThis.Node);
         },
-        ignoreMutation(mutation: any) {
+        ignoreMutation(mutation: ViewMutationRecord) {
           return label.contains(mutation.target as globalThis.Node);
         },
       };
@@ -386,8 +388,6 @@ export const SectionBlock = Node.create<SectionBlockOptions>({
           const cursorPos = insertPos + 2;
           const resolvedPos = tr.doc.resolve(Math.min(cursorPos, tr.doc.content.size - 1));
           tr.setSelection(Selection.near(resolvedPos));
-
-          return tr as any;
         },
       }),
     ];

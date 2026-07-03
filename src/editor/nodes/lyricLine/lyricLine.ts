@@ -1,7 +1,7 @@
 import { Node, mergeAttributes, InputRule } from '@tiptap/core';
 
 export interface LyricLineOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
 }
 
 declare module '@tiptap/core' {
@@ -250,7 +250,6 @@ export const LyricLine = Node.create<LyricLineOptions>({
             }
           }
 
-          return tr as any;
         },
       }),
       // (( → stageDirection-typed line (opening-only trigger)
@@ -276,7 +275,6 @@ export const LyricLine = Node.create<LyricLineOptions>({
             }
           }
 
-          return tr as any;
         },
       }),
     ];

@@ -1,6 +1,6 @@
 import { useProjectStore } from '../../app/state/projectStore';
 import { DraftEditor } from '../../components/editor/DraftEditor';
-import { DraftDocument } from '../../domain/project/types';
+import { DraftDocument, RichTextDocument } from '../../domain/project/types';
 
 export function DraftView() {
   const { currentProject, activeView, updateDraftDoc } = useProjectStore();
@@ -12,7 +12,7 @@ export function DraftView() {
   
   if (!draft) return <div>Draft not found</div>;
 
-  const handleUpdate = (doc: any) => {
+  const handleUpdate = (doc: RichTextDocument) => {
     updateDraftDoc(draftId, doc as DraftDocument);
   };
 
@@ -24,7 +24,7 @@ export function DraftView() {
       <div className="draft-view-canvas">
         <DraftEditor
           // Cast is safe here because DraftDocument extends RichTextDocument in practice
-          initialContent={draft.doc as any}
+          initialContent={draft.doc as unknown as RichTextDocument}
           settings={draft.draftSettings}
           draftMode={draft.mode}
           onChange={handleUpdate}

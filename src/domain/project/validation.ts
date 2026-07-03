@@ -1,14 +1,14 @@
 import { z } from 'zod';
 
 // Core structural types
-const RichTextNodeSchema: z.ZodType<any> = z.lazy(() => z.object({
+const RichTextNodeSchema: z.ZodType<unknown> = z.lazy(() => z.object({
   type: z.string(),
   text: z.string().optional(),
-  attrs: z.record(z.string(), z.any()).optional(),
+  attrs: z.record(z.string(), z.unknown()).optional(),
   content: z.array(RichTextNodeSchema).optional(),
   marks: z.array(z.object({
     type: z.string(),
-    attrs: z.record(z.string(), z.any()).optional(),
+    attrs: z.record(z.string(), z.unknown()).optional(),
   })).optional(),
 }).passthrough());
 

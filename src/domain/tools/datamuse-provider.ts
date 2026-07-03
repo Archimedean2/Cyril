@@ -19,6 +19,14 @@ import { ToolProvider, ToolMode, ToolResult } from './types';
 
 const DATAMUSE_API_URL = 'https://api.datamuse.com/words';
 
+interface DatamuseItem {
+  word: string;
+  score?: number;
+  numSyllables?: number;
+  defs?: string[];
+  tags?: string[];
+}
+
 export class DatamuseProvider implements ToolProvider {
   name = 'datamuse';
 
@@ -42,7 +50,7 @@ export class DatamuseProvider implements ToolProvider {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as DatamuseItem[];
       return this.transformResults(data, mode);
     } catch (error) {
       console.error('Datamuse API error:', error);
@@ -79,7 +87,7 @@ export class DatamuseProvider implements ToolProvider {
     }
   }
 
-  private transformResults(data: any[], mode: ToolMode): ToolResult[] {
+  private transformResults(data: DatamuseItem[], mode: ToolMode): ToolResult[] {
     if (!Array.isArray(data)) return [];
 
     return data.map(item => {

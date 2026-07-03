@@ -19,8 +19,13 @@ export interface Writer {
 export interface RichTextNode {
   type: string;
   text?: string;
+  // Open ProseMirror attribute bag: node-specific attrs (id, delivery, meta,
+  // chords, …) are read structurally across the editor and export layers, so a
+  // narrower type here would not be assignable at every call site.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attrs?: Record<string, any>;
   content?: RichTextNode[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   marks?: Array<{ type: string; attrs?: Record<string, any> }>;
 }
 
@@ -197,7 +202,8 @@ export interface CyrilProject {
   displaySettings: DisplaySettings;
   exportSettings: ExportSettings;
   projectSettings: ProjectSettings;
-  [key: string]: any; // Allow unknown fields
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any; // Allow unknown fields (read directly by consumers/tests)
 }
 
 export interface CyrilFile {

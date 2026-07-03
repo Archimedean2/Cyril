@@ -119,12 +119,13 @@ export async function openProject(): Promise<CyrilFile | null> {
     const file = await handle.getFile();
     const contents = await file.text();
     return deserializeProject(contents);
-  } catch (error: any) {
-    if (error.name === 'AbortError') {
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
       // User cancelled picker - return null gracefully
       return null;
     }
-    throw new Error(`Failed to open project: ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to open project: ${message}`);
   }
 }
 
@@ -164,9 +165,10 @@ export async function saveProject(fileContent: CyrilFile, isSaveAs: boolean = fa
     const writable = await fileHandle!.createWritable();
     await writable.write(serializedData);
     await writable.close();
-  } catch (error: any) {
-    if (error.name !== 'AbortError') {
-      throw new Error(`Failed to save project: ${error.message}`);
+  } catch (error) {
+    if (!(error instanceof DOMException) || error.name !== 'AbortError') {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to save project: ${message}`);
     }
   }
 }

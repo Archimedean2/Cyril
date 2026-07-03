@@ -106,7 +106,14 @@ describe('Tools Sidebar Integration', () => {
     const mockClipboard = {
       writeText: vi.fn().mockResolvedValue(undefined),
     };
-    Object.assign(navigator, { clipboard: mockClipboard });
+    // Use defineProperty (configurable) rather than Object.assign: navigator.clipboard
+    // is a read-only property, and it may already be defined by a prior test in the
+    // shared jsdom global, so a plain assignment can throw.
+    Object.defineProperty(navigator, 'clipboard', {
+      value: mockClipboard,
+      configurable: true,
+      writable: true,
+    });
 
     render(<ToolsPane />);
 

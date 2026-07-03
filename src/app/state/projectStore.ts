@@ -106,8 +106,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         });
       }
       // If null, user cancelled - silently ignore, keep current state
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : String(err) });
     }
   },
 
@@ -119,8 +119,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       await saveProject(currentProject, false);
       // Re-set to trigger re-renders if updatedAt changed
       set({ currentProject: { ...currentProject } });
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : String(err) });
     }
   },
 
@@ -131,8 +131,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     try {
       await saveProject(currentProject, true);
       set({ currentProject: { ...currentProject } });
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : String(err) });
     }
   },
 

@@ -1,4 +1,4 @@
-import { EditorOptions } from '@tiptap/core';
+import { EditorOptions, Content } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { Indent } from '../extensions/indent';
 
@@ -19,7 +19,7 @@ export const baseExtensions = [
   Indent,
 ];
 
-export const getBaseEditorConfig = (content: any = ''): Partial<EditorOptions> => ({
+export const getBaseEditorConfig = (content: Content = ''): Partial<EditorOptions> => ({
   extensions: baseExtensions,
   content,
   editable: true,

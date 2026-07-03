@@ -1,4 +1,4 @@
-import { EditorOptions } from '@tiptap/core';
+import { EditorOptions, Content } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { Indent } from '../extensions/indent';
 import { SectionBlock } from '../nodes/sectionBlock/sectionBlock';
@@ -29,7 +29,7 @@ export const draftExtensions = [
 ];
 
 export interface DraftEditorConfigOptions {
-  content?: any;
+  content?: Content;
   showChords?: boolean;
   draftMode?: 'lyrics' | 'lyricsWithChords';
   showSyllableCounts?: boolean;

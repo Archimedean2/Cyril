@@ -54,7 +54,7 @@ export function createDraft(name: string, sourceDraft?: Draft, mode: Duplication
   };
 
   if (mode === 'blank' || !sourceDraft) {
-    newDraft.doc.content = [makeLyricLineJSON()] as any;
+    newDraft.doc.content = [makeLyricLineJSON()];
     return newDraft;
   }
 
@@ -68,7 +68,7 @@ export function createDraft(name: string, sourceDraft?: Draft, mode: Duplication
     // - Alternates
     // - Chord markers
   } else {
-    newDraft.doc.content = [makeLyricLineJSON()] as any;
+    newDraft.doc.content = [makeLyricLineJSON()];
   }
 
   if (mode === 'inventory' || mode === 'both') {

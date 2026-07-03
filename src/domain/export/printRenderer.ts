@@ -84,10 +84,10 @@ function renderConcurrentBlock(concurrent: ConcurrentSectionExport): string {
 /**
  * Render a single line
  */
-function renderLine(line: ExportableLine | any): string {
+function renderLine(line: ExportableLine): string {
   // Inline concurrent block (embedded in a section, side-by-side mode)
-  if ((line as any)._concurrent) {
-    return renderConcurrentBlock((line as any)._concurrent);
+  if (line._concurrent) {
+    return renderConcurrentBlock(line._concurrent);
   }
   switch (line.type) {
     case 'lyric':

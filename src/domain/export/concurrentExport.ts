@@ -8,7 +8,7 @@
  * layout as CSS flex columns. Markdown always uses squash.
  */
 
-import { RichTextNode } from '../project/types';
+import { RichTextNode, ChordMarker, LyricLineMeta } from '../project/types';
 import { ExportableLine, ExportableChord, ResolvedExportOptions, ConcurrentSectionExport } from './exportTypes';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -21,9 +21,9 @@ function extractText(content: RichTextNode[] | undefined): string {
 }
 
 function extractChords(node: RichTextNode): ExportableChord[] | undefined {
-  const meta = node.attrs?.meta;
+  const meta = node.attrs?.meta as LyricLineMeta | undefined;
   if (!meta?.chords || !Array.isArray(meta.chords) || meta.chords.length === 0) return undefined;
-  return meta.chords.map((c: any) => ({
+  return meta.chords.map((c: ChordMarker) => ({
     symbol: c.symbol,
     offset: c.position?.charOffset ?? 0,
   }));

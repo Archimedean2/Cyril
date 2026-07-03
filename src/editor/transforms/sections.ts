@@ -1,4 +1,5 @@
 import { Command } from '@tiptap/core';
+import { Node as PMNode } from '@tiptap/pm/model';
 import { generateId } from '../../domain/project/defaults';
 
 export const insertSectionBlock = (options?: { id?: string; sectionType?: string; label?: string; summary?: string; color?: string }): Command => ({ commands }) => {
@@ -21,7 +22,7 @@ export const insertSectionBlock = (options?: { id?: string; sectionType?: string
 
 export const reorderSectionBlock = (fromIndex: number, toIndex: number): Command => ({ tr, state, dispatch }) => {
   // Find all sections in the document
-  const sections: { pos: number; node: any }[] = [];
+  const sections: { pos: number; node: PMNode }[] = [];
   state.doc.descendants((node, pos) => {
     if (node.type.name === 'sectionBlock') {
       sections.push({ pos, node });

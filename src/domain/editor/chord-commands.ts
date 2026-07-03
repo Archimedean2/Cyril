@@ -25,7 +25,7 @@ function findLineByChordId(editor: Editor, chordId: string): LyricLineInfo | nul
   editor.state.doc.descendants((node, pos) => {
     if (node.type.name === 'lyricLine') {
       const attrs = node.attrs as unknown as LyricLineNode;
-      if (attrs.meta?.chords?.some((c: any) => c.id === chordId)) {
+      if (attrs.meta?.chords?.some((c: ChordMarker) => c.id === chordId)) {
         result = { node, pos, attrs, meta: attrs.meta };
         return false;
       }

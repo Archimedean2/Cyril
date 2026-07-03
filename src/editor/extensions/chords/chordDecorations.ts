@@ -8,6 +8,7 @@
  */
 
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { Node } from '@tiptap/pm/model';
 import { ChordMarker } from '../../../domain/project/types';
 
 /**
@@ -38,10 +39,10 @@ function createChordMarkerElement(chord: ChordMarker, lineId: string): HTMLEleme
  * Each chord becomes a widget placed at `lineTextStart + charOffset`,
  * i.e. exactly at the character it was attached to.
  */
-export function buildAllChordDecorations(doc: any): DecorationSet {
+export function buildAllChordDecorations(doc: Node): DecorationSet {
   const decorations: Decoration[] = [];
 
-  doc.descendants((node: any, pos: number) => {
+  doc.descendants((node: Node, pos: number) => {
     if (node.type.name !== 'lyricLine') return true;
 
     const meta = node.attrs.meta || { chords: [] };

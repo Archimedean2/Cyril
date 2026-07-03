@@ -17,7 +17,7 @@ describe('Project Validation', () => {
     const project = createDefaultProject('Invalid');
     
     // Test missing title
-    const { title, ...projectWithoutTitle } = project;
+    const { title: _title, ...projectWithoutTitle } = project;
     const missingTitleData = {
       schemaVersion: SCHEMA_VERSION,
       project: projectWithoutTitle,
