@@ -50,7 +50,7 @@ describe('Chord Commands', () => {
     } as unknown as Editor;
   });
 
-  describe('U-9.01: Add chord marker works', () => {
+  describe('T-9.01: Add chord marker works', () => {
     test('addChordToCurrentLine creates a new chord with specified symbol', () => {
       // Setup: LyricLine node found at position
       const mockLyricLineNode = {
@@ -104,7 +104,7 @@ describe('Chord Commands', () => {
     });
   });
 
-  describe('U-9.02: Chord marker position is stored correctly', () => {
+  describe('T-9.02: Chord marker position is stored correctly', () => {
     test('addChordToCurrentLine stores position at current caret offset', () => {
       const mockLyricLineNode = {
         type: { name: 'lyricLine' },
@@ -192,7 +192,7 @@ describe('Chord Commands', () => {
     });
   });
 
-  describe('U-9.03: Moving chord marker updates position correctly', () => {
+  describe('T-9.03: Moving chord marker updates position correctly', () => {
     test('moveChordOnCurrentLine increments offset when moving right', () => {
       const existingChord: ChordMarker = {
         id: 'existing_chord_1',

@@ -62,6 +62,7 @@ describe('I-9: Chord Persistence and Visibility', () => {
         showStageDirections: true,
         showSummaries: true,
         showSyllableCounts: false,
+        showStressMarks: false,
       },
     };
 
@@ -94,6 +95,7 @@ describe('I-9: Chord Persistence and Visibility', () => {
         includeStageDirections: true,
         fontPreset: 'default',
         pageDensity: 'normal',
+        concurrentLayout: 'squash',
       },
       projectSettings: {
         autosave: true,
@@ -102,7 +104,7 @@ describe('I-9: Chord Persistence and Visibility', () => {
     };
   });
 
-  describe('I-9.01: Chords persist through save/load', () => {
+  describe('T-9.04: Chords persist through save/load', () => {
     it('preserves draft mode through serialization cycle', () => {
       const cyrilFile: CyrilFile = {
         schemaVersion: 'cyril-1.0',
@@ -194,7 +196,7 @@ describe('I-9: Chord Persistence and Visibility', () => {
     });
   });
 
-  describe('I-9.02: Visibility toggle hides without deleting data', () => {
+  describe('T-9.05: Visibility toggle hides without deleting data', () => {
     it('showChords toggle does not affect persisted chord data', () => {
       const cyrilFile: CyrilFile = {
         schemaVersion: 'cyril-1.0',

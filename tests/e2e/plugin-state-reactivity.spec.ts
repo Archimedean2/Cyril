@@ -18,9 +18,8 @@ import { test, expect, Page } from '@playwright/test';
 
 async function setup(page: Page) {
   await page.goto('/');
+  await page.getByRole('button', { name: 'Create Project' }).click();
   await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
-  await page.click('text=Create Project');
-  await page.click('text=Draft 1');
   await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible({ timeout: 10000 });
 }
 
@@ -31,14 +30,20 @@ async function typeInEditor(page: Page, text: string) {
   await page.keyboard.type(text);
 }
 
+async function focusEditor(page: Page) {
+  const pm = page.locator('[data-testid="editor-surface"] .ProseMirror');
+  await pm.click();
+}
+
 async function addChord(page: Page, symbol: string) {
+  // Ensure cursor is in a lyric line so chord-add-button is enabled
+  await focusEditor(page);
   await expect(async () => {
     expect(await page.locator('[data-testid="chord-add-button"]').isEnabled()).toBe(true);
   }).toPass({ timeout: 5000 });
-  const dialogPromise = page.waitForEvent('dialog', { timeout: 8000 });
+  // Handle the native prompt() dialog — register handler before click to avoid deadlock
+  page.once('dialog', dialog => dialog.accept(symbol));
   await page.click('[data-testid="chord-add-button"]');
-  const dialog = await dialogPromise;
-  await dialog.accept(symbol);
 }
 
 // ─── Chord plugin state reactivity ───────────────────────────────────────────
@@ -49,19 +54,19 @@ test.describe('Chord plugin state reactivity', () => {
   test('PR-C.01: Chord decoration absent in Lyrics mode even after typing', async ({ page }) => {
     await typeInEditor(page, 'Amazing grace');
     // Default mode is lyrics — plugin state should suppress all decorations
-    await expect(page.locator('[data-testid="chord-lane"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0);
   });
 
   test('PR-C.02: Switching to Lyrics+Chords mode enables the chord decoration layer', async ({ page }) => {
     await typeInEditor(page, 'Amazing grace');
     // No markers before mode switch
-    await expect(page.locator('[data-testid="chord-lane"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0);
 
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     // After adding a chord the lane should appear (decoration layer is now live)
     await addChord(page, 'G');
-    await expect(page.locator('[data-testid="chord-lane"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('G');
   });
 
@@ -74,32 +79,32 @@ test.describe('Chord plugin state reactivity', () => {
     // The critical path: plugin state must update when mode prop changes
     await page.click('[data-testid="draft-mode-option-lyrics"]');
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0, { timeout: 5000 });
-    await expect(page.locator('[data-testid="chord-lane"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0);
   });
 
   test('PR-C.04: Unchecking showChords removes lane widget from DOM (not just hidden via CSS)', async ({ page }) => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await typeInEditor(page, 'Amazing grace');
     await addChord(page, 'D');
-    await expect(page.locator('[data-testid="chord-lane"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
     // Plugin must stop generating decorations; the lane widget should not be in the DOM
     await page.locator('[data-testid="toggle-show-chords"]').uncheck();
-    await expect(page.locator('[data-testid="chord-lane"]')).toHaveCount(0, { timeout: 5000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0, { timeout: 5000 });
   });
 
   test('PR-C.05: Re-checking showChords re-creates lane widgets in DOM', async ({ page }) => {
     await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
     await typeInEditor(page, 'Amazing grace');
     await addChord(page, 'Em');
-    await expect(page.locator('[data-testid="chord-lane"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
     await page.locator('[data-testid="toggle-show-chords"]').uncheck();
-    await expect(page.locator('[data-testid="chord-lane"]')).toHaveCount(0, { timeout: 5000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0, { timeout: 5000 });
 
     // Plugin must re-emit decorations when flag flips back
     await page.locator('[data-testid="toggle-show-chords"]').check();
-    await expect(page.locator('[data-testid="chord-lane"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('Em');
   });
 
@@ -116,7 +121,7 @@ test.describe('Chord plugin state reactivity', () => {
     await page.keyboard.type(' how sweet');
 
     // Lane and marker must survive the document update
-    await expect(page.locator('[data-testid="chord-lane"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('C');
   });
 });

@@ -8,25 +8,24 @@ test.describe('Stage 4: Sections and Metadata', () => {
   });
 
   test('T-4.10: Section/metadata workflow passes in UI', async ({ page }) => {
-    // Switch to Draft
-    await page.click('text=Draft 1');
-
-    // Wait for the draft editor to be visible
+    // Wait for the draft editor to be visible (project creation auto-opens a draft)
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible();
 
     // Verify the display toggles are visible in the left sidebar
-    await expect(page.locator('text=View')).toBeVisible();
     await expect(page.locator('[data-testid="toggle-show-sections"]')).toBeVisible();
     await expect(page.locator('[data-testid="toggle-show-speakers"]')).toBeVisible();
 
-    // Try to insert a section
+    // Insert a section via toolbar — clicking opens the picker, then select a type
     await page.click('[data-testid="editor-add-section-button"]');
-    
+    await expect(page.locator('[data-testid="section-type-picker"]')).toBeVisible();
+    await page.click('[data-testid="section-type-option-verse"]');
+
     // Check that section is added by inspecting the editor surface
     await expect(page.locator('[data-type="sectionBlock"]')).toBeVisible();
 
-    // Type some text then toggle it to a speaker line
-    await page.locator('[data-testid="editor-surface"] .ProseMirror').click();
+    // Click inside the section's content area and type
+    const pm = page.locator('[data-testid="editor-surface"] .ProseMirror');
+    await pm.click();
     await page.keyboard.press('Enter');
     await page.keyboard.type('WOODY');
     await page.click('[data-testid="toolbar-speaker"]');
@@ -53,7 +52,7 @@ test.describe('Stage 4: << Section Input Rule', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.click('text=Create Project');
-    await page.click('text=Draft 1');
+    // Project creation auto-opens draft view — no need to click Draft 1
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible();
   });
 
@@ -81,26 +80,43 @@ test.describe('Stage 4: << Section Input Rule', () => {
     await page.keyboard.type('<<');
     await page.waitForTimeout(300);
 
-    // Type text immediately after << fires — it should appear inside the new section
-    await page.keyboard.type('verse content');
-    await page.waitForTimeout(200);
+    // << with empty label auto-enters label edit mode — dismiss it first
+    const labelInput = page.locator('.section-label-input');
+    if (await labelInput.isVisible({ timeout: 500 }).catch(() => false)) {
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(100);
+    }
 
-    const sectionContent = page.locator('[data-type="sectionBlock"]');
-    await expect(sectionContent).toContainText('verse content');
+    // Click inside the section's content area and type
+    const sectionContent = page.locator('[data-type="sectionBlock"] .section-content');
+    await sectionContent.click();
+    await page.keyboard.type('verse content');
+
+    await expect(page.locator('[data-type="sectionBlock"]')).toContainText('verse content');
   });
 
   test('T-4.19: Typing << inside an existing section creates a new section after it', async ({ page }) => {
     const proseMirror = page.locator('[data-testid="editor-surface"] .ProseMirror');
     await proseMirror.click();
 
-    // First insert a section via toolbar
+    // First insert a section via toolbar — select Verse from the picker
     await page.click('[data-testid="editor-add-section-button"]');
-    await page.waitForTimeout(300);
+    await expect(page.locator('[data-testid="section-type-picker"]')).toBeVisible();
+    await page.click('[data-testid="section-type-option-verse"]');
+    await expect(page.locator('[data-type="sectionBlock"]')).toBeVisible();
 
-    // Focus editor again and type << to insert a second section
-    await proseMirror.click();
+    // Click inside the section content area, press Enter to get a new line, type <<
+    const sectionContent = page.locator('[data-type="sectionBlock"] .section-content');
+    await sectionContent.click();
+    await page.keyboard.press('Enter');
     await page.keyboard.type('<<');
     await page.waitForTimeout(300);
+
+    // Dismiss label edit mode if it appears
+    const labelInput = page.locator('.section-label-input');
+    if (await labelInput.isVisible({ timeout: 500 }).catch(() => false)) {
+      await page.keyboard.press('Escape');
+    }
 
     // Two section blocks should now exist
     const sections = page.locator('[data-type="sectionBlock"]');

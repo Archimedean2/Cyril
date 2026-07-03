@@ -48,7 +48,8 @@ describe('Stage 0: App Shell Integration', () => {
               inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
               draftSettings: {
                 showChords: true, showSectionLabels: true, showSpeakerLabels: true,
-                showStageDirections: true, showSummaries: true, showSyllableCounts: false
+                showStageDirections: true, showSummaries: true, showSyllableCounts: false,
+                showStressMarks: false
               }
             }],
             activeDraftId: null,
@@ -61,7 +62,7 @@ describe('Stage 0: App Shell Integration', () => {
             exportSettings: {
               includeSectionLabels: true, includeSpeakerLabels: true,
               includeStageDirections: true, includeChords: false,
-              fontPreset: 'default', pageDensity: 'normal'
+              fontPreset: 'default', pageDensity: 'normal', concurrentLayout: 'squash'
             },
             projectSettings: {
               autosave: true, preferredExportMode: 'lyricsOnly'

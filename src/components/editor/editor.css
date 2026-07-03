@@ -5,7 +5,7 @@
   min-height: 0;
   width: 100%;
   cursor: text;
-  background: #ffffff;
+  background: var(--bg-editor);
 }
 
 /* Tiptap renders EditorContent as a div wrapping .ProseMirror.
@@ -21,7 +21,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--bg-editor);
   overflow-y: auto;
   scrollbar-gutter: stable;
   cursor: default;
@@ -101,8 +101,8 @@
   display: flex;
   gap: 0.25rem;
   padding: 0.375rem 0.75rem;
-  border-bottom: 1px solid #c8d0db;
-  background-color: #f8fafc;
+  border-bottom: 1px solid var(--border-default);
+  background-color: var(--bg-panel);
   align-items: center;
   flex-shrink: 0;
 }
@@ -116,7 +116,7 @@
 .toolbar-group + .toolbar-group {
   margin-left: 6px;
   padding-left: 6px;
-  border-left: 1px solid #dbe3ee;
+  border-left: 1px solid var(--border-subtle);
 }
 
 .editor-toolbar button {
@@ -126,18 +126,18 @@
   padding: 3px 8px;
   font-size: 0.8rem;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
 .editor-toolbar button:hover:not(:disabled) {
-  background-color: #e8edf3;
+  background-color: var(--bg-hover);
 }
 
 .editor-toolbar button.is-active,
 .editor-toolbar button.active {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  background-color: var(--accent-soft);
+  color: var(--accent-strong);
   font-weight: 600;
 }
 
@@ -184,14 +184,28 @@
    Line type: speaker
    ====================== */
 .line-type-speaker {
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-primary, #222);
-  font-size: 0.85em;
-  padding-top: 4px;
+  color: var(--text-primary);
+  font-size: 0.8em;
+  padding-top: 6px;
   padding-bottom: 2px;
   padding-left: 0;
+}
+
+/* Per-character identity cue: a small dot in the character's assigned colour.
+   Set --speaker-color on the line (or an ancestor) to tint per character;
+   defaults to the app accent. Inline-block keeps it clear of the sibling-indent rules. */
+.line-type-speaker::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--speaker-color);
+  margin-right: 7px;
+  vertical-align: middle;
 }
 
 /* ======================
@@ -199,8 +213,7 @@
    ====================== */
 .line-type-stageDirection {
   font-style: italic;
-  color: var(--text-muted, #888);
-  opacity: 0.7;
+  color: var(--text-muted);
   font-size: 0.85em;
   padding-top: 2px;
   padding-bottom: 0;
@@ -225,21 +238,22 @@
 
 /* Section label — display mode (real DOM element from NodeView) */
 .section-label {
-  font-size: 0.65em;
+  font-size: 0.68em;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-muted, #999);
-  opacity: 0.45;
+  color: var(--text-faint);
   cursor: pointer;
   user-select: none;
-  padding: 2px 0;
+  padding: 2px 0 2px 8px;
   margin-bottom: 2px;
   line-height: 1.2;
+  /* subtle section accent bar; override --section-color per section type */
+  border-left: 2px solid var(--section-color, var(--section-gold));
 }
 
 .section-label:hover {
-  opacity: 0.7;
+  color: var(--text-muted);
 }
 
 /* Section label — edit mode input */
@@ -259,7 +273,7 @@
 }
 
 .section-label-input:focus {
-  border-color: var(--accent-color, #4a9eff);
+  border-color: var(--accent-color, var(--accent-primary));
 }
 
 /* Consecutive section separator */
@@ -294,7 +308,7 @@
    Selected section
    ====================== */
 .section-block.ProseMirror-selectednode {
-  outline: 2px solid var(--accent-color, #4a9eff);
+  outline: 2px solid var(--accent-color, var(--accent-primary));
   outline-offset: 2px;
   background: rgba(74, 158, 255, 0.04);
   border-radius: 4px;
@@ -313,8 +327,8 @@
   padding: 0.75rem;
   border: 1px solid #c8d0db;
   border-radius: 4px;
-  background: #ffffff;
-  color: #1f2937;
+  background: var(--bg-editor);
+  color: var(--text-primary);
   font-family: inherit;
   font-size: 0.9rem;
   line-height: 1.6;
@@ -323,7 +337,7 @@
 }
 
 .inventory-textarea:focus {
-  border-color: var(--accent-color, #4a90d9);
+  border-color: var(--accent-color, var(--accent-primary));
 }
 
 .inventory-textarea::placeholder {
@@ -350,7 +364,7 @@
   display: flex;
   gap: 2px;
   padding: 4px;
-  background: var(--panel-bg-alt, #f5f5f5);
+  background: var(--panel-bg-alt, var(--bg-subtle));
   border-bottom: 1px solid var(--border-color);
   overflow-x: auto;
 }
@@ -373,7 +387,7 @@
 }
 
 .tools-tab.active {
-  background: var(--accent-color, #4a90d9);
+  background: var(--accent-color, var(--accent-primary));
   color: white;
 }
 
@@ -399,7 +413,7 @@
 
 .tools-search-input:focus {
   outline: none;
-  border-color: var(--accent-color, #4a90d9);
+  border-color: var(--accent-color, var(--accent-primary));
 }
 
 .tools-search-button,
@@ -407,7 +421,7 @@
   padding: 6px 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  background: var(--button-bg, #f5f5f5);
+  background: var(--button-bg, var(--bg-subtle));
   color: var(--text-color);
   cursor: pointer;
   font-size: 0.9rem;
@@ -437,7 +451,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: lowercase;
-  color: #4a7db5;
+  color: var(--accent-primary);
   text-align: center;
   padding: 2px 8px 5px;
   border-bottom: 1px solid #dce8f5;
@@ -452,7 +466,7 @@
 
 .rhyme-word {
   cursor: pointer;
-  color: #2a6496;
+  color: var(--accent-strong);
   font-size: 0.92rem;
   padding: 1px 2px;
   border-radius: 2px;
@@ -460,22 +474,22 @@
 }
 
 .rhyme-word:hover {
-  background: #e8f0fa;
+  background: var(--accent-soft);
   text-decoration: underline;
 }
 
 .rhyme-word:focus {
-  outline: 2px solid #4a90d9;
+  outline: 2px solid var(--accent-primary);
   outline-offset: 1px;
 }
 
 .rhyme-word-bold {
   font-weight: 700;
-  color: #1a3f5c;
+  color: var(--accent-strong);
 }
 
 .rhyme-sep {
-  color: #aab4c0;
+  color: var(--text-faint);
   margin-right: 4px;
   user-select: none;
 }
@@ -490,7 +504,7 @@
 }
 
 .tools-results-error {
-  color: var(--error-color, #d32f2f);
+  color: var(--error-color, var(--status-error));
 }
 
 .tools-result-item {
@@ -506,7 +520,7 @@
 }
 
 .tools-result-item:focus {
-  outline: 2px solid var(--accent-color, #4a90d9);
+  outline: 2px solid var(--accent-color, var(--accent-primary));
   outline-offset: -2px;
 }
 
@@ -526,7 +540,7 @@
 
 .tools-result-pos {
   font-size: 0.75rem;
-  color: var(--accent-color, #4a90d9);
+  color: var(--accent-color, var(--accent-primary));
   font-weight: 500;
   text-transform: uppercase;
 }
@@ -578,10 +592,10 @@
   font-size: 0.8rem;
   font-weight: 600;
   line-height: 1;
-  color: var(--accent-color, #4a90d9);
+  color: var(--accent-color, var(--accent-primary));
   padding: 1px 6px;
   border-radius: 3px;
-  background: var(--panel-bg-alt, #f5f5f5);
+  background: var(--panel-bg-alt, var(--bg-subtle));
   border: 1px solid var(--border-color, #ddd);
   white-space: nowrap;
   pointer-events: auto;
@@ -592,12 +606,12 @@
 
 .cyril-chord-marker:hover {
   background: var(--hover-bg, rgba(0,0,0,0.05));
-  border-color: var(--accent-color, #4a90d9);
+  border-color: var(--accent-color, var(--accent-primary));
 }
 
 .cyril-chord-marker.is-editing {
-  border-color: var(--accent-color, #4a90d9);
-  background: #fff;
+  border-color: var(--accent-color, var(--accent-primary));
+  background: var(--bg-editor);
 }
 
 /* Give lyric lines enough room above for chord pills */
@@ -632,13 +646,13 @@
 /* / above stressed syllables */
 .cyril-stress-mark--stressed::before {
   content: '/';
-  color: var(--accent-color, #4a90d9);
+  color: var(--accent-color, var(--accent-primary));
 }
 
 /* ^ above unstressed syllables */
 .cyril-stress-mark--unstressed::before {
   content: '^';
-  color: #999;
+  color: var(--text-faint);
   font-size: 0.7em;
   top: -1.15em;
 }
@@ -649,7 +663,7 @@
   margin-left: 0.5em;
   font-size: 0.72rem;
   font-weight: 500;
-  color: #999;
+  color: var(--text-faint);
   opacity: 0.75;
   user-select: none;
   pointer-events: none;
@@ -743,7 +757,7 @@
 }
 
 .concurrent-remove-col-btn:hover {
-  color: #b91c1c;
+  color: var(--status-error);
 }
 
 /* Add-speaker link — invisible until block hovered */
@@ -826,7 +840,7 @@
   font-size: 0.8em;
   cursor: pointer;
   user-select: none;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 .section-context-menu-item:hover {
@@ -834,7 +848,7 @@
 }
 
 .section-context-menu-item--danger {
-  color: #b91c1c;
+  color: var(--status-error);
 }
 
 .section-context-menu-item--danger:hover {
@@ -853,7 +867,7 @@
   top: calc(100% + 4px);
   left: 0;
   z-index: 200;
-  background: #ffffff;
+  background: var(--bg-editor);
   border: 1px solid #c8d0db;
   border-radius: 5px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -864,7 +878,7 @@
 
 .stp-action-tabs {
   display: flex;
-  border-bottom: 1px solid #e8edf3;
+  border-bottom: 1px solid var(--bg-hover);
   margin-bottom: 2px;
 }
 
@@ -875,28 +889,28 @@
   border: none;
   cursor: pointer;
   font-size: 0.78rem;
-  color: #6b7280;
+  color: var(--text-muted);
   border-bottom: 2px solid transparent;
   transition: color 0.1s, border-color 0.1s;
 }
 
 .stp-action-tab:hover {
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 .stp-action-tab.active {
-  color: #1d4ed8;
-  border-bottom-color: #1d4ed8;
+  color: var(--accent-strong);
+  border-bottom-color: var(--accent-strong);
   font-weight: 600;
 }
 
 .stp-remove-tab {
   margin-left: auto;
-  color: #9ca3af;
+  color: var(--text-faint);
 }
 
 .stp-remove-tab:hover {
-  color: #b91c1c;
+  color: var(--status-error);
 }
 
 .stp-type-list {
@@ -918,15 +932,15 @@
   border: none;
   cursor: pointer;
   text-align: left;
-  color: #374151;
+  color: var(--text-secondary);
   font-size: 0.82rem;
   white-space: nowrap;
   transition: background 0.1s;
 }
 
 .stp-type-option:hover {
-  background: #f1f5f9;
-  color: #1d4ed8;
+  background: var(--bg-subtle);
+  color: var(--accent-strong);
 }
 
 .stp-custom-input-row {
@@ -943,25 +957,25 @@
   border-radius: 3px;
   font-size: 0.82rem;
   outline: none;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 .stp-custom-input:focus {
-  border-color: #4a90d9;
+  border-color: var(--accent-primary);
 }
 
 .stp-custom-confirm {
   padding: 4px 8px;
-  background: #dbeafe;
-  border: 1px solid #93c5fd;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-primary-2);
   border-radius: 3px;
   cursor: pointer;
   font-size: 0.82rem;
-  color: #1d4ed8;
+  color: var(--accent-strong);
 }
 
 .stp-custom-confirm:hover {
-  background: #bfdbfe;
+  background: var(--accent-soft);
 }
 
 /* Chord edit/delete popover */
@@ -969,7 +983,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #fff;
+  background: var(--bg-editor);
   border: 1px solid #c8d0db;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
@@ -983,12 +997,12 @@
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--accent-color, #4a90d9);
+  color: var(--accent-color, var(--accent-primary));
   outline: none;
 }
 
 .chord-popover-input:focus {
-  border-color: var(--accent-color, #4a90d9);
+  border-color: var(--accent-color, var(--accent-primary));
 }
 
 .chord-popover-save,
@@ -1002,18 +1016,18 @@
 }
 
 .chord-popover-save {
-  background: #dbeafe;
-  color: #1d4ed8;
-  border-color: #93c5fd;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border-color: var(--accent-primary-2);
 }
 
 .chord-popover-save:hover {
-  background: #bfdbfe;
+  background: var(--accent-soft);
 }
 
 .chord-popover-delete {
   background: #fee2e2;
-  color: #b91c1c;
+  color: var(--status-error);
   border-color: #fca5a5;
 }
 

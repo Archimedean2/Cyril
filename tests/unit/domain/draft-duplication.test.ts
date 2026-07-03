@@ -45,7 +45,7 @@ describe('Draft Duplication', () => {
     expect(duplicated.inventory.doc.content).toEqual([{ type: 'paragraph' }]);
   });
 
-  it('duplicates inventory only', () => {
+  it('T-3.07: Duplicate inventory only works', () => {
     const source = createDraft('Source');
     source.doc.content = [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello lyrics' }] }] as any;
     source.inventory.doc.content = [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello inventory' }] }] as any;
@@ -57,7 +57,7 @@ describe('Draft Duplication', () => {
     expect(duplicated.inventory.doc.content).toEqual(source.inventory.doc.content);
   });
 
-  it('duplicates both text and inventory', () => {
+  it('T-3.08: Duplicate both text and inventory works', () => {
     const source = createDraft('Source');
     source.doc.content = [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello lyrics' }] }] as any;
     source.inventory.doc.content = [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello inventory' }] }] as any;

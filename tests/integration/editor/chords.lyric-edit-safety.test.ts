@@ -5,7 +5,7 @@ import { ChordExtension } from '../../../src/editor/extensions/chords';
 import StarterKit from '@tiptap/starter-kit';
 import { LyricLine } from '../../../src/editor/nodes/lyricLine/lyricLine';
 
-describe('I-9.04: Editing lyric text does not corrupt chord marker data', () => {
+describe('T-9.06: Editing lyric text does not corrupt chord marker data', () => {
   let editor: Editor;
 
   beforeEach(() => {

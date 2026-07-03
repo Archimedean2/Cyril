@@ -23,7 +23,9 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
     includeSpeakerLabels: true,
     includeStageDirections: true,
     includeChords: true,
+    fontPreset: 'default',
     pageDensity: 'normal',
+    concurrentLayout: 'squash',
   };
 
   const currentExportSettings = exportSettings || defaultExportSettings;

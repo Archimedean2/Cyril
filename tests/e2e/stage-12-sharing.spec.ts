@@ -20,18 +20,23 @@ test.describe('Stage 12: Lightweight Sharing', () => {
 
   test('T-12.20: Copy Share button shows feedback on click', async ({ page }) => {
     // Grant clipboard permissions
-    await page.context().grantPermissions(['clipboard-write']);
+    await page.context().grantPermissions(['clipboard-write', 'clipboard-read']);
+
+    // Create a project so there's an active draft to share
+    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
 
     // Open export dialog and click share
     await page.click('[data-testid="export-button"]');
+    await expect(page.locator('[data-testid="export-dialog"]')).toBeVisible();
     await page.click('[data-testid="export-share-button"]');
 
     // Verify button text changes to indicate success
-    await expect(page.locator('[data-testid="export-share-button"]')).toContainText('Copied!');
+    await expect(page.locator('[data-testid="export-share-button"]')).toContainText('Copied!', { timeout: 5000 });
   });
 
   test('T-12.21: Import Share dialog can be opened from left nav', async ({ page }) => {
-    // The import share button should be visible in the left nav
+    // The import share button should be visible in the empty state
     await expect(page.locator('[data-testid="import-share-button"]')).toBeVisible();
 
     // Click to open the dialog

@@ -8,12 +8,20 @@ Build strictly one stage at a time.
 
 Do not attempt to implement the whole product from a single reading.
 
+> **Start with `CLAUDE.md`.** It is the short operating guide and points to everything
+> else. Before calling any work done, satisfy `DEFINITION_OF_DONE.md`. The project is
+> currently in **stabilization** (see `NEXT_STEPS.md`), not new feature work.
+
 ---
 
 ## Document Inventory
 
 | Document | Purpose | Read when |
 |----------|---------|-----------|
+| `CLAUDE.md` | Short operating guide: gates, commands, where to look, landmines | **First, every session** |
+| `DEFINITION_OF_DONE.md` | The contract for what "done" means (gates + traceability) | Before starting, and before calling anything done |
+| `NEXT_STEPS.md` | Current prioritized roadmap (stabilization first) | To choose what to work on |
+| `FEATURE_COVERAGE.md` | Generated ledger: which acceptance criteria are actually verified | To check real status (regenerate with `npm run coverage:features`) |
 | `SCOPE.md` | Product goals, constraints, non-goals, release boundaries | Read once at the start, then revisit for scope questions |
 | `ARCHITECTURE.md` | Engineering decisions, stack, app structure, persistence approach | Read once at the start, then revisit for architecture questions |
 | `DATA_MODEL.md` | Canonical `.cyril` data model and schema rules | Read before any persistence or feature work |
@@ -63,9 +71,11 @@ For each stage:
 3. Read only those feature sections in `FEATURES.md`
 4. Check any schema dependencies in `DATA_MODEL.md`
 5. Implement only what is in scope for the stage
-6. Run the relevant tests from `TESTS.md`
-7. Record completion, issues, and deviations in `PROGRESS.md`
-8. Do not continue until all acceptance criteria pass
+6. Run the relevant tests from `TESTS.md`, each tagged with its `T-` criterion ID
+7. Run all four gates and `npm run coverage:features`; confirm your criteria show `✅`
+8. Record completion, issues, and deviations in `PROGRESS.md` — only checking boxes the
+   feature-coverage ledger can back up
+9. Do not continue until all acceptance criteria pass per `DEFINITION_OF_DONE.md`
 
 ---
 
@@ -100,6 +110,9 @@ Full rules and trigger conditions are in `TASKING.md` → Senior Dev Consultatio
 
 ## Rules
 
+0. Nothing is "done" until it satisfies `DEFINITION_OF_DONE.md`: all four gates pass and
+   every acceptance criterion has an ID-tagged, passing test shown as `✅` in
+   `FEATURE_COVERAGE.md`. This rule outranks the rest.
 1. Build one stage at a time.
 2. Do not implement future-stage features early.
 3. Do not invent new schema fields unless `DATA_MODEL.md` is updated intentionally.

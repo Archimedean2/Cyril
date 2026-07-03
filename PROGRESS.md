@@ -1,10 +1,40 @@
 # Cyril — Build Progress
 
+> **Read this before trusting anything below.** The per-stage "Complete / Passing"
+> entries in this file were written as features were built, but they were never verified
+> against working quality gates — the build was failing, lint had never run, and the test
+> suite hung instead of reporting. Treat the stage table as "code was written", not
+> "feature works". **The source of truth for what is actually verified is
+> `FEATURE_COVERAGE.md`** (regenerate with `npm run coverage:features`). Do not check a
+> box in this file that the feature-coverage ledger cannot back up. See
+> `DEFINITION_OF_DONE.md`.
+
+## Reality check — 2026-07-03
+
+A stabilization pass repaired the quality gates and established honest metrics:
+
+- **Build:** `npm run build` now exits 0 (was failing on 9 `tsc` errors).
+- **Lint:** `npm run lint` now runs (there was no ESLint config at all); 0 errors.
+- **Tests:** `npm test` now passes **and terminates** — 243 passing (was hanging forever
+  under the default pool; pinned to a single fork, root leak still to be fixed).
+- **Code coverage:** ~70% lines / ~51% functions (report-only in CI for now).
+- **Feature coverage:** **100% of non-e2e acceptance criteria** (119/119) now have a
+  passing, ID-tagged test. This was 91.6% before retagging mislabelled tests and writing
+  the four genuinely-missing ones (T-2.07, T-2.09, T-3.07, T-3.08).
+- **Still unverified:** the **31 e2e (Playwright) criteria** have never been run green.
+  Until `npm run test:e2e` passes, treat every e2e-only criterion as NOT done. This is
+  the top item in `NEXT_STEPS.md` (Phase 1c).
+
+The per-stage notes below are retained as a build log. Where they claim "N/N passing",
+read that as "unit/integration only, at time of writing"; the live, trustworthy status
+is in `FEATURE_COVERAGE.md`.
+
+---
+
 ## Current Stage
-- Stage: 12
-- Status: Complete
-- Started: 2026-04-14
-- Completed: 2026-04-23
+- Stage: 12 stages built; project in **stabilization**, not feature work.
+- Status: Gates green; non-e2e feature coverage 100%; e2e unverified.
+- Next: `NEXT_STEPS.md` Phase 1 (e2e green, paragraph-schema fix, test-leak root cause).
 
 ---
 

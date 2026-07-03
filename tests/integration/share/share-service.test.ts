@@ -27,6 +27,7 @@ function makeCyrilFileWithDraft(draftOverrides: Partial<Draft> = {}): CyrilFile 
       showStageDirections: true,
       showSummaries: true,
       showSyllableCounts: false,
+      showStressMarks: false,
     },
     ...draftOverrides,
   };

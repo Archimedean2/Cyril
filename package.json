@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "coverage:features": "node scripts/feature-coverage.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test"
   },

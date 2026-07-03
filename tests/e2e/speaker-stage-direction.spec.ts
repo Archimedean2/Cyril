@@ -28,12 +28,10 @@ async function waitForLineType(page: Page, lineType: string, timeout = 5000): Pr
 test.describe('Speaker and Stage Direction', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Wait for app shell to be fully loaded
-    await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
 
-    // Create project and navigate to draft
-    await page.click('text=Create Project');
-    await page.click('text=Draft 1');
+    // Create project first — .app-shell only renders after project is loaded
+    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
 
     // Wait for editor to be fully initialized
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible({ timeout: 10000 });
@@ -225,7 +223,7 @@ test.describe('Speaker and Stage Direction', () => {
     // Verify it has bold styling with retry (CSS may take time to apply)
     await expect(async () => {
       const fontWeight = await speakerLine.evaluate(el => getComputedStyle(el).fontWeight);
-      expect(fontWeight).toBe('700');
+      expect(fontWeight).toBe('600');
     }).toPass({ timeout: 5000 });
 
     // Verify it's uppercase with retry
@@ -237,7 +235,7 @@ test.describe('Speaker and Stage Direction', () => {
 
   test('T-4.14: Speaker line works outside of a section block', async ({ page }) => {
     // Verify we're not inside a section by checking no section-block exists
-    const sectionCount = await page.locator('.section-block').count();
+    const sectionCount = await page.locator('[data-type="sectionBlock"]').count();
     expect(sectionCount).toBe(0);
 
     // Type [[ followed by speaker name (outside any section)

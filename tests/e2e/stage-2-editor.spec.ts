@@ -15,17 +15,13 @@ test.describe('Stage 2: Editor Foundation', () => {
 
     // 3. Type some text
     await editor.click();
-    await editor.fill('Hello from Playwright.');
-    
+    await page.keyboard.type('Hello from Playwright.');
+
     await expect(editor).toContainText('Hello from Playwright.');
 
-    // 4. Try bolding text
-    // Select all text (Ctrl+A / Cmd+A)
-    await editor.press('Control+A');
-    
-    // Click the Bold button in the toolbar
-    const boldButton = page.getByRole('button', { name: 'B', exact: true });
-    await boldButton.click();
+    // 4. Try bolding text — select all and click Bold
+    await page.keyboard.press('Meta+A');
+    await page.getByTestId('editor-bold-button').click();
 
     // The text should now be wrapped in a strong tag
     const strongTag = editor.locator('strong');

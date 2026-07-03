@@ -3,7 +3,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Stage 11: Export and Print', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // The app auto-creates a project on load; wait for the shell to appear
+    // Create a project so the app-shell (with TopBar export button) renders
+    await page.getByRole('button', { name: 'Create Project' }).click();
     await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
   });
 

@@ -16,7 +16,8 @@ let dictionary: any = null;
  */
 function getDictionary(): any {
   if (!dictionary) {
-    // Dynamic require for CJS compatibility
+    // Dynamic require for CJS-only interop with the 'cmudict' package.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const cmudict = require('cmudict');
     dictionary = new cmudict.CMUDict();
   }

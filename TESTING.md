@@ -20,14 +20,58 @@ Use the stage-specific spec files in `tests/specs/`.
 ## Testing Principles
 
 1. Every stage must add tests
-2. A stage is not complete until required tests are:
-   - implemented
-   - passing
+2. A stage is not complete until required tests are implemented, passing, **and traceable
+   to their acceptance criteria** (see next section). "Passing" alone is not enough — the
+   test must be linked to the criterion it proves.
 3. Bugs should add regression tests
 4. Critical transforms and persistence logic require unit coverage
 5. User workflows require integration or e2e coverage
 6. Test files should remain small and focused for AI readability
 7. Test IDs should be stable and documented in `TEST_IDS.md`
+8. Do not weaken a test to make it pass, and do not write assertions that merely restate
+   what the code already does. See `DEFINITION_OF_DONE.md` → "Writing an honest test".
+
+---
+
+## Test ↔ Criterion Traceability (MANDATORY)
+
+Every acceptance criterion in `tests/specs/stage-*.md` has an ID like `T-9.04`. **The test
+that proves it must contain that exact ID in its title** — in the `it(...)`/`test(...)`
+name, or the nearest enclosing `describe(...)`:
+
+```ts
+it('T-9.04: Chords persist through save/load', () => { ... });
+// or
+describe('T-9.01: Add chord marker works', () => { it('creates a chord', () => { ... }); });
+```
+
+Why this is non-negotiable: `scripts/feature-coverage.mjs` builds the criterion→test→status
+ledger (`FEATURE_COVERAGE.md`) by matching these IDs. A correct test with the wrong or
+missing ID is **invisible** to the ledger, so the feature reads as unverified. That is the
+exact failure mode this project is recovering from — real tests existed for chords and draft
+duplication but were tagged `U-9.01` / `I-9.04`, so the features looked untested.
+
+Rules:
+- Use the spec's `T-` IDs. Do not invent `U-` / `I-` / other schemes.
+- One criterion may have several tests; each carries the ID (or shares a tagged `describe`).
+- After writing tests, run `npm run coverage:features` and confirm your criteria show `✅`.
+
+---
+
+## Commands & Gates
+
+```bash
+npm run build              # tsc + vite build — must exit 0 (tsc catches type errors vite won't)
+npm run lint               # must report 0 errors
+npm test                   # must pass AND terminate
+npm run test:coverage      # line/branch/function coverage (report-only in CI for now)
+npm run coverage:features  # regenerate FEATURE_COVERAGE.md; your criteria must be ✅
+npm run test:e2e           # Playwright; required before any e2e-only criterion is "done"
+```
+
+Note: the vitest suite is pinned to a single fork in `vitest.config.ts`. The default
+multi-process pool hangs on a leaked handle (an undestroyed editor / open fake-indexeddb
+connection). Always `.destroy()` any Tiptap editor you create in a test.
 
 ---
 
@@ -177,6 +221,12 @@ A stage is complete only when:
 2. all stage checklist tests are implemented
 3. all stage checklist tests are passing
 4. all prior-stage regression tests still pass
+5. every criterion's test carries its `T-` ID and shows `✅` in `FEATURE_COVERAGE.md`
+   (`npm run coverage:features`)
+6. all four gates pass — `npm run build`, `npm run lint`, `npm test`, and (for any
+   e2e-only criterion) `npm run test:e2e`
+
+This mirrors `DEFINITION_OF_DONE.md`, which governs every change, not just stage boundaries.
 
 ---
 

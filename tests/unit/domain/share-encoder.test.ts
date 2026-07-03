@@ -24,6 +24,7 @@ function makeDraft(overrides: Partial<Draft> = {}): Draft {
       showStageDirections: true,
       showSummaries: true,
       showSyllableCounts: false,
+      showStressMarks: false,
     },
     ...overrides,
   };
@@ -118,7 +119,7 @@ describe('Share Encoder/Decoder', () => {
     expect(importedDraft.doc.type).toBe('doc');
     expect(importedDraft.doc.content).toHaveLength(1);
     expect(importedDraft.doc.content[0].type).toBe('sectionBlock');
-    expect(importedDraft.doc.content[0].attrs?.label).toBe('Chorus 1');
+    expect((importedDraft.doc.content[0].attrs as { label?: string })?.label).toBe('Chorus 1');
   });
 
   it('T-12.08: Imported draft gets new timestamps', () => {

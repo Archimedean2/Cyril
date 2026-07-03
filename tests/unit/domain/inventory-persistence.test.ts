@@ -43,7 +43,8 @@ describe('Inventory Persistence', () => {
         showSpeakerLabels: true,
         showStageDirections: true,
         showSummaries: true,
-        showSyllableCounts: false
+        showSyllableCounts: false,
+        showStressMarks: false
       }
     };
 
