@@ -1,5 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Draft, DraftSettings } from './types';
+import { generateId } from './defaults';
+
+function makeLyricLineJSON() {
+  return {
+    type: 'lyricLine' as const,
+    attrs: {
+      id: generateId('line'),
+      delivery: 'sung',
+      rhymeGroup: null,
+      meta: { alternates: [], prosody: null, chords: [] },
+    },
+  };
+}
 
 export type DuplicationMode = 'blank' | 'text' | 'inventory' | 'both';
 
@@ -41,8 +54,7 @@ export function createDraft(name: string, sourceDraft?: Draft, mode: Duplication
   };
 
   if (mode === 'blank' || !sourceDraft) {
-    // If blank, just need a single paragraph in the doc to start
-    newDraft.doc.content = [{ type: 'paragraph' }] as any; // Type cast until Stage 4 structured nodes
+    newDraft.doc.content = [makeLyricLineJSON()] as any;
     return newDraft;
   }
 
@@ -56,8 +68,7 @@ export function createDraft(name: string, sourceDraft?: Draft, mode: Duplication
     // - Alternates
     // - Chord markers
   } else {
-    // If we didn't duplicate text, give it a blank starting paragraph
-    newDraft.doc.content = [{ type: 'paragraph' }] as any;
+    newDraft.doc.content = [makeLyricLineJSON()] as any;
   }
 
   if (mode === 'inventory' || mode === 'both') {

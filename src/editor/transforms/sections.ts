@@ -1,4 +1,5 @@
 import { Command } from '@tiptap/core';
+import { generateId } from '../../domain/project/defaults';
 
 export const insertSectionBlock = (options?: { id?: string; sectionType?: string; label?: string; summary?: string; color?: string }): Command => ({ commands }) => {
   return commands.insertContent({
@@ -6,7 +7,13 @@ export const insertSectionBlock = (options?: { id?: string; sectionType?: string
     attrs: options || {},
     content: [
       {
-        type: 'paragraph',
+        type: 'lyricLine',
+        attrs: {
+          id: generateId('line'),
+          delivery: 'sung',
+          rhymeGroup: null,
+          meta: { alternates: [], prosody: null, chords: [] },
+        },
       },
     ],
   });

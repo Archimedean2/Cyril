@@ -44,7 +44,7 @@ describe('Stage 0: App Shell Integration', () => {
               mode: 'lyrics',
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
-              doc: { type: 'doc', content: [{ type: 'paragraph' }] } as any,
+              doc: { type: 'doc', content: [{ type: 'lyricLine', attrs: { id: 'line_test1', delivery: 'sung', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] } as any,
               inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
               draftSettings: {
                 showChords: true, showSectionLabels: true, showSpeakerLabels: true,

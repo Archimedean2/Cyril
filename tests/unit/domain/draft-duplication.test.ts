@@ -26,10 +26,10 @@ describe('Draft Duplication', () => {
   
   it('creates a blank draft by default', () => {
     const draft = createDraft('Blank Draft');
-    
+
     expect(draft.name).toBe('Blank Draft');
     expect(draft.doc.content.length).toBe(1);
-    expect(draft.doc.content[0].type).toBe('paragraph');
+    expect(draft.doc.content[0].type).toBe('lyricLine');
     expect(draft.inventory.doc.content.length).toBe(1);
   });
 
@@ -47,13 +47,14 @@ describe('Draft Duplication', () => {
 
   it('T-3.07: Duplicate inventory only works', () => {
     const source = createDraft('Source');
-    source.doc.content = [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello lyrics' }] }] as any;
+    source.doc.content = [{ type: 'lyricLine', attrs: { id: 'line_test', delivery: 'sung', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] as any;
     source.inventory.doc.content = [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello inventory' }] }] as any;
 
     const duplicated = createDraft('Dup', source, 'inventory');
-    
-    // Text should be blank
-    expect(duplicated.doc.content).toEqual([{ type: 'paragraph' }]);
+
+    // Text should be a blank lyricLine
+    expect(duplicated.doc.content.length).toBe(1);
+    expect(duplicated.doc.content[0].type).toBe('lyricLine');
     expect(duplicated.inventory.doc.content).toEqual(source.inventory.doc.content);
   });
 
