@@ -33,6 +33,7 @@ describe('Tool Cache Persistence and Fallback', () => {
 
   afterEach(async () => {
     await cacheStore.clear();
+    cacheStore.close();
   });
 
   describe('T-10.04: Cached lookup results persist across save/load or app reload', () => {

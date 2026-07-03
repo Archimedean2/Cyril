@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Editor } from '@tiptap/core';
 import { addChordToCurrentLine, getChordsForCurrentLine } from '../../../src/domain/editor/chord-commands';
 import { ChordExtension } from '../../../src/editor/extensions/chords';
@@ -7,6 +7,10 @@ import { LyricLine } from '../../../src/editor/nodes/lyricLine/lyricLine';
 
 describe('T-9.06: Editing lyric text does not corrupt chord marker data', () => {
   let editor: Editor;
+
+  afterEach(() => {
+    editor.destroy();
+  });
 
   beforeEach(() => {
     editor = new Editor({

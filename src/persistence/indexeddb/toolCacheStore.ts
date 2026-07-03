@@ -146,4 +146,11 @@ export class IndexedDBToolCacheStore implements IToolCacheStore {
       };
     });
   }
+
+  close(): void {
+    if (this.db) {
+      this.db.close();
+      this.db = null;
+    }
+  }
 }

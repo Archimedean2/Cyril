@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Editor } from '@tiptap/core';
 import { getBaseEditorConfig } from '../../../src/editor/core/baseConfig';
 
@@ -7,6 +7,10 @@ describe('Editor Formatting Commands (T-2.02, T-2.03, T-2.04)', () => {
 
   beforeEach(() => {
     editor = new Editor(getBaseEditorConfig());
+  });
+
+  afterEach(() => {
+    editor.destroy();
   });
 
   it('T-2.02: Bold command applies and removes mark correctly', () => {
