@@ -8,7 +8,8 @@ const WORKSPACES: { id: WorkspaceType; label: string }[] = [
 ];
 
 export function WorkspaceNav() {
-  const { activeView, setActiveView } = useProjectStore();
+  const activeView = useProjectStore((s) => s.activeView);
+  const setActiveView = useProjectStore((s) => s.setActiveView);
 
   return (
     <div className="workspace-nav">

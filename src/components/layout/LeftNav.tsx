@@ -68,7 +68,13 @@ const styles: Record<string, React.CSSProperties> = {
 };
 
 export function LeftNav({ onImportShare }: LeftNavProps) {
-  const { currentProject, renameProject, saveProject, saveProjectAs, duplicateProject, closeProject, openProject } = useProjectStore();
+  const currentProject = useProjectStore((s) => s.currentProject);
+  const renameProject = useProjectStore((s) => s.renameProject);
+  const saveProject = useProjectStore((s) => s.saveProject);
+  const saveProjectAs = useProjectStore((s) => s.saveProjectAs);
+  const duplicateProject = useProjectStore((s) => s.duplicateProject);
+  const closeProject = useProjectStore((s) => s.closeProject);
+  const openProject = useProjectStore((s) => s.openProject);
   const [isEditing, setIsEditing] = React.useState(false);
   const [editTitle, setEditTitle] = React.useState('');
 

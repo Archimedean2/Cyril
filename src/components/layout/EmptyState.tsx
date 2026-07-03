@@ -5,7 +5,10 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ onImportShare }: EmptyStateProps) {
-  const { createProject, openProject, error, clearError } = useProjectStore();
+  const createProject = useProjectStore((s) => s.createProject);
+  const openProject = useProjectStore((s) => s.openProject);
+  const error = useProjectStore((s) => s.error);
+  const clearError = useProjectStore((s) => s.clearError);
 
   return (
     <div className="empty-state">

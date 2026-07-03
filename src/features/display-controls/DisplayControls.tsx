@@ -2,7 +2,10 @@ import { useProjectStore } from '../../app/state/projectStore';
 import { DraftMode } from '../../domain/project/types';
 
 export function DisplayControls() {
-  const { currentProject, activeView, toggleDraftSetting, setDraftMode } = useProjectStore();
+  const currentProject = useProjectStore((s) => s.currentProject);
+  const activeView = useProjectStore((s) => s.activeView);
+  const toggleDraftSetting = useProjectStore((s) => s.toggleDraftSetting);
+  const setDraftMode = useProjectStore((s) => s.setDraftMode);
 
   if (!currentProject || activeView.type !== 'draft') return null;
 

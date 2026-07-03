@@ -4,7 +4,9 @@ import { DraftListItem } from './DraftListItem';
 import { NewDraftDialog } from './NewDraftDialog';
 
 export function DraftList() {
-  const { currentProject, activeView, setActiveView } = useProjectStore();
+  const currentProject = useProjectStore((s) => s.currentProject);
+  const activeView = useProjectStore((s) => s.activeView);
+  const setActiveView = useProjectStore((s) => s.setActiveView);
   const [isNewDraftDialogOpen, setIsNewDraftDialogOpen] = React.useState(false);
 
   if (!currentProject) return null;

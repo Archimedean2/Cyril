@@ -3,7 +3,9 @@ import { RichTextEditor } from '../../components/editor/RichTextEditor';
 import { RichTextDocument } from '../../domain/project/types';
 
 export function WorkspaceView() {
-  const { currentProject, activeView, renameProject } = useProjectStore();
+  const currentProject = useProjectStore((s) => s.currentProject);
+  const activeView = useProjectStore((s) => s.activeView);
+  const renameProject = useProjectStore((s) => s.renameProject);
 
   if (!currentProject || activeView.type !== 'workspace') return null;
 

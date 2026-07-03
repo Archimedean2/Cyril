@@ -8,7 +8,8 @@ interface NewDraftDialogProps {
 }
 
 export function NewDraftDialog({ isOpen, onClose }: NewDraftDialogProps) {
-  const { currentProject, addDraft } = useProjectStore();
+  const currentProject = useProjectStore((s) => s.currentProject);
+  const addDraft = useProjectStore((s) => s.addDraft);
   const [name, setName] = React.useState('');
   const [mode, setMode] = React.useState<DuplicationMode>('blank');
   const [sourceDraftId, setSourceDraftId] = React.useState('');

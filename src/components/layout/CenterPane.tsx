@@ -4,7 +4,8 @@ import { DraftView } from '../../features/draft-editor/DraftView';
 import { ErrorBoundary } from './ErrorBoundary';
 
 export function CenterPane() {
-  const { currentProject, activeView } = useProjectStore();
+  const currentProject = useProjectStore((s) => s.currentProject);
+  const activeView = useProjectStore((s) => s.activeView);
   
   if (!currentProject) {
     return (

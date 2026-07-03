@@ -3,7 +3,9 @@ import { DraftEditor } from '../../components/editor/DraftEditor';
 import { DraftDocument, RichTextDocument } from '../../domain/project/types';
 
 export function DraftView() {
-  const { currentProject, activeView, updateDraftDoc } = useProjectStore();
+  const currentProject = useProjectStore((s) => s.currentProject);
+  const activeView = useProjectStore((s) => s.activeView);
+  const updateDraftDoc = useProjectStore((s) => s.updateDraftDoc);
 
   if (!currentProject || activeView.type !== 'draft') return null;
 

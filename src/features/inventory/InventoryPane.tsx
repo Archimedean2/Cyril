@@ -9,7 +9,9 @@ import { RichTextDocument } from '../../domain/project/types';
  * The content is stored as plain text in a RichTextDocument structure.
  */
 export function InventoryPane() {
-  const { currentProject, activeView, updateDraftInventory } = useProjectStore();
+  const currentProject = useProjectStore((s) => s.currentProject);
+  const activeView = useProjectStore((s) => s.activeView);
+  const updateDraftInventory = useProjectStore((s) => s.updateDraftInventory);
 
   // Get the active draft's inventory
   const inventory = useMemo(() => {
