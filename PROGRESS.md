@@ -15,15 +15,16 @@ A stabilization pass repaired the quality gates and established honest metrics:
 
 - **Build:** `npm run build` now exits 0 (was failing on 9 `tsc` errors).
 - **Lint:** `npm run lint` now runs (there was no ESLint config at all); 0 errors.
-- **Tests:** `npm test` now passes **and terminates** — 243 passing (was hanging forever
-  under the default pool; pinned to a single fork, root leak still to be fixed).
+- **Tests:** `npm test` now passes **and terminates** — 243 passing with the default
+  multi-fork pool (leak fixed: undestroyed Tiptap editors and unclosed IndexedDB
+  connections).
+- **E2E:** `npm run test:e2e` passes — **108/108 Playwright tests green**. All 31
+  previously-unverified e2e criteria now have passing tests.
 - **Code coverage:** ~70% lines / ~51% functions (report-only in CI for now).
 - **Feature coverage:** **100% of non-e2e acceptance criteria** (119/119) now have a
-  passing, ID-tagged test. This was 91.6% before retagging mislabelled tests and writing
-  the four genuinely-missing ones (T-2.07, T-2.09, T-3.07, T-3.08).
-- **Still unverified:** the **31 e2e (Playwright) criteria** have never been run green.
-  Until `npm run test:e2e` passes, treat every e2e-only criterion as NOT done. This is
-  the top item in `NEXT_STEPS.md` (Phase 1c).
+  passing, ID-tagged test.
+- **Schema:** "Unknown node type: paragraph" warning eliminated — draft content creation
+  now uses `lyricLine` instead of the unregistered `paragraph` node.
 
 The per-stage notes below are retained as a build log. Where they claim "N/N passing",
 read that as "unit/integration only, at time of writing"; the live, trustworthy status
@@ -33,8 +34,8 @@ is in `FEATURE_COVERAGE.md`.
 
 ## Current Stage
 - Stage: 12 stages built; project in **stabilization**, not feature work.
-- Status: Gates green; non-e2e feature coverage 100%; e2e unverified.
-- Next: `NEXT_STEPS.md` Phase 1 (e2e green, paragraph-schema fix, test-leak root cause).
+- Status: All gates green (except lint warnings — 50 pre-existing, non-blocking). Feature coverage 100%. E2E 108/108.
+- Next: `NEXT_STEPS.md` Phase 2 (autosave, store split, dead code cleanup).
 
 ---
 
