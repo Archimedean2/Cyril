@@ -173,6 +173,10 @@ export async function saveProject(fileContent: CyrilFile, isSaveAs: boolean = fa
   }
 }
 
+export function hasFileHandle(): boolean {
+  return fileHandle !== null;
+}
+
 export function createNewProject(title?: string, keepHandle = false): CyrilFile {
   if (!keepHandle) {
     fileHandle = null; // Clear old handle

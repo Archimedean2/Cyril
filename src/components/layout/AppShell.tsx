@@ -8,6 +8,7 @@ import { ShareImportDialog } from '../../features/share/ShareImportDialog';
 import { EmptyState } from './EmptyState';
 import { useProjectStore } from '../../app/state/projectStore';
 import { useResizable } from '../../hooks/useResizable';
+import { startAutosave } from '../../persistence/autosave';
 
 export function AppShell() {
   const isProjectLoaded = useProjectStore((state) => state.isProjectLoaded);
@@ -37,6 +38,10 @@ export function AppShell() {
       initApp();
     }
   }, [isInitializing, isProjectLoaded, initApp]);
+
+  useEffect(() => {
+    return startAutosave();
+  }, []);
 
   if (!isProjectLoaded && !isInitializing) {
     return (
