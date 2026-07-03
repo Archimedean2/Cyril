@@ -42,10 +42,10 @@ The 91.6% headline hid exactly the kind of gap that started this whole conversat
 
 Once green is trustworthy, pay down the structural debt that will otherwise make the product feel fragile "at the lightest touch" — which is exactly the complaint.
 
-- **Implement autosave.** `src/persistence/autosave/` is an empty directory and `projectSettings.autosave` does nothing, yet the product's entire pitch is "local-first tool you trust with creative work." Debounced IndexedDB writes (2–5s after last change) is the single highest-impact reliability feature available.
-- **Split the god store.** `projectStore.ts` deep-copies the entire project tree on every keystroke (`updateDraftDoc`). On a real-sized song this will lag. Split into `projectStore` (metadata/persistence), `editorSessionStore` (the hot path), and `uiStore`.
-- **Delete the dead scaffolding.** `src/app/App.tsx` is orphaned (the app entry is `src/App.tsx`), and ~17 empty directories imply a modularity that doesn't exist. Remove them so newcomers stop hunting for code that isn't there.
-- **Code-split the bundle.** The production JS is 3.2 MB (930 KB gzipped), dominated by the CMU pronouncing dictionary bundled into the main chunk. Lazy-load the dictionary and split vendor chunks.
+- **Implement autosave — ✅ DONE (2026-07-03).** Debounced 3s autosave via Zustand subscriber. Writes to disk only when `projectSettings.autosave` is true AND a file handle exists (project saved at least once). Silent on errors. 6 unit tests.
+- **Optimize the store — ✅ DONE (2026-07-03).** Rather than a full store split, converted all 10 components from whole-store destructuring to individual Zustand selectors. Components like WorkspaceNav/TopBar/DraftList no longer re-render on every keystroke. The actual update (`updateDraftDoc`) does shallow copies (not deep clones), so the allocation cost was already negligible — the re-render isolation was the real win.
+- **Delete the dead scaffolding — ✅ DONE (2026-07-03).** Removed 10 empty files (orphaned `App.tsx`, empty editor/state/persistence stubs) and the empty `panes/` directory.
+- **Code-split the bundle — ✅ DONE (2026-07-03).** Split into vendor chunks via `manualChunks`: vendor-react (142 KB), vendor-editor (371 KB), vendor-zod (64 KB), vendor-icons (6 KB). The CMU dictionary was NOT in the bundle (only used by test code via dynamic require). Total gzipped: ~950 KB, now with independent cache lifetimes per vendor chunk.
 
 ## Phase 3 — Make it feel finished (the "look better / smoother" ask)
 
@@ -69,5 +69,6 @@ Run `npm run coverage:features` after any stage of work; it regenerates `FEATURE
 2. ~~Add the four missing tests and fix whatever they expose (1b).~~ ✅ Done.
 3. ~~Get Playwright green and make it a required check (1c).~~ ✅ Done — 108/108 e2e passing.
 4. ~~Fix the paragraph-schema bug and the test-leak; restore the parallel pool (1d, 1e).~~ ✅ Done.
-5. Implement debounced autosave (Phase 2) — the first thing that will make the app *feel* trustworthy.
-6. Split the god store and delete dead scaffolding (Phase 2).
+5. ~~Implement debounced autosave (Phase 2).~~ ✅ Done — 3s debounce, 6 unit tests.
+6. ~~Optimize store, delete dead scaffolding, code-split bundle (Phase 2).~~ ✅ Done.
+7. Phase 3 — Polish pass (save-status UI, keyboard shortcuts, error states, typography).

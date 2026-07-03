@@ -34,8 +34,8 @@ is in `FEATURE_COVERAGE.md`.
 
 ## Current Stage
 - Stage: 12 stages built; project in **stabilization**, not feature work.
-- Status: All gates green (except lint warnings — 50 pre-existing, non-blocking). Feature coverage 100%. E2E 108/108.
-- Next: `NEXT_STEPS.md` Phase 2 (autosave, store split, dead code cleanup).
+- Status: All gates green — 0 lint warnings, 0 lint errors, 249 tests passing, build clean. Feature coverage 100%. E2E 108/108.
+- Next: `NEXT_STEPS.md` Phase 3 (polish — save-status UI, keyboard shortcuts, error states, typography).
 
 ---
 
