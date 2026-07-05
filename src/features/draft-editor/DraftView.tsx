@@ -20,9 +20,6 @@ export function DraftView() {
 
   return (
     <div className="draft-view">
-      <header className="draft-view-header">
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Draft: {draft.name}</h2>
-      </header>
       <div className="draft-view-canvas">
         <DraftEditor
           // Cast is safe here because DraftDocument extends RichTextDocument in practice

@@ -111,8 +111,8 @@ describe('Workspaces and Drafts Integration', () => {
     
     // Should be on new draft (blank editor)
     await waitFor(() => {
-      // The new draft header should be visible
-      expect(screen.getByText('Draft: Draft 2')).toBeInTheDocument();
+      // The top bar should show the new draft name
+      expect(screen.getByTestId('topbar-draft-name')).toHaveTextContent('Draft 2');
       // The old content should be gone
       expect(screen.queryByText('Draft 1 Content')).not.toBeInTheDocument();
     });
@@ -132,7 +132,7 @@ describe('Workspaces and Drafts Integration', () => {
     
     // Should see the duplicated text in the editor
     await waitFor(() => {
-      expect(screen.getByText('Draft: Draft 2')).toBeInTheDocument();
+      expect(screen.getByTestId('topbar-draft-name')).toHaveTextContent('Draft 2');
       expect(screen.getByText('Draft 1 Content')).toBeInTheDocument(); // Text copied
     });
     

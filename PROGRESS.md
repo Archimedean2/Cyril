@@ -34,9 +34,10 @@ is in `FEATURE_COVERAGE.md`.
 
 ## Current Stage
 - Stage: 12 stages built; project in **stabilization**, not feature work.
-- Status: All gates green — 0 lint warnings, 0 lint errors, 251 tests passing, build clean. Feature coverage 100%. E2E 110/110.
+- Status: All gates green — 0 lint warnings, 0 lint errors, 252 tests passing, build clean. Feature coverage 100% (120/120).
 - Phase 3 polish complete: save-status indicator, keyboard shortcuts (Cmd+S, Cmd+Shift+E), warm ink-on-paper palette, editorial typography (Newsreader/Fraunces fonts), CyrilLogo brand, hardcoded-color cleanup.
-- Next: Phase 4 (new scope) — but per NEXT_STEPS.md, core drafting experience should be excellent first.
+- QoL pass (Stage 14) in progress: (a) duplicate draft header removed — draft name now lives only in the top bar (T-14.01 passing).
+- Next: QoL sub-steps (b) view toggles → switches, (c) reconcile chords control, (d) project action toolbar, (e) click-to-edit top bar identity.
 
 ---
 

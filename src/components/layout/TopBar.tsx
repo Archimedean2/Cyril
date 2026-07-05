@@ -77,7 +77,10 @@ export function TopBar({ onExportClick }: TopBarProps) {
         {currentDraftName && (
           <>
             <span style={{ color: 'var(--text-muted)' }}>&mdash;</span>
-            <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
+            <span
+              data-testid="topbar-draft-name"
+              style={{ color: 'var(--text-secondary)', fontSize: '13px' }}
+            >
               {currentDraftName}
             </span>
           </>

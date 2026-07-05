@@ -283,13 +283,6 @@ button {
   min-height: 0;
 }
 
-.draft-view-header {
-  flex-shrink: 0;
-  padding: var(--space-3) var(--space-4) 8px;
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--bg-editor);
-}
-
 .draft-view-canvas {
   flex: 1;
   min-height: 0;

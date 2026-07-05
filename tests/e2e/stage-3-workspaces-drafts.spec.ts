@@ -12,7 +12,7 @@ test.describe('Stage 3: Workspaces and Drafts', () => {
     // Check initial state
     await expect(page.getByTestId('project-title')).toHaveText('Untitled Song');
     await expect(page.getByRole('button', { name: 'Draft 1' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Draft: Draft 1' })).toBeVisible();
+    await expect(page.getByTestId('topbar-draft-name')).toHaveText('Draft 1');
 
     // 1. Test Workspaces
     await page.getByRole('button', { name: 'Brief' }).click();
@@ -56,7 +56,7 @@ test.describe('Stage 3: Workspaces and Drafts', () => {
     await page.getByRole('button', { name: 'Create' }).click();
 
     // Should now be on Draft 2 with the duplicated text
-    await expect(page.getByRole('heading', { name: 'Draft: Draft 2' })).toBeVisible();
+    await expect(page.getByTestId('topbar-draft-name')).toHaveText('Draft 2');
     await expect(page.getByText('Verse 1: Hello World')).toBeVisible();
 
     // Modify Draft 2
