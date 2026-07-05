@@ -63,10 +63,10 @@ test.describe('Stage 12: Lightweight Sharing', () => {
     await page.fill('[data-testid="share-import-input"]', 'invalid-blob');
     await page.click('[data-testid="share-import-submit"]');
 
-    // Should show validation error
+    // Should show validation error (--status-error = #c0554a → rgb(192, 85, 74))
     await expect(page.locator('[data-testid="share-import-input"]')).toHaveCSS(
       'border-color',
-      'rgb(204, 68, 68)'
+      'rgb(192, 85, 74)'
     );
   });
 

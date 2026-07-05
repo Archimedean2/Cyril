@@ -1,4 +1,5 @@
 import { useProjectStore } from '../../app/state/projectStore';
+import { CyrilLogo } from '../brand/CyrilLogo';
 
 interface EmptyStateProps {
   onImportShare?: () => void;
@@ -13,13 +14,28 @@ export function EmptyState({ onImportShare }: EmptyStateProps) {
   return (
     <div className="empty-state">
       <div className="empty-state-card">
-        <h2 className="empty-state-title">Welcome to Cyril</h2>
-        <p className="empty-state-copy">Open an existing project or create a new one.</p>
-        
+        <div style={{ marginBottom: 'var(--space-6)' }}>
+          <CyrilLogo />
+        </div>
+
         {error && (
-          <div style={{ color: 'red', marginBottom: '1rem', padding: '0.5rem', background: '#fee2e2', borderRadius: '0.25rem' }}>
-            <p>{error}</p>
-            <button onClick={clearError} style={{ fontSize: '0.8rem', textDecoration: 'underline', marginTop: '0.25rem' }}>Dismiss</button>
+          <div
+            style={{
+              color: 'var(--status-error)',
+              marginBottom: '1rem',
+              padding: '0.5rem 0.75rem',
+              background: 'var(--bg-subtle)',
+              border: '1px solid var(--border-default)',
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
+            <p style={{ margin: 0 }}>{error}</p>
+            <button
+              onClick={clearError}
+              style={{ fontSize: '0.8rem', textDecoration: 'underline', marginTop: '0.25rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
+            >
+              Dismiss
+            </button>
           </div>
         )}
 

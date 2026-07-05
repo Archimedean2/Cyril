@@ -26,7 +26,7 @@ export function DisplayControls() {
       <p className="section-label">View</p>
       <div className="nav-list" style={{ fontSize: '0.85rem' }} data-testid="draft-mode-toggle">
         <div style={{ marginBottom: '8px' }}>
-          <span style={{ fontSize: '0.75rem', color: '#666' }}>Mode</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Mode</span>
           <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
             <button
               type="button"
@@ -36,9 +36,10 @@ export function DisplayControls() {
                 flex: 1,
                 padding: '4px 8px',
                 fontSize: '0.8rem',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                background: draft.mode === 'lyrics' ? '#e0e0e0' : 'white',
+                border: `1px solid ${draft.mode === 'lyrics' ? 'var(--border-strong)' : 'var(--border-default)'}`,
+                borderRadius: 'var(--radius-xs)',
+                background: draft.mode === 'lyrics' ? 'var(--bg-active)' : 'var(--bg-editor)',
+                color: draft.mode === 'lyrics' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 cursor: 'pointer',
               }}
               data-testid="draft-mode-option-lyrics"
@@ -53,9 +54,10 @@ export function DisplayControls() {
                 flex: 1,
                 padding: '4px 8px',
                 fontSize: '0.8rem',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                background: draft.mode === 'lyricsWithChords' ? '#e0e0e0' : 'white',
+                border: `1px solid ${draft.mode === 'lyricsWithChords' ? 'var(--border-strong)' : 'var(--border-default)'}`,
+                borderRadius: 'var(--radius-xs)',
+                background: draft.mode === 'lyricsWithChords' ? 'var(--bg-active)' : 'var(--bg-editor)',
+                color: draft.mode === 'lyricsWithChords' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 cursor: 'pointer',
               }}
               data-testid="draft-mode-option-lyrics-with-chords"

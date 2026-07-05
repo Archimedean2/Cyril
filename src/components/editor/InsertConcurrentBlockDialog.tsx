@@ -66,20 +66,20 @@ export function InsertConcurrentBlockDialog({
         top: '100%',
         left: 0,
         zIndex: 200,
-        background: 'var(--color-surface, #fff)',
-        border: '1px solid var(--color-border, #e2e8f0)',
-        borderRadius: 6,
+        background: 'var(--bg-editor)',
+        border: '1px solid var(--border-default)',
+        borderRadius: 'var(--radius-sm)',
         boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
         padding: '12px 14px',
         minWidth: 220,
       }}
     >
-      <div style={{ fontWeight: 600, fontSize: '0.8rem', marginBottom: 10, color: 'var(--color-text, #1e293b)' }}>
+      <div style={{ fontWeight: 600, fontSize: '0.8rem', marginBottom: 10, color: 'var(--text-primary)' }}>
         Insert Concurrent Block
       </div>
 
       <div style={{ marginBottom: 10 }}>
-        <label style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary, #64748b)', display: 'block', marginBottom: 4 }}>
+        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>
           Number of speakers
         </label>
         <div style={{ display: 'flex', gap: 4 }}>
@@ -89,10 +89,10 @@ export function InsertConcurrentBlockDialog({
               onClick={() => handleCountChange(n)}
               style={{
                 padding: '3px 10px',
-                borderRadius: 4,
-                border: '1px solid var(--color-border, #e2e8f0)',
-                background: speakerCount === n ? 'var(--color-accent, #6366f1)' : 'transparent',
-                color: speakerCount === n ? '#fff' : 'var(--color-text, #1e293b)',
+                borderRadius: 'var(--radius-xs)',
+                border: `1px solid ${speakerCount === n ? 'var(--accent-primary)' : 'var(--border-default)'}`,
+                background: speakerCount === n ? 'var(--accent-primary)' : 'transparent',
+                color: speakerCount === n ? 'var(--text-inverse)' : 'var(--text-primary)',
                 cursor: 'pointer',
                 fontSize: '0.75rem',
                 fontWeight: speakerCount === n ? 600 : 400,
@@ -106,7 +106,7 @@ export function InsertConcurrentBlockDialog({
       </div>
 
       <div style={{ marginBottom: 12 }}>
-        <label style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary, #64748b)', display: 'block', marginBottom: 4 }}>
+        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>
           Speaker names
         </label>
         {Array.from({ length: speakerCount }, (_, i) => (
@@ -121,8 +121,8 @@ export function InsertConcurrentBlockDialog({
               width: '100%',
               marginBottom: 4,
               padding: '4px 6px',
-              border: '1px solid var(--color-border, #e2e8f0)',
-              borderRadius: 4,
+              border: '1px solid var(--border-default)',
+              borderRadius: 'var(--radius-xs)',
               fontSize: '0.75rem',
               boxSizing: 'border-box',
             }}
@@ -136,9 +136,10 @@ export function InsertConcurrentBlockDialog({
           onClick={onClose}
           style={{
             padding: '4px 10px',
-            borderRadius: 4,
-            border: '1px solid var(--color-border, #e2e8f0)',
+            borderRadius: 'var(--radius-xs)',
+            border: '1px solid var(--border-default)',
             background: 'transparent',
+            color: 'var(--text-secondary)',
             cursor: 'pointer',
             fontSize: '0.75rem',
           }}
@@ -150,10 +151,10 @@ export function InsertConcurrentBlockDialog({
           onClick={handleConfirm}
           style={{
             padding: '4px 10px',
-            borderRadius: 4,
+            borderRadius: 'var(--radius-xs)',
             border: 'none',
-            background: 'var(--color-accent, #6366f1)',
-            color: '#fff',
+            background: 'var(--accent-primary)',
+            color: 'var(--text-inverse)',
             cursor: 'pointer',
             fontSize: '0.75rem',
             fontWeight: 600,

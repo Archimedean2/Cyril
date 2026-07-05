@@ -24,12 +24,12 @@ interface ErrorBoundaryState {
 
 const fallbackStyles: Record<string, React.CSSProperties> = {
   container: {
-    padding: 'var(--space-4, 16px)',
-    margin: 'var(--space-3, 12px)',
-    color: 'var(--text-default, #2c3142)',
-    background: 'var(--bg-panel, #ffffff)',
-    border: '1px solid var(--border-subtle, #e3e6ed)',
-    borderRadius: '6px',
+    padding: 'var(--space-4)',
+    margin: 'var(--space-3)',
+    color: 'var(--text-primary)',
+    background: 'var(--bg-panel)',
+    border: '1px solid var(--border-subtle)',
+    borderRadius: 'var(--radius-sm)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
@@ -42,16 +42,16 @@ const fallbackStyles: Record<string, React.CSSProperties> = {
   },
   message: {
     fontSize: '13px',
-    color: 'var(--text-muted, #738093)',
+    color: 'var(--text-muted)',
     margin: 0,
   },
   button: {
     fontSize: '13px',
     padding: '6px 12px',
-    border: '1px solid var(--border-strong, #c8cdd6)',
-    borderRadius: '4px',
-    background: 'var(--bg-button, #ffffff)',
-    color: 'var(--text-default, #2c3142)',
+    border: '1px solid var(--border-strong)',
+    borderRadius: 'var(--radius-xs)',
+    background: 'var(--bg-editor)',
+    color: 'var(--text-primary)',
     cursor: 'pointer',
   },
 };

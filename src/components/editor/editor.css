@@ -21,11 +21,22 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-editor);
+  /* Warm paper: flat paper colour with a very faint grain overlay */
+  background-color: var(--bg-editor);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
   overflow-y: auto;
   scrollbar-gutter: stable;
   cursor: default;
-  border-bottom: 1px solid var(--border-default, #c8d0db);
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* Lyrics are the hero: set the editor body in the editorial serif */
+.editor-surface .ProseMirror {
+  font-family: var(--font-lyric);
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  letter-spacing: 0.002em;
 }
 
 .editor-surface::-webkit-scrollbar {
@@ -184,12 +195,13 @@
    Line type: speaker
    ====================== */
 .line-type-speaker {
+  font-family: var(--font-ui);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-primary);
-  font-size: 0.8em;
-  padding-top: 6px;
+  letter-spacing: 0.09em;
+  color: var(--speaker-color, var(--text-primary));
+  font-size: 0.72em;
+  padding-top: 8px;
   padding-bottom: 2px;
   padding-left: 0;
 }
@@ -238,9 +250,10 @@
 
 /* Section label — display mode (real DOM element from NodeView) */
 .section-label {
-  font-size: 0.68em;
+  font-family: var(--font-ui);
+  font-size: 0.62em;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-faint);
   cursor: pointer;
@@ -325,8 +338,8 @@
   height: 100%;
   min-height: 150px;
   padding: 0.75rem;
-  border: 1px solid #c8d0db;
-  border-radius: 4px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
   background: var(--bg-editor);
   color: var(--text-primary);
   font-family: inherit;
@@ -589,14 +602,16 @@
   left: 0;
   transform: translateX(-50%);
   display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-family: var(--font-chord);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   line-height: 1;
-  color: var(--accent-color, var(--accent-primary));
+  color: var(--accent-strong);
   padding: 1px 6px;
   border-radius: 3px;
-  background: var(--panel-bg-alt, var(--bg-subtle));
-  border: 1px solid var(--border-color, #ddd);
+  background: transparent;
+  border: none;
   white-space: nowrap;
   pointer-events: auto;
   cursor: pointer;

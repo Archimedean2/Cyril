@@ -4,9 +4,8 @@ test.describe('Stage 0: App Shell', () => {
   test('T-0.07: App shell smoke test passes in browser', async ({ page }) => {
     await page.goto('/');
 
-    // Verify empty state is shown initially
-    await expect(page.getByText('Welcome to Cyril')).toBeVisible();
-    await expect(page.getByText('Open an existing project or create a new one.')).toBeVisible();
+    // Verify empty state is shown initially (CyrilLogo brand lockup)
+    await expect(page.getByText('Write · Draft · Score')).toBeVisible();
 
     // The rest of the shell requires a project to be loaded, which we can simulate
     // by injecting state or we just verify the app booted successfully to the empty state.

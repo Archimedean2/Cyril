@@ -7,7 +7,7 @@ test.describe('Stage 1: Project CRUD', () => {
 
   test('T-1.11: Project CRUD smoke flow passes in UI', async ({ page }) => {
     // 1. App should start at empty state
-    await expect(page.getByText('Welcome to Cyril')).toBeVisible();
+    await expect(page.getByText('Write · Draft · Score')).toBeVisible();
 
     // 2. Create new project
     await page.getByRole('button', { name: 'Create Project' }).click();
@@ -26,6 +26,6 @@ test.describe('Stage 1: Project CRUD', () => {
 
     // 5. Close project to return to empty state
     await page.getByRole('button', { name: 'Close' }).click();
-    await expect(page.getByText('Welcome to Cyril')).toBeVisible();
+    await expect(page.getByText('Write · Draft · Score')).toBeVisible();
   });
 });

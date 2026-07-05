@@ -15,16 +15,12 @@ test.describe('Save Status & Keyboard Shortcuts', () => {
   test('save-status indicator appears after typing', async ({ page }) => {
     const editor = page.locator('.ProseMirror');
     await editor.click();
-    await page.keyboard.type('test content');
+    await page.keyboard.type('When the night has come');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('And the land is dark');
 
-    // The save status should transition to "unsaved" (if autosave is on and no file handle)
-    // Since this is a new project with no file handle, autosave won't actually save,
-    // but the status store still gets set to 'unsaved' when the project state changes.
     const status = page.getByTestId('save-status');
-    // Wait a moment for the store update to propagate
     await page.waitForTimeout(500);
-    // With no file handle, the status may show Unsaved (autosave skips, status stays unsaved)
-    // or not appear at all (if status is idle). Either is valid for a new project.
     const statusVisible = await status.isVisible().catch(() => false);
     if (statusVisible) {
       const text = await status.textContent();

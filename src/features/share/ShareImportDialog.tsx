@@ -116,7 +116,7 @@ export function ShareImportDialog({ isOpen, onClose, onImport }: ShareImportDial
             fontSize: '13px',
             fontFamily: 'monospace',
             borderRadius: '6px',
-            border: `1px solid ${status === 'invalid' ? '#c44' : 'var(--border-default, #c8d0db)'}`,
+            border: `1px solid ${status === 'invalid' ? 'var(--status-error)' : 'var(--border-default, #c8d0db)'}`,
             backgroundColor: 'var(--bg-panel, #f8f9fb)',
             color: 'var(--text-primary, #1f2430)',
             resize: 'vertical',
@@ -130,7 +130,7 @@ export function ShareImportDialog({ isOpen, onClose, onImport }: ShareImportDial
           <p
             style={{
               fontSize: '12px',
-              color: 'var(--status-unsaved, #c44)',
+              color: 'var(--status-unsaved, var(--status-error))',
               marginBottom: '12px',
             }}
           >

@@ -80,7 +80,7 @@ export function AppShell() {
 
   if (!isProjectLoaded && !isInitializing) {
     return (
-      <div style={{ height: '100vh', background: 'var(--bg-app, #f5f6f8)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ height: '100vh', background: 'var(--bg-app)', display: 'flex', flexDirection: 'column' }}>
         <div className="app-shell-topbar">
           <TopBar onExportClick={() => setIsExportDialogOpen(true)} />
         </div>
@@ -107,9 +107,9 @@ export function AppShell() {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        background: 'var(--bg-app, #f5f6f8)',
+        background: 'var(--bg-app)',
       }}>
-        <span style={{ color: 'var(--text-muted, #738093)', fontSize: '14px' }}>Loading...</span>
+        <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Loading...</span>
       </div>
     );
   }
