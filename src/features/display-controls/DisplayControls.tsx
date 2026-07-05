@@ -1,5 +1,6 @@
 import { useProjectStore } from '../../app/state/projectStore';
 import { DraftMode } from '../../domain/project/types';
+import { ToggleSwitch } from '../../components/ui/ToggleSwitch';
 
 export function DisplayControls() {
   const currentProject = useProjectStore((s) => s.currentProject);
@@ -66,71 +67,44 @@ export function DisplayControls() {
             </button>
           </div>
         </div>
-        <label className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <input 
-            type="checkbox" 
-            checked={showSectionLabels} 
-            onChange={() => toggleDraftSetting(draftId, 'showSectionLabels')}
-            data-testid="toggle-show-sections"
-          />
-          <span>Sections</span>
-        </label>
-        <label className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <input 
-            type="checkbox" 
-            checked={showSpeakerLabels} 
-            onChange={() => toggleDraftSetting(draftId, 'showSpeakerLabels')}
-            data-testid="toggle-show-speakers"
-          />
-          <span>Speakers</span>
-        </label>
-        <label className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <input 
-            type="checkbox" 
-            checked={showStageDirections} 
-            onChange={() => toggleDraftSetting(draftId, 'showStageDirections')}
-            data-testid="toggle-show-stage-directions"
-          />
-          <span>Stage Dir</span>
-        </label>
-        <label 
-          className="nav-item" 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px', 
-            cursor: isChordMode ? 'pointer' : 'not-allowed',
-            opacity: isChordMode ? 1 : 0.5 
-          }}
-        >
-          <input 
-            type="checkbox" 
-            checked={showChords} 
-            onChange={() => isChordMode && toggleDraftSetting(draftId, 'showChords')}
-            disabled={!isChordMode}
-            data-testid="toggle-show-chords"
-            title={isChordMode ? 'Show chord lane' : 'Enable chord mode in draft settings to use chords'}
-          />
-          <span>Chords</span>
-        </label>
-        <label className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <input 
-            type="checkbox" 
-            checked={showSyllableCounts} 
-            onChange={() => toggleDraftSetting(draftId, 'showSyllableCounts')}
-            data-testid="toggle-show-syllables"
-          />
-          <span>Syllables</span>
-        </label>
-        <label className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <input 
-            type="checkbox" 
-            checked={showStressMarks} 
-            onChange={() => toggleDraftSetting(draftId, 'showStressMarks')}
-            data-testid="toggle-show-stress-marks"
-          />
-          <span>Stress marks</span>
-        </label>
+        <ToggleSwitch
+          label="Sections"
+          checked={showSectionLabels}
+          onChange={() => toggleDraftSetting(draftId, 'showSectionLabels')}
+          data-testid="toggle-show-sections"
+        />
+        <ToggleSwitch
+          label="Speakers"
+          checked={showSpeakerLabels}
+          onChange={() => toggleDraftSetting(draftId, 'showSpeakerLabels')}
+          data-testid="toggle-show-speakers"
+        />
+        <ToggleSwitch
+          label="Stage Dir"
+          checked={showStageDirections}
+          onChange={() => toggleDraftSetting(draftId, 'showStageDirections')}
+          data-testid="toggle-show-stage-directions"
+        />
+        <ToggleSwitch
+          label="Chords"
+          checked={showChords}
+          onChange={() => toggleDraftSetting(draftId, 'showChords')}
+          disabled={!isChordMode}
+          title={isChordMode ? 'Show chord lane' : 'Enable chord mode to use chords'}
+          data-testid="toggle-show-chords"
+        />
+        <ToggleSwitch
+          label="Syllables"
+          checked={showSyllableCounts}
+          onChange={() => toggleDraftSetting(draftId, 'showSyllableCounts')}
+          data-testid="toggle-show-syllables"
+        />
+        <ToggleSwitch
+          label="Stress marks"
+          checked={showStressMarks}
+          onChange={() => toggleDraftSetting(draftId, 'showStressMarks')}
+          data-testid="toggle-show-stress-marks"
+        />
       </div>
     </div>
   );
