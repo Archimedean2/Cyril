@@ -268,10 +268,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     const draft = currentProject.project.drafts[draftIndex];
     const newDrafts = [...currentProject.project.drafts];
 
-    // When entering lyricsWithChords mode, auto-enable showChords
+    // Keep showChords in sync with mode: on when entering chord mode, off when leaving
     const newDraftSettings = mode === 'lyricsWithChords'
       ? { ...draft.draftSettings, showChords: true }
-      : draft.draftSettings;
+      : { ...draft.draftSettings, showChords: false };
 
     newDrafts[draftIndex] = {
       ...draft,

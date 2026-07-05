@@ -13,19 +13,16 @@ async function waitForEditorReady(page: Page): Promise<Locator> {
   return proseMirror;
 }
 
-/**
- * Helper to wait for mode switch to complete.
- * The mode change triggers state updates that need to settle.
- */
-async function waitForModeChange(page: Page, mode: 'lyrics' | 'lyricsWithChords'): Promise<void> {
-  const expectedDisabled = mode === 'lyrics';
-  const toggle = page.locator('[data-testid="toggle-show-chords"]');
+/** Enable chord mode by checking the single Chords toggle. */
+async function enableChords(page: Page): Promise<void> {
+  await page.locator('[data-testid="toggle-show-chords"]').check();
+  await expect(page.locator('[data-testid="toggle-show-chords"]')).toBeChecked();
+}
 
-  // Wait for the toggle to reach expected disabled state
-  await expect(async () => {
-    const isDisabled = await toggle.isDisabled().catch(() => null);
-    expect(isDisabled).toBe(expectedDisabled);
-  }).toPass({ timeout: 5000 });
+/** Disable chord mode by unchecking the single Chords toggle. */
+async function disableChords(page: Page): Promise<void> {
+  await page.locator('[data-testid="toggle-show-chords"]').uncheck();
+  await expect(page.locator('[data-testid="toggle-show-chords"]')).not.toBeChecked();
 }
 
 test.describe('Stage 9: Chord Lane', () => {
@@ -44,67 +41,55 @@ test.describe('Stage 9: Chord Lane', () => {
 
   // ─── Mode switching ──────────────────────────────────────────────────────────
 
-  test('E-9.01: Draft mode buttons are visible', async ({ page }) => {
-    await expect(page.locator('[data-testid="draft-mode-option-lyrics"]')).toBeVisible();
-    await expect(page.locator('[data-testid="draft-mode-option-lyrics-with-chords"]')).toBeVisible();
+  test('E-9.01: Chords toggle is visible and unchecked by default', async ({ page }) => {
+    const chordsToggle = page.locator('[data-testid="toggle-show-chords"]');
+    await expect(chordsToggle).toBeVisible();
+    await expect(chordsToggle).not.toBeChecked();
   });
 
-  test('E-9.02: Switching to Lyrics+Chords mode activates it', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+  test('E-9.02: Checking Chords toggle enables chord mode', async ({ page }) => {
+    await enableChords(page);
 
-    // The toggle-show-chords checkbox should now be enabled and checked
-    const showChordsToggle = page.locator('[data-testid="toggle-show-chords"]');
-    await expect(showChordsToggle).toBeVisible();
-    await expect(showChordsToggle).not.toBeDisabled();
-    await expect(showChordsToggle).toBeChecked();
+    // The toggle should be checked and chord mode active (chord add button appears)
+    await expect(page.locator('[data-testid="toggle-show-chords"]')).toBeChecked();
   });
 
-  test('E-9.03: Switching back to Lyrics mode disables the chords toggle', async ({ page }) => {
-    // First enter chord mode
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
-    const showChordsToggle = page.locator('[data-testid="toggle-show-chords"]');
-    await expect(showChordsToggle).not.toBeDisabled();
+  test('E-9.03: Unchecking Chords toggle disables chord mode', async ({ page }) => {
+    // First enable chord mode
+    await enableChords(page);
 
-    // Return to lyrics mode
-    await page.click('[data-testid="draft-mode-option-lyrics"]');
-    await waitForModeChange(page, 'lyrics');
-    await expect(showChordsToggle).toBeDisabled();
+    // Now disable it
+    await disableChords(page);
+
+    // Chord add button should be gone
+    await expect(page.locator('[data-testid="chord-add-button"]')).toHaveCount(0);
   });
 
   // ─── Show/hide chords toggle ─────────────────────────────────────────────────
 
-  test('E-9.04: Show-chords checkbox is checked by default in Lyrics+Chords mode', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+  test('E-9.04: Show-chords is checked after enabling chord mode', async ({ page }) => {
+    await enableChords(page);
     await expect(page.locator('[data-testid="toggle-show-chords"]')).toBeChecked();
   });
 
-  test('E-9.05: Unchecking show-chords hides the chord lane class and re-checking restores it', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+  test('E-9.05: Unchecking Chords toggle hides the chord lane class and re-checking restores it', async ({ page }) => {
+    await enableChords(page);
 
     const showChordsToggle = page.locator('[data-testid="toggle-show-chords"]');
     await expect(showChordsToggle).toBeChecked();
 
-    // Uncheck
-    await showChordsToggle.uncheck();
-    await expect(showChordsToggle).not.toBeChecked();
-
-    // The editor surface should carry the hide-chords class
+    // Uncheck → lyrics mode → hide-chords class
+    await disableChords(page);
     const editorSurface = page.locator('[data-testid="editor-surface"]');
     await expect(editorSurface).toHaveClass(/hide-chords/);
 
-    // Re-check
-    await showChordsToggle.check();
-    await expect(showChordsToggle).toBeChecked();
+    // Re-check → chord mode → show-chords class
+    await enableChords(page);
     await expect(editorSurface).toHaveClass(/show-chords/);
   });
 
-  test('E-9.06: Editor surface carries show-chords class in Lyrics+Chords mode', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+  test('E-9.06: Editor surface carries show-chords class when Chords toggle is on', async ({ page }) => {
+    await enableChords(page);
 
     // Wait for the class to be applied
     const editorSurface = page.locator('[data-testid="editor-surface"]');
@@ -115,8 +100,8 @@ test.describe('Stage 9: Chord Lane', () => {
   });
 
   test('E-9.07: Lyrics mode never shows chord markers even if data exists', async ({ page }) => {
-    // Ensure we start in lyrics mode (the default)
-    await expect(page.locator('[data-testid="draft-mode-option-lyrics"]')).toBeVisible();
+    // Default state is lyrics mode (Chords toggle unchecked)
+    await expect(page.locator('[data-testid="toggle-show-chords"]')).not.toBeChecked();
 
     // No chord markers should appear in plain lyrics mode
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0);
@@ -128,28 +113,25 @@ test.describe('Stage 9: Chord Lane', () => {
     await expect(page.locator('[data-testid="chord-add-button"]')).toHaveCount(0);
   });
 
-  test('E-9.09: Chord add button appears when Lyrics+Chords mode is active', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+  test('E-9.09: Chord add button appears when Chords toggle is on', async ({ page }) => {
+    await enableChords(page);
     await expect(page.locator('[data-testid="chord-add-button"]')).toBeVisible();
   });
 
-  test('E-9.10: Chord add button is enabled when in Lyrics+Chords mode with show-chords on', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+  test('E-9.10: Chord add button is enabled when in chord mode with show-chords on', async ({ page }) => {
+    await enableChords(page);
 
     // Editor loads with cursor in the default lyric line — button enabled
     await waitForEditorReady(page);
     await expect(page.locator('[data-testid="chord-add-button"]')).toBeEnabled({ timeout: 5000 });
 
-    // Hiding chords disables the button
-    await page.locator('[data-testid="toggle-show-chords"]').uncheck();
-    await expect(page.locator('[data-testid="chord-add-button"]')).toBeDisabled({ timeout: 5000 });
+    // Hiding chords (unchecking = exiting chord mode) removes the button entirely
+    await disableChords(page);
+    await expect(page.locator('[data-testid="chord-add-button"]')).toHaveCount(0);
   });
 
   test('E-9.11: Chord add button is enabled when cursor is in a lyric line', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page); // clicks editor, putting cursor in lyric line
     await page.keyboard.type('Amazing grace');
@@ -164,8 +146,7 @@ test.describe('Stage 9: Chord Lane', () => {
   // ─── Chord writing ───────────────────────────────────────────────────────────
 
   test('E-9.12: Adding a chord creates a chord marker above the lyric line', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace how sweet the sound');
@@ -186,8 +167,7 @@ test.describe('Stage 9: Chord Lane', () => {
   });
 
   test('E-9.13: Chord marker is rendered inline above the lyric text', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('You got a friend in me');
@@ -208,8 +188,7 @@ test.describe('Stage 9: Chord Lane', () => {
   });
 
   test('E-9.14: Multiple chords on the same line create multiple markers', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('You got a friend in me');
@@ -242,8 +221,7 @@ test.describe('Stage 9: Chord Lane', () => {
   });
 
   test('E-9.15: Unchecking show-chords hides chord markers without deleting them', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace');
@@ -258,18 +236,17 @@ test.describe('Stage 9: Chord Lane', () => {
 
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
-    // Hide chords — markers removed from DOM by plugin
-    await page.locator('[data-testid="toggle-show-chords"]').uncheck();
+    // Uncheck (exit chord mode) — markers removed from DOM
+    await disableChords(page);
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0, { timeout: 5000 });
 
-    // Show chords again — marker must reappear with original symbol
-    await page.locator('[data-testid="toggle-show-chords"]').check();
+    // Re-check (re-enter chord mode) — marker must reappear with original symbol
+    await enableChords(page);
     await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('Am', { timeout: 5000 });
   });
 
   test('E-9.16: Chord markers disappear when switching to Lyrics mode', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace');
@@ -284,17 +261,15 @@ test.describe('Stage 9: Chord Lane', () => {
 
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
-    // Switch back to Lyrics mode
-    await page.click('[data-testid="draft-mode-option-lyrics"]');
-    await waitForModeChange(page, 'lyrics');
+    // Switch back to Lyrics mode by unchecking the toggle
+    await disableChords(page);
 
-    // Chord markers should be hidden (count 0 or not visible)
+    // Chord markers should be hidden
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0, { timeout: 5000 });
   });
 
   test('E-9.17: Chord data survives a mode round-trip', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace');
@@ -309,21 +284,34 @@ test.describe('Stage 9: Chord Lane', () => {
 
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
-    // Round-trip: Lyrics → Lyrics+Chords
-    await page.click('[data-testid="draft-mode-option-lyrics"]');
-    await waitForModeChange(page, 'lyrics');
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    // Round-trip: off then on
+    await disableChords(page);
+    await enableChords(page);
 
     // Chord should reappear with the original symbol
     await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('Em', { timeout: 5000 });
   });
 
+  // ─── Mode round-trip (no chords) ─────────────────────────────────────────────
+
+  test('E-9.18: Switching modes does not corrupt typed lyric content', async ({ page }) => {
+    const proseMirror = await waitForEditorReady(page);
+    await page.keyboard.type('Some lyric content');
+
+    await enableChords(page);
+    await disableChords(page);
+
+    // Content should be preserved with retry
+    await expect(async () => {
+      const text = await proseMirror.textContent();
+      expect(text).toContain('Some lyric content');
+    }).toPass({ timeout: 5000 });
+  });
+
   // ─── Chord edit / delete (popover) ────────────────────────────────────────────
 
   test('E-9.19: Clicking a chord marker opens the edit popover with the symbol pre-filled', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace how sweet the sound');
@@ -346,8 +334,7 @@ test.describe('Stage 9: Chord Lane', () => {
   });
 
   test('E-9.20: Editing a chord symbol in the popover updates the marker', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace how sweet the sound');
@@ -376,8 +363,7 @@ test.describe('Stage 9: Chord Lane', () => {
   });
 
   test('E-9.21: Pressing Enter in the popover input saves the chord', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('How sweet the sound');
@@ -402,8 +388,7 @@ test.describe('Stage 9: Chord Lane', () => {
   });
 
   test('E-9.22: Clicking delete in the popover removes the chord marker', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace how sweet the sound');
@@ -428,8 +413,7 @@ test.describe('Stage 9: Chord Lane', () => {
   });
 
   test('E-9.23: Pressing Escape in the popover closes it without changing the chord', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
+    await enableChords(page);
 
     await waitForEditorReady(page);
     await page.keyboard.type('Amazing grace');
@@ -453,24 +437,5 @@ test.describe('Stage 9: Chord Lane', () => {
     await expect(page.locator('[data-testid="chord-popover"]')).toHaveCount(0, { timeout: 3000 });
     // Symbol should be unchanged
     await expect(page.locator('[data-testid="chord-marker"]').first()).toContainText('D', { timeout: 3000 });
-  });
-
-  // ─── Mode round-trip (no chords) ─────────────────────────────────────────────
-
-  test('E-9.18: Switching modes does not corrupt typed lyric content', async ({ page }) => {
-    const proseMirror = await waitForEditorReady(page);
-    await page.keyboard.type('Some lyric content');
-
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await waitForModeChange(page, 'lyricsWithChords');
-
-    await page.click('[data-testid="draft-mode-option-lyrics"]');
-    await waitForModeChange(page, 'lyrics');
-
-    // Content should be preserved with retry
-    await expect(async () => {
-      const text = await proseMirror.textContent();
-      expect(text).toContain('Some lyric content');
-    }).toPass({ timeout: 5000 });
   });
 });
