@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LeftNav } from './LeftNav';
 import { CenterPane } from './CenterPane';
 import { RightSidebar } from './RightSidebar';
@@ -9,6 +9,7 @@ import { EmptyState } from './EmptyState';
 import { useProjectStore } from '../../app/state/projectStore';
 import { useResizable } from '../../hooks/useResizable';
 import { startAutosave } from '../../persistence/autosave';
+import { useSaveStatusStore } from '../../app/state/saveStatusStore';
 
 export function AppShell() {
   const isProjectLoaded = useProjectStore((state) => state.isProjectLoaded);
@@ -42,6 +43,40 @@ export function AppShell() {
   useEffect(() => {
     return startAutosave();
   }, []);
+
+  const handleManualSave = useCallback(async () => {
+    const store = useProjectStore.getState();
+    if (!store.currentProject) return;
+    useSaveStatusStore.getState().setStatus('saving');
+    try {
+      await store.saveProject();
+      useSaveStatusStore.getState().setStatus('saved');
+      setTimeout(() => {
+        if (useSaveStatusStore.getState().status === 'saved') {
+          useSaveStatusStore.getState().setStatus('idle');
+        }
+      }, 2000);
+    } catch {
+      useSaveStatusStore.getState().setStatus('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key === 's') {
+          e.preventDefault();
+          handleManualSave();
+        }
+        if (e.key.toLowerCase() === 'e' && e.shiftKey) {
+          e.preventDefault();
+          setIsExportDialogOpen(true);
+        }
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleManualSave]);
 
   if (!isProjectLoaded && !isInitializing) {
     return (

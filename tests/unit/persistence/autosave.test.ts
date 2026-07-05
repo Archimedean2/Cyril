@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useProjectStore } from '../../../src/app/state/projectStore';
+import { useSaveStatusStore } from '../../../src/app/state/saveStatusStore';
 import { createDefaultProject, createCyrilFile } from '../../../src/domain/project/defaults';
 
 vi.mock('../../../src/persistence/fileSystem/fileManager', () => ({
@@ -160,5 +161,50 @@ describe('Autosave', () => {
 
     expect(saveProject).toHaveBeenCalledTimes(1);
     // No error thrown — autosave failures are silent
+  });
+
+  it('transitions save status: unsaved → saving → saved → idle', async () => {
+    const project = makeProject();
+    useProjectStore.setState({ currentProject: project, isProjectLoaded: true });
+
+    startAutosave();
+
+    useProjectStore.setState({
+      currentProject: {
+        ...project,
+        project: { ...project.project, updatedAt: new Date().toISOString() },
+      },
+    });
+
+    expect(useSaveStatusStore.getState().status).toBe('unsaved');
+
+    vi.advanceTimersByTime(DEBOUNCE_MS);
+    // Flush the async save chain (mock resolves in microtasks)
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(useSaveStatusStore.getState().status).toBe('saved');
+
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(useSaveStatusStore.getState().status).toBe('idle');
+  });
+
+  it('sets status to error on save failure', async () => {
+    vi.mocked(saveProject).mockRejectedValueOnce(new Error('disk full'));
+    const project = makeProject();
+    useProjectStore.setState({ currentProject: project, isProjectLoaded: true });
+
+    startAutosave();
+
+    useProjectStore.setState({
+      currentProject: {
+        ...project,
+        project: { ...project.project, updatedAt: new Date().toISOString() },
+      },
+    });
+
+    vi.advanceTimersByTime(DEBOUNCE_MS);
+    await vi.runAllTimersAsync();
+
+    expect(useSaveStatusStore.getState().status).toBe('error');
   });
 });
