@@ -30,6 +30,7 @@ interface ProjectState {
   // Draft Actions
   addDraft: (name: string, sourceDraftId?: string, mode?: import('../../domain/project/drafts').DuplicationMode) => void;
   deleteDraft: (draftId: string) => void;
+  renameDraft: (draftId: string, newName: string) => void;
   
   // Navigation Actions
   setActiveView: (view: ActiveView) => void;
@@ -224,6 +225,23 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         }
       },
       activeView: newActiveView
+    });
+  },
+
+  renameDraft: (draftId: string, newName: string) => {
+    const { currentProject } = get();
+    if (!currentProject) return;
+    set({
+      currentProject: {
+        ...currentProject,
+        project: {
+          ...currentProject.project,
+          drafts: currentProject.project.drafts.map(d =>
+            d.id === draftId ? { ...d, name: newName, updatedAt: new Date().toISOString() } : d
+          ),
+          updatedAt: new Date().toISOString(),
+        }
+      }
     });
   },
 

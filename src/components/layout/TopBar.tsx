@@ -35,9 +35,16 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare }: TopBarProp
   const saveProjectAs = useProjectStore((s) => s.saveProjectAs);
   const closeProject = useProjectStore((s) => s.closeProject);
   const isProjectLoaded = useProjectStore((s) => s.isProjectLoaded);
+  const renameProject = useProjectStore((s) => s.renameProject);
+  const renameDraft = useProjectStore((s) => s.renameDraft);
 
   const [overflowOpen, setOverflowOpen] = React.useState(false);
   const overflowRef = React.useRef<HTMLDivElement>(null);
+
+  const [isEditingTitle, setIsEditingTitle] = React.useState(false);
+  const [editTitle, setEditTitle] = React.useState('');
+  const [isEditingDraft, setIsEditingDraft] = React.useState(false);
+  const [editDraftName, setEditDraftName] = React.useState('');
 
   React.useEffect(() => {
     if (!overflowOpen) return;
@@ -84,7 +91,7 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare }: TopBarProp
         </span>
       </div>
 
-      {/* Center: Project title */}
+      {/* Center: Project title — click to edit */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -94,16 +101,69 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare }: TopBarProp
         color: 'var(--text-primary)',
         fontWeight: 400,
       }}>
-        <span>{projectTitle || 'Untitled'}</span>
+        {isProjectLoaded && isEditingTitle ? (
+          <input
+            autoFocus
+            data-testid="topbar-title-input"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            onBlur={() => {
+              if (editTitle.trim() && editTitle !== projectTitle) renameProject(editTitle.trim());
+              setIsEditingTitle(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                if (editTitle.trim() && editTitle !== projectTitle) renameProject(editTitle.trim());
+                setIsEditingTitle(false);
+              }
+              if (e.key === 'Escape') setIsEditingTitle(false);
+            }}
+            style={{ fontSize: '15px', fontFamily: 'var(--font-lyric)', padding: '2px 6px', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-editor)', color: 'var(--text-primary)', outline: 'none' }}
+          />
+        ) : (
+          <span
+            data-testid="topbar-project-title"
+            onClick={isProjectLoaded ? () => { setEditTitle(projectTitle || ''); setIsEditingTitle(true); } : undefined}
+            title={isProjectLoaded ? 'Click to rename' : undefined}
+            style={{ cursor: isProjectLoaded ? 'pointer' : undefined }}
+          >
+            {projectTitle || 'Untitled'}
+          </span>
+        )}
         {currentDraftName && (
           <>
             <span style={{ color: 'var(--text-muted)' }}>&mdash;</span>
-            <span
-              data-testid="topbar-draft-name"
-              style={{ color: 'var(--text-secondary)', fontSize: '13px' }}
-            >
-              {currentDraftName}
-            </span>
+            {isEditingDraft ? (
+              <input
+                autoFocus
+                data-testid="topbar-draft-name-input"
+                value={editDraftName}
+                onChange={(e) => setEditDraftName(e.target.value)}
+                onBlur={() => {
+                  const draftId = activeView?.type === 'draft' ? activeView.draftId : null;
+                  if (draftId && editDraftName.trim() && editDraftName !== currentDraftName) renameDraft(draftId, editDraftName.trim());
+                  setIsEditingDraft(false);
+                }}
+                onKeyDown={(e) => {
+                  const draftId = activeView?.type === 'draft' ? activeView.draftId : null;
+                  if (e.key === 'Enter') {
+                    if (draftId && editDraftName.trim() && editDraftName !== currentDraftName) renameDraft(draftId, editDraftName.trim());
+                    setIsEditingDraft(false);
+                  }
+                  if (e.key === 'Escape') setIsEditingDraft(false);
+                }}
+                style={{ fontSize: '13px', fontFamily: 'var(--font-lyric)', padding: '2px 6px', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-editor)', color: 'var(--text-secondary)', outline: 'none' }}
+              />
+            ) : (
+              <span
+                data-testid="topbar-draft-name"
+                onClick={() => { setEditDraftName(currentDraftName); setIsEditingDraft(true); }}
+                title="Click to rename"
+                style={{ color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer' }}
+              >
+                {currentDraftName}
+              </span>
+            )}
           </>
         )}
         {saveStatus !== 'idle' && (
