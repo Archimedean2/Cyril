@@ -34,8 +34,9 @@ is in `FEATURE_COVERAGE.md`.
 
 ## Current Stage
 - Stage: 12 stages built; project in **stabilization**, not feature work.
-- Status: All gates green — 0 lint warnings, 0 lint errors, 249 tests passing, build clean. Feature coverage 100%. E2E 108/108.
-- Next: `NEXT_STEPS.md` Phase 3 (polish — save-status UI, keyboard shortcuts, error states, typography).
+- Status: All gates green — 0 lint warnings, 0 lint errors, 251 tests passing, build clean. Feature coverage 100%. E2E 110/110.
+- Phase 3 polish complete: save-status indicator, keyboard shortcuts (Cmd+S, Cmd+Shift+E), warm ink-on-paper palette, editorial typography (Newsreader/Fraunces fonts), CyrilLogo brand, hardcoded-color cleanup.
+- Next: Phase 4 (new scope) — but per NEXT_STEPS.md, core drafting experience should be excellent first.
 
 ---
 
