@@ -24,8 +24,9 @@ test.describe('Stage 1: Project CRUD', () => {
     // Title should be updated
     await expect(page.getByTestId('project-title')).toHaveText('My Great Song');
 
-    // 5. Close project to return to empty state
-    await page.getByRole('button', { name: 'Close' }).click();
+    // 5. Close project to return to empty state (Close is in the overflow ⋯ menu)
+    await page.getByTestId('topbar-overflow-btn').click();
+    await page.getByTestId('topbar-close-btn').click();
     await expect(page.getByText('Write · Draft · Score')).toBeVisible();
   });
 });

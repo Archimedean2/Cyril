@@ -82,7 +82,10 @@ export function AppShell() {
     return (
       <div style={{ height: '100vh', background: 'var(--bg-app)', display: 'flex', flexDirection: 'column' }}>
         <div className="app-shell-topbar">
-          <TopBar onExportClick={() => setIsExportDialogOpen(true)} />
+          <TopBar
+            onExportClick={() => setIsExportDialogOpen(true)}
+            onImportShare={() => setIsShareImportOpen(true)}
+          />
         </div>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <EmptyState onImportShare={() => setIsShareImportOpen(true)} />
@@ -117,7 +120,11 @@ export function AppShell() {
   return (
     <div className="app-shell">
       <div className="app-shell-topbar">
-        <TopBar onExportClick={() => setIsExportDialogOpen(true)} />
+        <TopBar
+          onExportClick={() => setIsExportDialogOpen(true)}
+          onSaveClick={handleManualSave}
+          onImportShare={() => setIsShareImportOpen(true)}
+        />
       </div>
 
       <div className="app-shell-body" style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
@@ -127,7 +134,7 @@ export function AppShell() {
           style={leftNav.style}
           aria-label="Left navigation"
         >
-          <LeftNav onImportShare={() => setIsShareImportOpen(true)} />
+          <LeftNav />
         </nav>
 
         {/* Resize Handle - Left */}

@@ -139,6 +139,90 @@ button {
   flex-shrink: 0;
 }
 
+/* TopBar action buttons */
+.topbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  white-space: nowrap;
+}
+
+.topbar-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.topbar-btn--primary {
+  border-color: var(--border-default);
+  color: var(--text-secondary);
+}
+
+.topbar-overflow-trigger {
+  padding: 5px 8px;
+}
+
+.topbar-overflow-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 150px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.topbar-overflow-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-family: var(--font-ui);
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s ease;
+}
+
+.topbar-overflow-item:hover {
+  background: var(--bg-hover);
+}
+
+.topbar-overflow-item--danger {
+  color: var(--status-unsaved);
+}
+
+.topbar-overflow-item--danger:hover {
+  background: color-mix(in srgb, var(--status-unsaved) 12%, transparent);
+}
+
+.topbar-overflow-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 3px 4px;
+}
+
 /* Resize Handles */
 .resize-handle {
   width: var(--resize-handle-width);
