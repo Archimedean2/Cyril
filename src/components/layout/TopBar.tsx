@@ -207,6 +207,16 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare }: TopBarProp
           </button>
         )}
 
+        {/* Export */}
+        <button
+          onClick={onExportClick}
+          className="topbar-btn topbar-btn--primary"
+          data-testid="export-button"
+        >
+          <Download size={14} />
+          Export
+        </button>
+
         {/* Overflow ⋯ — only when a project is loaded */}
         {isProjectLoaded && (
           <div ref={overflowRef} style={{ position: 'relative' }}>
@@ -256,16 +266,6 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare }: TopBarProp
             )}
           </div>
         )}
-
-        {/* Export */}
-        <button
-          onClick={onExportClick}
-          className="topbar-btn topbar-btn--primary"
-          data-testid="export-button"
-        >
-          <Download size={14} />
-          Export
-        </button>
       </div>
     </div>
   );

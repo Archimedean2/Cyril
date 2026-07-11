@@ -135,8 +135,8 @@ button {
   display: flex;
   align-items: center;
   min-height: 0;
-  overflow: hidden;
   flex-shrink: 0;
+  overflow: visible;
 }
 
 /* TopBar action buttons */
