@@ -838,6 +838,24 @@
   margin-top: 0.15em;
 }
 
+/* Row alignment markers — visible only while caret is inside the block */
+.concurrent-block--focused .speaker-column [data-type="lyricLine"] {
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.concurrent-block--focused [data-type="lyricLine"].lyric-line--active-row {
+  background: var(--bg-hover, rgba(0, 0, 0, 0.03));
+  border-radius: 2px;
+}
+
+@media print {
+  .concurrent-block--focused .speaker-column [data-type="lyricLine"],
+  .concurrent-block--focused [data-type="lyricLine"].lyric-line--active-row {
+    border-bottom: none;
+    background: none;
+  }
+}
+
 /* Section context menu */
 .section-context-menu {
   position: fixed;

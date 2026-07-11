@@ -1,5 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core';
-import { TextSelection } from '@tiptap/pm/state';
+import { TextSelection, Plugin, PluginKey } from '@tiptap/pm/state';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { generateId } from '../../../domain/project/ids';
 import { createConcurrentBlockView } from '../../../components/editor/ConcurrentBlockView';
 
@@ -283,5 +284,75 @@ export const ConcurrentBlock = Node.create<ConcurrentBlockOptions>({
       // which fires before the isolating-node default. Nothing to do here.
       Enter: () => false,
     };
+  },
+
+  addProseMirrorPlugins() {
+    const key = new PluginKey('concurrentRowMarker');
+    return [
+      new Plugin({
+        key,
+        props: {
+          decorations(state) {
+            const { $from } = state.selection;
+
+            // Check if cursor is inside a concurrentBlock
+            let colDepth = -1;
+            let blockDepth = -1;
+            for (let d = $from.depth; d > 0; d--) {
+              const name = $from.node(d).type.name;
+              if (name === 'speakerColumn' && colDepth === -1) colDepth = d;
+              if (name === 'concurrentBlock' && blockDepth === -1) blockDepth = d;
+              if (colDepth !== -1 && blockDepth !== -1) break;
+            }
+            if (colDepth === -1 || blockDepth === -1) return DecorationSet.empty;
+
+            const block = $from.node(blockDepth);
+            const col = $from.node(colDepth);
+            const blockPos = $from.before(blockDepth);
+            const colStart = $from.before(colDepth);
+
+            // Find which lyricLine (row index) the cursor is in
+            let activeRowIndex = 0;
+            let lineAccum = colStart + 1;
+            col.forEach((line, _offset, li) => {
+              if ($from.pos >= lineAccum && $from.pos <= lineAccum + line.nodeSize) {
+                activeRowIndex = li;
+              }
+              lineAccum += line.nodeSize;
+            });
+
+            const decos: Decoration[] = [];
+
+            // Mark the block itself as focused
+            decos.push(
+              Decoration.node(blockPos, blockPos + block.nodeSize, {
+                class: 'concurrent-block--focused',
+              })
+            );
+
+            // Mark the lyricLine at activeRowIndex in every column
+            let colPos = blockPos + 1;
+            block.forEach((colNode) => {
+              if (colNode.type.name === 'speakerColumn') {
+                let linePos = colPos + 1;
+                colNode.forEach((lineNode, _offset, li) => {
+                  if (li === activeRowIndex) {
+                    decos.push(
+                      Decoration.node(linePos, linePos + lineNode.nodeSize, {
+                        class: 'lyric-line--active-row',
+                      })
+                    );
+                  }
+                  linePos += lineNode.nodeSize;
+                });
+              }
+              colPos += colNode.nodeSize;
+            });
+
+            return DecorationSet.create(state.doc, decos);
+          },
+        },
+      }),
+    ];
   },
 });

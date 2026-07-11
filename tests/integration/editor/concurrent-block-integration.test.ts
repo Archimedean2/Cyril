@@ -3,10 +3,13 @@
  * Covers: migration, save/load round-trip, chord preservation through columns.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
+import { Editor } from '@tiptap/core';
+import { TextSelection } from '@tiptap/pm/state';
 import { migrateProject } from '../../../src/domain/project/migration';
 import { buildExportableDraft } from '../../../src/domain/export/exportSelectors';
 import { ResolvedExportOptions } from '../../../src/domain/export/exportTypes';
+import { getDraftEditorConfig } from '../../../src/editor/core/draftConfig';
 
 const defaultOptions: ResolvedExportOptions = {
   includeSectionLabels: true,
@@ -281,5 +284,142 @@ describe('T-13.14: chords on lyricLines inside speakerColumn are preserved', () 
     expect(goneLine).toBeDefined();
     expect(goneLine?.chords).toHaveLength(1);
     expect(goneLine?.chords![0].symbol).toBe('G');
+  });
+});
+
+// ─── T-13.16a/b: row alignment markers ────────────────────────────────────────
+
+function makeTwoColumnDoc() {
+  const line = (id: string, text: string) => ({
+    type: 'lyricLine',
+    attrs: { id, delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+    content: text ? [{ type: 'text', text }] : [],
+  });
+  return {
+    type: 'doc',
+    content: [{
+      type: 'concurrentBlock',
+      attrs: { id: 'cb_test' },
+      content: [
+        {
+          type: 'speakerColumn',
+          attrs: { id: 'col_a', speakerName: 'WOODY' },
+          content: [line('la1', 'To infinity'), line('la2', 'And beyond')],
+        },
+        {
+          type: 'speakerColumn',
+          attrs: { id: 'col_b', speakerName: 'BUZZ' },
+          content: [line('lb1', 'I am Buzz'), line('lb2', 'Lightyear')],
+        },
+      ],
+    }],
+  };
+}
+
+describe('T-13.16a: row guides appear when caret is inside a concurrent block', () => {
+  let editor: Editor;
+  let el: HTMLDivElement;
+
+  afterEach(() => {
+    editor.destroy();
+    if (el.parentNode) el.parentNode.removeChild(el);
+  });
+
+  it('adds concurrent-block--focused to the block and lyric-line--active-row to the active row', () => {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+    editor = new Editor({
+      ...getDraftEditorConfig({ content: makeTwoColumnDoc() }),
+      element: el,
+    });
+
+    // Find the position inside the first lyricLine of column A
+    let firstLinePos = -1;
+    editor.state.doc.descendants((node, pos) => {
+      if (firstLinePos !== -1) return false;
+      if (node.type.name === 'lyricLine') {
+        firstLinePos = pos + 1; // inside the lyricLine
+        return false;
+      }
+    });
+    expect(firstLinePos).toBeGreaterThan(0);
+
+    const { tr } = editor.state;
+    const $pos = editor.state.doc.resolve(firstLinePos);
+    editor.view.dispatch(tr.setSelection(TextSelection.near($pos)));
+
+    // The block should receive the focused class
+    const blockEl = el.querySelector('[data-type="concurrentBlock"]');
+    expect(blockEl?.classList.contains('concurrent-block--focused')).toBe(true);
+
+    // Row 0 in both columns should have the active-row class.
+    // Query within the block element to exclude any trailing lyricLine that
+    // ProseMirror appends outside an isolating node.
+    const linesInBlock = Array.from(blockEl!.querySelectorAll('[data-type="lyricLine"]'));
+    expect(linesInBlock.length).toBe(4); // 2 columns × 2 rows
+    // Column A row 0 and column B row 0 → indices 0 and 2 in DOM order
+    expect(linesInBlock[0].classList.contains('lyric-line--active-row')).toBe(true);
+    expect(linesInBlock[2].classList.contains('lyric-line--active-row')).toBe(true);
+    // Row 1 lines should not have the class
+    expect(linesInBlock[1].classList.contains('lyric-line--active-row')).toBe(false);
+    expect(linesInBlock[3].classList.contains('lyric-line--active-row')).toBe(false);
+  });
+});
+
+describe('T-13.16b: row guides disappear when caret leaves the concurrent block', () => {
+  let editor: Editor;
+  let el: HTMLDivElement;
+
+  afterEach(() => {
+    editor.destroy();
+    if (el.parentNode) el.parentNode.removeChild(el);
+  });
+
+  it('removes concurrent-block--focused and lyric-line--active-row when cursor moves outside the block', () => {
+    // Doc with a concurrent block followed by a standalone lyricLine
+    const standaloneLine = {
+      type: 'lyricLine',
+      attrs: { id: 'outside_line', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+      content: [{ type: 'text', text: 'Outside the block' }],
+    };
+    const docWithTrailing = {
+      ...makeTwoColumnDoc(),
+      content: [...(makeTwoColumnDoc().content as object[]), standaloneLine],
+    };
+
+    el = document.createElement('div');
+    document.body.appendChild(el);
+    editor = new Editor({
+      ...getDraftEditorConfig({ content: docWithTrailing }),
+      element: el,
+    });
+
+    // First put cursor inside the block
+    let firstLinePos = -1;
+    editor.state.doc.descendants((node, pos) => {
+      if (firstLinePos !== -1) return false;
+      if (node.type.name === 'lyricLine') { firstLinePos = pos + 1; return false; }
+    });
+    const { tr: tr1 } = editor.state;
+    editor.view.dispatch(tr1.setSelection(TextSelection.near(editor.state.doc.resolve(firstLinePos))));
+    expect(el.querySelector('[data-type="concurrentBlock"]')?.classList.contains('concurrent-block--focused')).toBe(true);
+
+    // Now move cursor to the standalone line outside the block
+    let outsidePos = -1;
+    editor.state.doc.descendants((node, pos) => {
+      if (node.type.name === 'lyricLine' && node.attrs.id === 'outside_line') {
+        outsidePos = pos + 1;
+        return false;
+      }
+    });
+    expect(outsidePos).toBeGreaterThan(0);
+    const { tr: tr2 } = editor.state;
+    editor.view.dispatch(tr2.setSelection(TextSelection.near(editor.state.doc.resolve(outsidePos))));
+
+    // Both classes should be gone
+    const blockEl = el.querySelector('[data-type="concurrentBlock"]');
+    expect(blockEl?.classList.contains('concurrent-block--focused')).toBe(false);
+    const linesInBlock = Array.from(blockEl!.querySelectorAll('[data-type="lyricLine"]'));
+    expect(linesInBlock.every(l => !l.classList.contains('lyric-line--active-row'))).toBe(true);
   });
 });

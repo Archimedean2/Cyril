@@ -36,7 +36,8 @@ is in `FEATURE_COVERAGE.md`.
 - Stage: 12 stages built; project in **stabilization**, not feature work.
 - Status: All gates green — 0 lint warnings, 0 lint errors, 252 tests passing, build clean. Feature coverage 100% (120/120).
 - Phase 3 polish complete: save-status indicator, keyboard shortcuts (Cmd+S, Cmd+Shift+E), warm ink-on-paper palette, editorial typography (Newsreader/Fraunces fonts), CyrilLogo brand, hardcoded-color cleanup.
-- QoL pass (Stage 14) **complete**: (a) duplicate draft header removed; (b) view controls converted to toggle switches; (c) Chords reconciled to single switch; (d) project actions reorganised into top-bar toolbar with overflow menu; (e) song title and draft name are click-to-edit inline in the top bar. All T-14.01–T-14.05 passing. Feature coverage 100% (124/124 non-e2e criteria).
+- QoL pass (Stage 14) **complete**: (a) duplicate draft header removed; (b) view controls converted to toggle switches; (c) Chords reconciled to single switch; (d) project actions reorganised into top-bar toolbar with overflow menu; (e) song title and draft name are click-to-edit inline in the top bar. All T-14.01–T-14.05 passing.
+- Concurrent-speaker row markers (Enhancement E1) **complete**: ProseMirror plugin adds `concurrent-block--focused` to the block and `lyric-line--active-row` to the active row across all columns when the caret is inside the block; both classes are removed when focus leaves. Pure CSS — no schema or export change. T-13.16a and T-13.16b passing. Feature coverage 100% (126/126 non-e2e criteria).
 
 ---
 

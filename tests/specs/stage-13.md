@@ -29,6 +29,8 @@ Concurrent speaker blocks: authoring, navigation, export (squash and side-by-sid
 | T-13.13 | concurrentBlock save/load round-trip preserves speakerName, lyricLine content, and attrs | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | |
 | T-13.14 | chords on lyricLines inside a speakerColumn are preserved through save/load | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | |
 | T-13.15 | concurrent block insert, navigate, and export workflow passes in UI | e2e | `tests/e2e/stage-13-concurrent-speakers.spec.ts` | [x] | [x] | |
+| T-13.16a | row guides (concurrent-block--focused + lyric-line--active-row) appear when caret is inside a concurrent block | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Enhancement E1 |
+| T-13.16b | row guides disappear (both classes removed) when caret moves outside the concurrent block | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Enhancement E1 |
 
 ## Regression Requirements
 - Stages 0–12 must remain passing
