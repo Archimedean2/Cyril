@@ -82,6 +82,16 @@ export function createConcurrentBlockView({
       const LETTERS = ['A', 'B', 'C', 'D'];
       nameInput.value = col.attrs.speakerName || `Speaker ${LETTERS[i] ?? i + 1}`;
 
+      nameInput.addEventListener('mousedown', (e: MouseEvent) => {
+        // Prevent the browser from updating the DOM text selection on mousedown.
+        // Without this, a selectionchange event fires with click-coordinates that
+        // ProseMirror reads via document.getSelection() and maps to the nearest
+        // document position (after the block), moving the editor cursor.
+        e.preventDefault();
+        e.stopPropagation();
+        nameInput.focus();
+      });
+
       nameInput.addEventListener('keydown', (e: KeyboardEvent) => {
         e.stopPropagation();
         if (e.key === 'Enter') {
