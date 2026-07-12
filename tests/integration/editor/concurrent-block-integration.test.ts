@@ -423,3 +423,71 @@ describe('T-13.16b: row guides disappear when caret leaves the concurrent block'
     expect(linesInBlock.every(l => !l.classList.contains('lyric-line--active-row'))).toBe(true);
   });
 });
+
+// ─── T-13.17: stress-mark row-height equalisation ────────────────────────────
+
+describe('T-13.17: stress marks in one column do not break row alignment', () => {
+  let editor: Editor;
+  let el: HTMLDivElement;
+
+  afterEach(() => {
+    editor.destroy();
+    if (el.parentNode) el.parentNode.removeChild(el);
+  });
+
+  it('stress-mark spans from col A are inside the concurrent-block element, enabling :has() CSS rule on col B', () => {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+
+    // Column A has text that will receive stress-mark decorations;
+    // Column B has plain text with no stress marks.
+    const doc = {
+      type: 'doc',
+      content: [{
+        type: 'concurrentBlock',
+        attrs: { id: 'cb_stress' },
+        content: [
+          {
+            type: 'speakerColumn',
+            attrs: { id: 'col_a', speakerName: 'A' },
+            content: [{
+              type: 'lyricLine',
+              attrs: { id: 'la1', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+              content: [{ type: 'text', text: 'Amazing grace' }],
+            }],
+          },
+          {
+            type: 'speakerColumn',
+            attrs: { id: 'col_b', speakerName: 'B' },
+            content: [{
+              type: 'lyricLine',
+              attrs: { id: 'lb1', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+              content: [],
+            }],
+          },
+        ],
+      }],
+    };
+
+    editor = new Editor({
+      ...getDraftEditorConfig({ content: doc, showStressMarks: true }),
+      element: el,
+    });
+
+    const blockEl = el.querySelector('[data-type="concurrentBlock"]');
+    expect(blockEl).not.toBeNull();
+
+    // Col A's lyricLine must contain stress-mark spans so the CSS
+    // .concurrent-block:has(.cyril-stress-mark) selector activates for col B too.
+    const stressMarks = blockEl!.querySelectorAll('.cyril-stress-mark');
+    expect(stressMarks.length).toBeGreaterThan(0);
+
+    // The stress marks are descendants of the concurrent block — confirmed by the
+    // querySelector scope above. This is the structural precondition for the
+    // :has(.cyril-stress-mark) rule to apply to all lyricLines in the block.
+    const colBLine = blockEl!.querySelector('[data-id="col_b"] [data-type="lyricLine"]');
+    expect(colBLine).not.toBeNull();
+    // Col B has no stress marks of its own — the CSS rule must handle it via the block selector
+    expect(colBLine!.querySelectorAll('.cyril-stress-mark').length).toBe(0);
+  });
+});

@@ -31,6 +31,7 @@ Concurrent speaker blocks: authoring, navigation, export (squash and side-by-sid
 | T-13.15 | concurrent block insert, navigate, and export workflow passes in UI | e2e | `tests/e2e/stage-13-concurrent-speakers.spec.ts` | [x] | [x] | |
 | T-13.16a | row guides (concurrent-block--focused + lyric-line--active-row) appear when caret is inside a concurrent block | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Enhancement E1 |
 | T-13.16b | row guides disappear (both classes removed) when caret moves outside the concurrent block | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Enhancement E1 |
+| T-13.17 | stress-mark spans from one column are inside the concurrent-block element, enabling :has() CSS rule on columns without stress marks | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Stress-mark row alignment bug fix |
 
 ## Regression Requirements
 - Stages 0–12 must remain passing

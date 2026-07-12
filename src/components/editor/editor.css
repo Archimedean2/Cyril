@@ -838,6 +838,17 @@
   margin-top: 0.15em;
 }
 
+/* Row height equalisation: when any line in the block carries stress marks
+   or chord anchors, apply that line-height to ALL lines in all columns so
+   rows stay vertically aligned across columns. */
+.concurrent-block:has(.cyril-stress-mark) .speaker-column [data-type="lyricLine"] {
+  line-height: 2.2;
+}
+
+.concurrent-block:has(.cyril-chord-anchor) .speaker-column [data-type="lyricLine"] {
+  line-height: 2.6;
+}
+
 /* Row alignment markers — visible only while caret is inside the block */
 .concurrent-block--focused .speaker-column [data-type="lyricLine"] {
   border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
