@@ -61,6 +61,7 @@ export function InsertConcurrentBlockDialog({
       ref={dialogRef}
       className="insert-concurrent-dialog"
       data-testid="insert-concurrent-dialog"
+      onClick={e => e.stopPropagation()}
       style={{
         position: 'absolute',
         top: '100%',
