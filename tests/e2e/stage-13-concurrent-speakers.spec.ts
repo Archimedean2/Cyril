@@ -41,9 +41,31 @@ test.describe('Stage 13: Concurrent Speakers', () => {
 
     await page.getByTestId('concurrent-dialog-confirm').click();
 
-    // Check speaker name labels appear in the editor
-    await expect(page.locator('[data-testid="concurrent-speaker-name-0"]')).toContainText('ELPHABA');
-    await expect(page.locator('[data-testid="concurrent-speaker-name-1"]')).toContainText('GLINDA');
+    // The header inputs show the names (inputs: use toHaveValue, not toContainText)
+    await expect(page.locator('[data-testid="concurrent-speaker-name-0"]')).toHaveValue('ELPHABA');
+    await expect(page.locator('[data-testid="concurrent-speaker-name-1"]')).toHaveValue('GLINDA');
+  });
+
+  test('T-13.15k: speaker names can be edited inline in the header after insertion', async ({ page }) => {
+    await page.getByTestId('toolbar-insert-concurrent').click();
+    await page.getByTestId('concurrent-dialog-confirm').click();
+
+    // Click into the first speaker name input and change it
+    const nameInput = page.locator('[data-testid="concurrent-speaker-name-0"]');
+    await nameInput.click();
+    await nameInput.fill('ELPHABA');
+    // Blur to commit (Tab or click elsewhere)
+    await page.keyboard.press('Tab');
+
+    // The input should show the new name
+    await expect(page.locator('[data-testid="concurrent-speaker-name-0"]')).toHaveValue('ELPHABA');
+
+    // The editor cursor should NOT have jumped to after the block —
+    // verify by typing into the first column lyric line
+    const firstColumn = page.locator('.speaker-column').first();
+    await firstColumn.locator('[data-type="lyricLine"]').first().click();
+    await page.keyboard.type('still here');
+    await expect(firstColumn).toContainText('still here');
   });
 
   test('T-13.15c: 3-speaker block can be inserted', async ({ page }) => {

@@ -92,6 +92,13 @@ export function createConcurrentBlockView({
         nameInput.focus();
       });
 
+      nameInput.addEventListener('click', (e: MouseEvent) => {
+        // Prevent the click from bubbling to DraftEditor's handleContainerClick,
+        // which calls editor.commands.focus('end') when the editor is not focused,
+        // stealing focus back from this input immediately after mousedown gave it.
+        e.stopPropagation();
+      });
+
       nameInput.addEventListener('keydown', (e: KeyboardEvent) => {
         e.stopPropagation();
         if (e.key === 'Enter') {

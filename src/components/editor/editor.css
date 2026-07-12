@@ -736,12 +736,14 @@
   padding-right: 2rem;
 }
 
-/* Editable speaker name — very quiet, just a label */
-.concurrent-speaker-name {
+/* Editable speaker name — very quiet, just a label.
+   Selector is scoped to input[type="text"].concurrent-speaker-name so it out-specifies the
+   global input[type="text"] rules in index.css (border + focus box-shadow). */
+input[type="text"].concurrent-speaker-name {
   flex: 1;
-  /* font: inherit overrides the browser's default <input> font (usually system-ui);
-     font-family: inherit alone is not enough on all browsers. */
-  font: inherit;
+  /* Explicit UI font: the editor body is serif (--font-lyric), so `font: inherit` would
+     wrongly pull the serif face into this label. */
+  font-family: var(--font-ui);
   font-size: 0.7em;
   font-weight: 600;
   letter-spacing: 0.07em;
@@ -751,18 +753,20 @@
   padding: 1px 2px;
   min-width: 0;
   cursor: text;
-  /* Strip default <input> chrome */
+  /* Strip default <input> chrome (incl. the global focus ring) */
   -webkit-appearance: none;
   appearance: none;
   border: none;
   background: transparent;
+  box-shadow: none;
   width: 100%;
   box-sizing: border-box;
 }
 
-.concurrent-speaker-name:focus {
+input[type="text"].concurrent-speaker-name:focus {
   color: var(--text-muted, #738093);
   outline: none;
+  box-shadow: none;
 }
 
 /* Remove-column button — invisible until hover */
