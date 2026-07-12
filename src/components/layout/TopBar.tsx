@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Download, FolderOpen, Save, MoreHorizontal, SaveAll, X, Import } from 'lucide-react';
+import { Download, FolderOpen, Save, MoreHorizontal, SaveAll, X, Import, Expand, Shrink } from 'lucide-react';
 import { useProjectStore } from '../../app/state/projectStore';
 import { useSaveStatusStore, SaveStatus } from '../../app/state/saveStatusStore';
 import { CyrilMark } from '../brand/CyrilLogo';
@@ -24,9 +24,11 @@ interface TopBarProps {
   onExportClick: () => void;
   onSaveClick?: () => void;
   onImportShare?: () => void;
+  focusModeActive?: boolean;
+  onToggleFocusMode?: () => void;
 }
 
-export function TopBar({ onExportClick, onSaveClick, onImportShare }: TopBarProps) {
+export function TopBar({ onExportClick, onSaveClick, onImportShare, focusModeActive, onToggleFocusMode }: TopBarProps) {
   const projectTitle = useProjectStore((state) => state.currentProject?.project.title);
   const activeView = useProjectStore((state) => state.activeView);
   const drafts = useProjectStore((state) => state.currentProject?.project.drafts);
@@ -216,6 +218,19 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare }: TopBarProp
           <Download size={14} />
           Export
         </button>
+
+        {/* Focus mode toggle — always visible when a project is loaded */}
+        {isProjectLoaded && onToggleFocusMode && (
+          <button
+            className={`topbar-btn topbar-btn--icon${focusModeActive ? ' topbar-btn--active' : ''}`}
+            onClick={onToggleFocusMode}
+            title={focusModeActive ? 'Exit focus mode (⌘\\)' : 'Focus mode (⌘\\)'}
+            data-testid="focus-mode-btn"
+            aria-pressed={focusModeActive}
+          >
+            {focusModeActive ? <Shrink size={14} /> : <Expand size={14} />}
+          </button>
+        )}
 
         {/* Overflow ⋯ — only when a project is loaded */}
         {isProjectLoaded && (

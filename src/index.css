@@ -168,6 +168,17 @@ button {
   color: var(--text-secondary);
 }
 
+.topbar-btn--icon {
+  padding: 5px 8px;
+  gap: 0;
+}
+
+.topbar-btn--active {
+  background: var(--bg-hover);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
 .topbar-overflow-trigger {
   padding: 5px 8px;
 }

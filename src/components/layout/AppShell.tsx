@@ -17,6 +17,7 @@ export function AppShell() {
   const initApp = useProjectStore((state) => state.initApp);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isShareImportOpen, setIsShareImportOpen] = useState(false);
+  const [focusModeActive, setFocusModeActive] = useState(false);
   const importShare = useProjectStore((state) => state.importShare);
 
   const leftNav = useResizable({
@@ -72,6 +73,10 @@ export function AppShell() {
           e.preventDefault();
           setIsExportDialogOpen(true);
         }
+        if (e.key === '\\') {
+          e.preventDefault();
+          setFocusModeActive((v) => !v);
+        }
       }
     }
     window.addEventListener('keydown', onKeyDown);
@@ -124,6 +129,8 @@ export function AppShell() {
           onExportClick={() => setIsExportDialogOpen(true)}
           onSaveClick={handleManualSave}
           onImportShare={() => setIsShareImportOpen(true)}
+          focusModeActive={focusModeActive}
+          onToggleFocusMode={() => setFocusModeActive((v) => !v)}
         />
       </div>
 
@@ -131,18 +138,23 @@ export function AppShell() {
         {/* Left Navigation */}
         <nav
           className="left-nav panel"
-          style={leftNav.style}
+          style={focusModeActive
+            ? { width: 0, minWidth: 0, overflow: 'hidden', transition: 'width 0.18s ease, min-width 0.18s ease' }
+            : { ...leftNav.style, transition: leftNav.isResizing ? undefined : 'width 0.18s ease' }
+          }
           aria-label="Left navigation"
         >
           <LeftNav />
         </nav>
 
         {/* Resize Handle - Left */}
-        <div
-          className={`resize-handle ${leftNav.isResizing ? 'resizing' : ''}`}
-          onMouseDown={leftNav.startResizing}
-          title="Drag to resize"
-        />
+        {!focusModeActive && (
+          <div
+            className={`resize-handle ${leftNav.isResizing ? 'resizing' : ''}`}
+            onMouseDown={leftNav.startResizing}
+            title="Drag to resize"
+          />
+        )}
 
         {/* Center Pane */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -150,16 +162,21 @@ export function AppShell() {
         </div>
 
         {/* Resize Handle - Right */}
-        <div
-          className={`resize-handle ${rightSidebar.isResizing ? 'resizing' : ''}`}
-          onMouseDown={rightSidebar.startResizing}
-          title="Drag to resize"
-        />
+        {!focusModeActive && (
+          <div
+            className={`resize-handle ${rightSidebar.isResizing ? 'resizing' : ''}`}
+            onMouseDown={rightSidebar.startResizing}
+            title="Drag to resize"
+          />
+        )}
 
         {/* Right Sidebar */}
         <aside
           className="right-sidebar panel"
-          style={rightSidebar.style}
+          style={focusModeActive
+            ? { width: 0, minWidth: 0, overflow: 'hidden', transition: 'width 0.18s ease, min-width 0.18s ease' }
+            : { ...rightSidebar.style, transition: rightSidebar.isResizing ? undefined : 'width 0.18s ease' }
+          }
           aria-label="Right sidebar"
         >
           <RightSidebar />
