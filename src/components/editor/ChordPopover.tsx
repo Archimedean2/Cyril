@@ -64,7 +64,7 @@ export function ChordPopover({ target, editor, onClose }: ChordPopoverProps) {
   };
 
   return (
-    <div ref={popoverRef} className="chord-popover" style={style} data-testid="chord-popover">
+    <div ref={popoverRef} className="chord-popover" style={style} data-testid="chord-popover" onClick={e => e.stopPropagation()}>
       <input
         ref={inputRef}
         className="chord-popover-input"

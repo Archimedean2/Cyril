@@ -70,6 +70,7 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
   const [chordPopover, setChordPopover] = useState<ChordPopoverTarget | null>(null);
   const closeChordPopover = useCallback(() => setChordPopover(null), []);
   const openLineMenu = useLineMenuStore(s => s.open);
+  const editorSurfaceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!editor) return;
@@ -133,8 +134,12 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
     settings?.showSyllableCounts !== false ? 'show-syllables' : 'hide-syllables',
   ].join(' ');
 
-  const handleContainerClick = () => {
-    if (editor && !editor.isFocused) {
+  const handleContainerClick = (e: React.MouseEvent) => {
+    // Only refocus when the click landed on the editor surface or its bare
+    // container background — not on any toolbar, dialog, popover, or overlay
+    // that happens to render inside this container (including React portals,
+    // which bubble through the React tree even when mounted in document.body).
+    if (editor && !editor.isFocused && editorSurfaceRef.current?.contains(e.target as Node)) {
       editor.commands.focus('end');
     }
   };
@@ -146,7 +151,7 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
       onClick={handleContainerClick}
     >
       <DraftToolbar editor={editor} draftMode={draftMode} settings={settings} />
-      <EditorContent editor={editor} className={editorClasses} data-testid="editor-surface" />
+      <EditorContent ref={editorSurfaceRef} editor={editor} className={editorClasses} data-testid="editor-surface" />
       <SectionContextMenu editor={editor} />
       <LineContextMenu editor={editor} />
       {chordPopover && createPortal(
