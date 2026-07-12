@@ -37,6 +37,19 @@
   line-height: 1.5;
   color: var(--text-primary);
   letter-spacing: 0.002em;
+  /* Disable automatic optical sizing so we can control the opsz axis explicitly.
+     font-optical-sizing: auto injects font-variation-settings internally, which
+     on some browsers prevents font-style: italic from correctly activating the
+     ital axis, making italic text look identical to roman. */
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 14;
+}
+
+/* Explicit axis values for italic — required because disabling font-optical-sizing
+   means we must carry opsz forward in the variation-settings cascade. */
+.editor-surface .ProseMirror em {
+  font-style: italic;
+  font-variation-settings: "opsz" 14, "ital" 1;
 }
 
 .editor-surface::-webkit-scrollbar {
@@ -734,17 +747,18 @@
   outline: none;
   padding: 1px 2px;
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   cursor: text;
+  /* Reset <input> appearance so it looks like the former inline span */
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .concurrent-speaker-name:focus {
   color: var(--text-muted, #738093);
   outline: none;
-  white-space: normal;
-  overflow: visible;
 }
 
 /* Remove-column button — invisible until hover */

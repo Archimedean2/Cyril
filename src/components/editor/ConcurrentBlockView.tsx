@@ -69,28 +69,31 @@ export function createConcurrentBlockView({
       colHeader.style.flex = '1';
       colHeader.style.minWidth = '0';
 
-      // Editable speaker name
-      const nameSpan = document.createElement('span');
-      nameSpan.classList.add('concurrent-speaker-name');
-      nameSpan.setAttribute('contenteditable', 'true');
-      nameSpan.setAttribute('data-testid', `concurrent-speaker-name-${i}`);
+      // Editable speaker name — use <input> not contenteditable span.
+      // A contenteditable span inside ProseMirror's tree fires selectionchange
+      // events that ProseMirror reads via document.getSelection(), placing the
+      // cursor at the nearest doc position (after the block). A plain <input>
+      // keeps its selection in element.selectionStart/End, invisible to
+      // document.getSelection(), so ProseMirror's cursor is never disturbed.
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.classList.add('concurrent-speaker-name');
+      nameInput.setAttribute('data-testid', `concurrent-speaker-name-${i}`);
       const LETTERS = ['A', 'B', 'C', 'D'];
-      nameSpan.textContent = col.attrs.speakerName || `Speaker ${LETTERS[i] ?? i + 1}`;
+      nameInput.value = col.attrs.speakerName || `Speaker ${LETTERS[i] ?? i + 1}`;
 
-      nameSpan.addEventListener('keydown', (e: KeyboardEvent) => {
+      nameInput.addEventListener('keydown', (e: KeyboardEvent) => {
         e.stopPropagation();
         if (e.key === 'Enter') {
           e.preventDefault();
-          nameSpan.blur();
+          nameInput.blur();
         }
       });
-      nameSpan.addEventListener('keypress', (e) => e.stopPropagation());
-      nameSpan.addEventListener('keyup', (e) => e.stopPropagation());
 
-      nameSpan.addEventListener('blur', () => {
+      nameInput.addEventListener('blur', () => {
         const FALLBACK_LETTERS = ['A', 'B', 'C', 'D'];
-        const newName = nameSpan.textContent?.trim() || `Speaker ${FALLBACK_LETTERS[i] ?? i + 1}`;
-        nameSpan.textContent = newName;
+        const newName = nameInput.value.trim() || `Speaker ${FALLBACK_LETTERS[i] ?? i + 1}`;
+        nameInput.value = newName;
         const pos = typeof getPos === 'function' ? getPos() : undefined;
         if (pos === undefined) return;
 
@@ -109,7 +112,7 @@ export function createConcurrentBlockView({
         (editor as Editor).view.dispatch(tr);
       });
 
-      colHeader.appendChild(nameSpan);
+      colHeader.appendChild(nameInput);
 
       // Remove button (only when > 2 columns)
       if (colCount > 2) {
