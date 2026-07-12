@@ -4,6 +4,7 @@ import { CenterPane } from './CenterPane';
 import { RightSidebar } from './RightSidebar';
 import { TopBar } from './TopBar';
 import { ErrorBoundary } from './ErrorBoundary';
+import { CommandMenu } from './CommandMenu';
 import { ExportDialog } from '../../features/export-panel/ExportDialog';
 import { ShareImportDialog } from '../../features/share/ShareImportDialog';
 import { EmptyState } from './EmptyState';
@@ -19,6 +20,7 @@ export function AppShell() {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isShareImportOpen, setIsShareImportOpen] = useState(false);
   const [focusModeActive, setFocusModeActive] = useState(false);
+  const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false);
   const importShare = useProjectStore((state) => state.importShare);
 
   const leftNav = useResizable({
@@ -78,6 +80,10 @@ export function AppShell() {
           e.preventDefault();
           setFocusModeActive((v) => !v);
         }
+        if (e.key === 'k') {
+          e.preventDefault();
+          setIsCommandMenuOpen((v) => !v);
+        }
         if (e.key === '[' || e.key === ']') {
           const draftList = useProjectStore.getState().currentProject?.project.drafts;
           const view = useProjectStore.getState().activeView;
@@ -117,6 +123,7 @@ export function AppShell() {
           onClose={() => setIsShareImportOpen(false)}
           onImport={(blob) => importShare(blob)}
         />
+        {isCommandMenuOpen && <CommandMenu onClose={() => setIsCommandMenuOpen(false)} />}
       </div>
     );
   }
@@ -207,6 +214,7 @@ export function AppShell() {
         onClose={() => setIsShareImportOpen(false)}
         onImport={(blob) => importShare(blob)}
       />
+      {isCommandMenuOpen && <CommandMenu onClose={() => setIsCommandMenuOpen(false)} />}
     </div>
   );
 }

@@ -3,14 +3,15 @@ import { render, fireEvent } from '@testing-library/react';
 import { AppShell } from '../../../src/components/layout/AppShell';
 import { useProjectStore } from '../../../src/app/state/projectStore';
 import { createCyrilFile, createDefaultProject } from '../../../src/domain/project/defaults';
+import type { Draft } from '../../../src/domain/project/types';
 
-function makeDraft(id: string, name: string) {
+function makeDraft(id: string, name: string): Draft {
   return {
     id, name,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    mode: 'lyrics' as const,
-    doc: { type: 'doc', content: [] } as any,
+    mode: 'lyrics',
+    doc: { type: 'doc', content: [] },
     inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
     draftSettings: { showChords: false, showSectionLabels: true, showSpeakerLabels: true, showStageDirections: true, showSummaries: true, showSyllableCounts: false, showStressMarks: false },
   };
