@@ -78,6 +78,18 @@ export function AppShell() {
           e.preventDefault();
           setFocusModeActive((v) => !v);
         }
+        if (e.key === '[' || e.key === ']') {
+          const draftList = useProjectStore.getState().currentProject?.project.drafts;
+          const view = useProjectStore.getState().activeView;
+          if (!draftList || draftList.length < 2 || view.type !== 'draft') return;
+          const idx = draftList.findIndex((d) => d.id === view.draftId);
+          if (idx === -1) return;
+          e.preventDefault();
+          const next = e.key === '[' ? idx - 1 : idx + 1;
+          if (next >= 0 && next < draftList.length) {
+            useProjectStore.getState().setActiveView({ type: 'draft', draftId: draftList[next].id });
+          }
+        }
       }
     }
     window.addEventListener('keydown', onKeyDown);
