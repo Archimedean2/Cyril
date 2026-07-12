@@ -178,7 +178,11 @@ export function createConcurrentBlockView({
       if (updatedNode.type.name !== 'concurrentBlock') return false;
       currentNode = updatedNode;
       dom.setAttribute('data-id', updatedNode.attrs.id);
-      rebuildHeader(updatedNode);
+      // Skip header rebuild while the user is editing a speaker name — destroying
+      // and recreating the focused element would drop input focus immediately.
+      if (!headerRow.contains(document.activeElement)) {
+        rebuildHeader(updatedNode);
+      }
       return true;
     },
 

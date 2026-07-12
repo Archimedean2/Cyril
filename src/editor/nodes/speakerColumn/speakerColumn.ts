@@ -56,6 +56,20 @@ export const SpeakerColumn = Node.create<SpeakerColumnOptions>({
       new Plugin({
         props: {
           handleKeyDown(view, event) {
+            // Prevent Backspace at the start of a lyricLine from deleting the line.
+            // Rows must stay in sync across all columns.
+            if (event.key === 'Backspace') {
+              const { $from } = view.state.selection;
+              let inSpeakerColumn = false;
+              for (let d = $from.depth; d > 0; d--) {
+                if ($from.node(d).type.name === 'speakerColumn') { inSpeakerColumn = true; break; }
+              }
+              if (inSpeakerColumn && $from.parent.type.name === 'lyricLine' && $from.parentOffset === 0) {
+                return true;
+              }
+              return false;
+            }
+
             if (event.key !== 'Enter' || event.shiftKey || event.ctrlKey || event.metaKey) return false;
 
             const { state } = view;
