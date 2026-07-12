@@ -1,5 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getDraftEditorConfig } from '../../editor/core/draftConfig';
 import { RichTextDocument, DraftSettings, DraftMode } from '../../domain/project/types';
@@ -68,6 +68,7 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
   }, [settings?.showChords, settings?.showSyllableCounts, settings?.showStressMarks, draftMode, editor]);
 
   const [chordPopover, setChordPopover] = useState<ChordPopoverTarget | null>(null);
+  const closeChordPopover = useCallback(() => setChordPopover(null), []);
   const openLineMenu = useLineMenuStore(s => s.open);
 
   useEffect(() => {
@@ -152,7 +153,7 @@ export function DraftEditor({ initialContent, settings, draftMode = 'lyrics', on
         <ChordPopover
           target={chordPopover}
           editor={editor}
-          onClose={() => setChordPopover(null)}
+          onClose={closeChordPopover}
         />,
         document.body
       )}

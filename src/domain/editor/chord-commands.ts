@@ -165,33 +165,27 @@ export function editChordOnCurrentLine(
   chordId: string,
   newSymbol: string
 ): boolean {
-  const lineInfo = getLyricLineAtSelection(editor) ?? findLineByChordId(editor, chordId);
+  // Re-find the lyricLine directly so we can use setNodeMarkup at the exact
+  // position — updateAttributes('lyricLine') applies to the cursor position,
+  // which may not be inside the target lyricLine when a chord pill was clicked.
+  const lineInfo = findLineByChordId(editor, chordId);
   if (!lineInfo) return false;
-  
-  const { meta } = lineInfo;
-  
+
+  const { meta, node, pos } = lineInfo;
   const chordIndex = meta.chords.findIndex(c => c.id === chordId);
   if (chordIndex === -1) return false;
-  
-  const updatedChords = meta.chords.map((chord, idx) => {
-    if (idx === chordIndex) {
-      return {
-        ...chord,
-        symbol: newSymbol,
-      };
-    }
-    return chord;
+
+  const updatedChords = meta.chords.map((chord, idx) =>
+    idx === chordIndex ? { ...chord, symbol: newSymbol } : chord
+  );
+
+  const { tr } = editor.state;
+  tr.setNodeMarkup(pos, undefined, {
+    ...node.attrs,
+    meta: { ...meta, chords: updatedChords },
   });
-  
-  return editor
-    .chain()
-    .updateAttributes('lyricLine', {
-      meta: {
-        ...meta,
-        chords: updatedChords,
-      }
-    })
-    .run();
+  editor.view.dispatch(tr);
+  return true;
 }
 
 /**
@@ -254,22 +248,19 @@ export function removeChordFromCurrentLine(
   editor: Editor,
   chordId: string
 ): boolean {
-  const lineInfo = getLyricLineAtSelection(editor) ?? findLineByChordId(editor, chordId);
+  const lineInfo = findLineByChordId(editor, chordId);
   if (!lineInfo) return false;
-  
-  const { meta } = lineInfo;
-  
+
+  const { meta, node, pos } = lineInfo;
   const updatedChords = meta.chords.filter(c => c.id !== chordId);
-  
-  return editor
-    .chain()
-    .updateAttributes('lyricLine', {
-      meta: {
-        ...meta,
-        chords: updatedChords,
-      }
-    })
-    .run();
+
+  const { tr } = editor.state;
+  tr.setNodeMarkup(pos, undefined, {
+    ...node.attrs,
+    meta: { ...meta, chords: updatedChords },
+  });
+  editor.view.dispatch(tr);
+  return true;
 }
 
 /**

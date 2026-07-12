@@ -21,6 +21,9 @@ describe('Chord Commands', () => {
   let mockChain: any;
   let mockDoc: any;
 
+  let mockView: any;
+  let mockTr: any;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -28,6 +31,16 @@ describe('Chord Commands', () => {
     mockChain = {
       updateAttributes: vi.fn().mockReturnThis(),
       run: vi.fn().mockReturnValue(true),
+    };
+
+    // Setup mock transaction (used by edit/remove which call tr.setNodeMarkup)
+    mockTr = {
+      setNodeMarkup: vi.fn(),
+    };
+
+    // Setup mock view (used by edit/remove which call editor.view.dispatch)
+    mockView = {
+      dispatch: vi.fn(),
     };
 
     // Setup mock doc
@@ -41,12 +54,14 @@ describe('Chord Commands', () => {
     mockState = {
       doc: mockDoc,
       selection: { from: 10, to: 15 },
+      tr: mockTr,
     };
 
     // Setup mock editor
     mockEditor = {
       state: mockState,
       chain: vi.fn().mockReturnValue(mockChain),
+      view: mockView,
     } as unknown as Editor;
   });
 
@@ -345,37 +360,28 @@ describe('Chord Commands', () => {
         },
       };
 
-      mockDoc.nodesBetween.mockImplementation((_from: number, _to: number, callback: (node: any, pos: number) => boolean) => {
+      // editChordOnCurrentLine now uses findLineByChordId → doc.descendants
+      mockDoc.descendants.mockImplementation((callback: (node: any, pos: number) => boolean) => {
         callback(mockLyricLineNode, 5);
-        return false;
       });
 
       const result = editChordOnCurrentLine(mockEditor, 'chord_1', 'Em');
 
       expect(result).toBe(true);
-      const updateCall = mockChain.updateAttributes.mock.calls[0];
-      const chords = updateCall[1].meta.chords;
-      expect(chords).toHaveLength(2);
-      expect(chords[0].symbol).toBe('Em');
-      expect(chords[1].symbol).toBe('C');
+      expect(mockTr.setNodeMarkup).toHaveBeenCalledWith(5, undefined, expect.objectContaining({
+        meta: expect.objectContaining({
+          chords: expect.arrayContaining([
+            expect.objectContaining({ id: 'chord_1', symbol: 'Em' }),
+            expect.objectContaining({ id: 'chord_2', symbol: 'C' }),
+          ]),
+        }),
+      }));
+      expect(mockView.dispatch).toHaveBeenCalledWith(mockTr);
     });
 
     test('editChordOnCurrentLine returns false when chord not found', () => {
-      const mockLyricLineNode = {
-        type: { name: 'lyricLine' },
-        nodeSize: 30,
-        attrs: {
-          meta: {
-            chords: [],
-            alternates: [],
-            prosody: null,
-          },
-        },
-      };
-
-      mockDoc.nodesBetween.mockImplementation((_from: number, _to: number, callback: (node: any, pos: number) => boolean) => {
-        callback(mockLyricLineNode, 5);
-        return false;
+      mockDoc.descendants.mockImplementation((_callback: (node: any, pos: number) => boolean) => {
+        // No lyricLine with the target chord found
       });
 
       const result = editChordOnCurrentLine(mockEditor, 'nonexistent_id', 'G');
@@ -409,22 +415,26 @@ describe('Chord Commands', () => {
         },
       };
 
-      mockDoc.nodesBetween.mockImplementation((_from: number, _to: number, callback: (node: any, pos: number) => boolean) => {
+      // removeChordFromCurrentLine now uses findLineByChordId → doc.descendants
+      mockDoc.descendants.mockImplementation((callback: (node: any, pos: number) => boolean) => {
         callback(mockLyricLineNode, 5);
-        return false;
       });
 
       const result = removeChordFromCurrentLine(mockEditor, 'chord_1');
 
       expect(result).toBe(true);
-      const updateCall = mockChain.updateAttributes.mock.calls[0];
-      const chords = updateCall[1].meta.chords;
-      expect(chords).toHaveLength(1);
-      expect(chords[0].id).toBe('chord_2');
+      expect(mockTr.setNodeMarkup).toHaveBeenCalledWith(5, undefined, expect.objectContaining({
+        meta: expect.objectContaining({
+          chords: [expect.objectContaining({ id: 'chord_2', symbol: 'C' })],
+        }),
+      }));
+      expect(mockView.dispatch).toHaveBeenCalledWith(mockTr);
     });
 
     test('removeChordFromCurrentLine returns false when not in lyric line', () => {
-      mockDoc.nodesBetween.mockImplementation(() => true);
+      mockDoc.descendants.mockImplementation((_callback: (node: any, pos: number) => boolean) => {
+        // No lyricLine with the target chord found
+      });
 
       const result = removeChordFromCurrentLine(mockEditor, 'chord_1');
 

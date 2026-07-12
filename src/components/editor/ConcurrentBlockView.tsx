@@ -48,6 +48,14 @@ export function createConcurrentBlockView({
   dom.appendChild(contentDOM);
 
 
+  function columnsChanged(prev: typeof initialNode, next: typeof initialNode): boolean {
+    if (prev.childCount !== next.childCount) return true;
+    for (let i = 0; i < prev.childCount; i++) {
+      if (prev.child(i).attrs.speakerName !== next.child(i).attrs.speakerName) return true;
+    }
+    return false;
+  }
+
   function rebuildHeader(node: typeof initialNode) {
     headerRow.innerHTML = '';
     addBtnRow.innerHTML = '';
@@ -176,11 +184,13 @@ export function createConcurrentBlockView({
 
     update(updatedNode: typeof initialNode) {
       if (updatedNode.type.name !== 'concurrentBlock') return false;
+      const prevNode = currentNode;
       currentNode = updatedNode;
       dom.setAttribute('data-id', updatedNode.attrs.id);
-      // Skip header rebuild while the user is editing a speaker name — destroying
-      // and recreating the focused element would drop input focus immediately.
-      if (!headerRow.contains(document.activeElement)) {
+      // Only rebuild the header DOM when column count or speaker names changed.
+      // Rebuilding on every ProseMirror transaction would destroy the focused
+      // nameSpan while the user is editing it, dropping focus immediately.
+      if (columnsChanged(prevNode, updatedNode)) {
         rebuildHeader(updatedNode);
       }
       return true;
