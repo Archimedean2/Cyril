@@ -3,6 +3,7 @@ import { LeftNav } from './LeftNav';
 import { CenterPane } from './CenterPane';
 import { RightSidebar } from './RightSidebar';
 import { TopBar } from './TopBar';
+import { ErrorBoundary } from './ErrorBoundary';
 import { ExportDialog } from '../../features/export-panel/ExportDialog';
 import { ShareImportDialog } from '../../features/share/ShareImportDialog';
 import { EmptyState } from './EmptyState';
@@ -144,7 +145,9 @@ export function AppShell() {
           }
           aria-label="Left navigation"
         >
-          <LeftNav />
+          <ErrorBoundary paneName="left panel">
+            <LeftNav />
+          </ErrorBoundary>
         </nav>
 
         {/* Resize Handle - Left */}
