@@ -465,6 +465,16 @@ button {
   font-style: italic;
 }
 
+/* Tiptap Placeholder extension — shown on the first lyricLine when doc is empty */
+.editor-surface .ProseMirror [data-type="lyricLine"].is-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--text-faint, #94a0b0);
+  font-style: italic;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
 /* Right Sidebar */
 .right-sidebar {
   display: flex;

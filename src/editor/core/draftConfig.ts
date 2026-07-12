@@ -7,6 +7,7 @@ import { SpeakerColumn } from '../nodes/speakerColumn/speakerColumn';
 import { ConcurrentBlock } from '../nodes/concurrentBlock/concurrentBlock';
 import { ChordExtension } from '../extensions/chords';
 import { SyllableExtension } from '../extensions/syllables';
+import { DraftPlaceholder } from '../extensions/placeholder';
 
 export const draftExtensions = [
   StarterKit.configure({
@@ -50,6 +51,7 @@ export const getDraftEditorConfig = (options: DraftEditorConfigOptions = {}): Pa
         showSyllableCounts,
         showStressMarks,
       }),
+      DraftPlaceholder,
     ],
     content,
     editable: true,
