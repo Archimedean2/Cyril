@@ -219,19 +219,8 @@
   padding-left: 0;
 }
 
-/* Per-character identity cue: a small dot in the character's assigned colour.
-   Set --speaker-color on the line (or an ancestor) to tint per character;
-   defaults to the app accent. Inline-block keeps it clear of the sibling-indent rules. */
-.line-type-speaker::before {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--speaker-color);
-  margin-right: 7px;
-  vertical-align: middle;
-}
+/* No dot prefix on speaker labels — a speaker name should not read like a list item.
+   Per-character colour identity will return as a margin tick once the character registry lands. */
 
 /* ======================
    Line type: stage direction
