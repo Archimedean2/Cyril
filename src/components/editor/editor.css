@@ -597,12 +597,13 @@
   user-select: none;
 }
 
-/* Chord pill — absolutely positioned above the anchor point */
+/* Chord pill — absolutely positioned above the anchor point.
+   left: 0 aligns the pill's left edge to the anchor (= first letter of the word),
+   matching the reference-sheet convention. No centering transform. */
 .cyril-chord-marker {
   position: absolute;
   bottom: 1.15em;
   left: 0;
-  transform: translateX(-50%);
   display: inline-block;
   font-family: var(--font-chord);
   font-size: 0.72rem;
