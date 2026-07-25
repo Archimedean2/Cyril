@@ -4,7 +4,7 @@ test.describe('Stage 7: Tools Sidebar', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Create a project so tools pane is visible
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
   });
 

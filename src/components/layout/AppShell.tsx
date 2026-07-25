@@ -7,7 +7,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { CommandMenu } from './CommandMenu';
 import { ExportDialog } from '../../features/export-panel/ExportDialog';
 import { ShareImportDialog } from '../../features/share/ShareImportDialog';
-import { EmptyState } from './EmptyState';
+import { LaunchScreen } from './LaunchScreen';
 import { useProjectStore } from '../../app/state/projectStore';
 import { useResizable } from '../../hooks/useResizable';
 import { startAutosave } from '../../persistence/autosave';
@@ -104,27 +104,14 @@ export function AppShell() {
 
   if (!isProjectLoaded && !isInitializing) {
     return (
-      <div style={{ height: '100vh', background: 'var(--bg-app)', display: 'flex', flexDirection: 'column' }}>
-        <div className="app-shell-topbar">
-          <TopBar
-            onExportClick={() => setIsExportDialogOpen(true)}
-            onImportShare={() => setIsShareImportOpen(true)}
-          />
-        </div>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <EmptyState onImportShare={() => setIsShareImportOpen(true)} />
-        </div>
-        <ExportDialog
-          isOpen={isExportDialogOpen}
-          onClose={() => setIsExportDialogOpen(false)}
-        />
+      <>
+        <LaunchScreen onImportShare={() => setIsShareImportOpen(true)} />
         <ShareImportDialog
           isOpen={isShareImportOpen}
           onClose={() => setIsShareImportOpen(false)}
           onImport={(blob) => importShare(blob)}
         />
-        {isCommandMenuOpen && <CommandMenu onClose={() => setIsCommandMenuOpen(false)} />}
-      </div>
+      </>
     );
   }
 

@@ -4,7 +4,7 @@ test.describe('Stage 8: Alternate Lyrics', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Create a project
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible({ timeout: 10000 });
   });

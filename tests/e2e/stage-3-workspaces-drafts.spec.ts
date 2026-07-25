@@ -7,7 +7,7 @@ test.describe('Stage 3: Workspaces and Drafts', () => {
 
   test('T-3.10: Workspace/draft flow passes in UI', async ({ page }) => {
     // Start by creating a new project
-    await page.getByText('Create Project').click();
+    await page.getByTestId('create-project-button').click();
 
     // Check initial state
     await expect(page.getByTestId('project-title')).toHaveText('Untitled Song');

@@ -11,7 +11,7 @@ test.describe('Stage 13: Concurrent Speakers', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Create a new project so we have an active draft to work in
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await expect(page.getByTestId('editor-toolbar')).toBeVisible();
   });
 

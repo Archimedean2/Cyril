@@ -4,7 +4,7 @@ test.describe('Stage 4: Sections and Metadata', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Create a project first
-    await page.click('text=Create Project');
+    await page.click('[data-testid="create-project-button"]');
   });
 
   test('T-4.10: Section/metadata workflow passes in UI', async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe('Stage 4: Sections and Metadata', () => {
 test.describe('Stage 4: << Section Input Rule', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.click('text=Create Project');
+    await page.click('[data-testid="create-project-button"]');
     // Project creation auto-opens draft view — no need to click Draft 1
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible();
   });

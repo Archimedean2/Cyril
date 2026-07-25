@@ -23,7 +23,7 @@ test.describe('Stage 12: Lightweight Sharing', () => {
     await page.context().grantPermissions(['clipboard-write', 'clipboard-read']);
 
     // Create a project so there's an active draft to share
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
 
     // Open export dialog and click share
