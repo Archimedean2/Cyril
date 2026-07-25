@@ -41,6 +41,7 @@ declare module '@tiptap/core' {
       }) => ReturnType;
       addColumnToConcurrentBlock: (blockPos: number, speakerName: string) => ReturnType;
       removeColumnFromConcurrentBlock: (blockPos: number, colIndex: number) => ReturnType;
+      deleteConcurrentBlock: (blockPos: number) => ReturnType;
     };
   }
 }
@@ -155,6 +156,26 @@ export const ConcurrentBlock = Node.create<ConcurrentBlockOptions>({
         if (dispatch) {
           tr.delete(colStart, colStart + col.nodeSize);
           dispatch(tr);
+        }
+        return true;
+      },
+
+      deleteConcurrentBlock: (blockPos) => ({ state, tr, dispatch }) => {
+        const block = state.doc.nodeAt(blockPos);
+        if (!block || block.type.name !== 'concurrentBlock') return false;
+
+        if (dispatch) {
+          // Replace the block with a single empty lyricLine so editing can continue.
+          const emptyLine = state.schema.nodeFromJSON({
+            type: 'lyricLine',
+            attrs: { id: generateId('line'), delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+            content: [],
+          });
+          if (!emptyLine) return false;
+          tr.replaceWith(blockPos, blockPos + block.nodeSize, emptyLine);
+          const $target = tr.doc.resolve(blockPos + 1);
+          tr.setSelection(TextSelection.near($target));
+          dispatch(tr.scrollIntoView());
         }
         return true;
       },

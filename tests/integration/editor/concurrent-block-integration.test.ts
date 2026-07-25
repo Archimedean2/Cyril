@@ -3,7 +3,7 @@
  * Covers: migration, save/load round-trip, chord preservation through columns.
  */
 
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { Editor } from '@tiptap/core';
 import { TextSelection } from '@tiptap/pm/state';
 import { migrateProject } from '../../../src/domain/project/migration';
@@ -284,6 +284,206 @@ describe('T-13.14: chords on lyricLines inside speakerColumn are preserved', () 
     expect(goneLine).toBeDefined();
     expect(goneLine?.chords).toHaveLength(1);
     expect(goneLine?.chords![0].symbol).toBe('G');
+  });
+});
+
+// ─── T-13.18 / T-13.19 / T-13.20: row and block deletion ────────────────────
+
+function makeEmptyLine(id: string) {
+  return {
+    type: 'lyricLine',
+    attrs: { id, delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+    content: [],
+  };
+}
+function makeTextLine(id: string, text: string) {
+  return {
+    type: 'lyricLine',
+    attrs: { id, delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+    content: [{ type: 'text', text }],
+  };
+}
+
+describe('T-13.18: Backspace on empty row deletes that row from all columns', () => {
+  let editor: Editor;
+  let el: HTMLDivElement;
+
+  beforeEach(() => {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+  });
+  afterEach(() => {
+    editor.destroy();
+    if (el.parentNode) el.parentNode.removeChild(el);
+  });
+
+  it('removes an all-empty row from both columns when Backspace is pressed at its start in col 0', () => {
+    // Two rows: row 0 has content, row 1 is empty in both columns
+    const doc = {
+      type: 'doc',
+      content: [{
+        type: 'concurrentBlock',
+        attrs: { id: 'cb1' },
+        content: [
+          { type: 'speakerColumn', attrs: { id: 'ca', speakerName: 'A' },
+            content: [makeTextLine('a1', 'hello'), makeEmptyLine('a2')] },
+          { type: 'speakerColumn', attrs: { id: 'cb', speakerName: 'B' },
+            content: [makeTextLine('b1', 'world'), makeEmptyLine('b2')] },
+        ],
+      }],
+    };
+    editor = new Editor({ ...getDraftEditorConfig({ content: doc }), element: el });
+
+    // Place cursor at the start of row 1 in column A (the empty row)
+    let row1PosA = -1;
+    editor.state.doc.descendants((node, pos) => {
+      if (node.attrs?.id === 'a2') { row1PosA = pos + 1; return false; }
+    });
+    expect(row1PosA).toBeGreaterThan(0);
+
+    const { tr } = editor.state;
+    editor.view.dispatch(tr.setSelection(TextSelection.near(editor.state.doc.resolve(row1PosA))));
+
+    // Simulate Backspace
+    editor.view.someProp('handleKeyDown', fn => fn(editor.view, new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true })));
+
+    // Both columns should now have exactly 1 lyricLine each
+    const block = editor.state.doc.firstChild!;
+    expect(block.type.name).toBe('concurrentBlock');
+    expect(block.child(0).childCount).toBe(1); // col A: 1 line
+    expect(block.child(1).childCount).toBe(1); // col B: 1 line
+    // The remaining line has the original content
+    expect(block.child(0).child(0).textContent).toBe('hello');
+    expect(block.child(1).child(0).textContent).toBe('world');
+  });
+});
+
+describe('T-13.19: Backspace on the only empty row removes the whole block', () => {
+  let editor: Editor;
+  let el: HTMLDivElement;
+
+  beforeEach(() => {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+  });
+  afterEach(() => {
+    editor.destroy();
+    if (el.parentNode) el.parentNode.removeChild(el);
+  });
+
+  it('replaces the block with a plain empty lyricLine when the only row is empty', () => {
+    const doc = {
+      type: 'doc',
+      content: [{
+        type: 'concurrentBlock',
+        attrs: { id: 'cb2' },
+        content: [
+          { type: 'speakerColumn', attrs: { id: 'ca', speakerName: 'A' }, content: [makeEmptyLine('a1')] },
+          { type: 'speakerColumn', attrs: { id: 'cb', speakerName: 'B' }, content: [makeEmptyLine('b1')] },
+        ],
+      }],
+    };
+    editor = new Editor({ ...getDraftEditorConfig({ content: doc }), element: el });
+
+    // Place cursor at start of column A row 0
+    let firstLinePos = -1;
+    editor.state.doc.descendants((node, pos) => {
+      if (firstLinePos !== -1) return false;
+      if (node.type.name === 'lyricLine') { firstLinePos = pos + 1; return false; }
+    });
+    const { tr } = editor.state;
+    editor.view.dispatch(tr.setSelection(TextSelection.near(editor.state.doc.resolve(firstLinePos))));
+
+    editor.view.someProp('handleKeyDown', fn => fn(editor.view, new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true })));
+
+    // The concurrentBlock should be gone; doc should contain a single lyricLine
+    const doc2 = editor.state.doc;
+    // The concurrentBlock must be gone
+    let hasConcurrentBlock = false;
+    doc2.descendants(node => { if (node.type.name === 'concurrentBlock') hasConcurrentBlock = true; });
+    expect(hasConcurrentBlock).toBe(false);
+    // The first child must be a plain lyricLine (not the block)
+    expect(doc2.firstChild?.type.name).toBe('lyricLine');
+  });
+});
+
+describe('T-13.20: Backspace is blocked when first column has content', () => {
+  let editor: Editor;
+  let el: HTMLDivElement;
+
+  beforeEach(() => {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+  });
+  afterEach(() => {
+    editor.destroy();
+    if (el.parentNode) el.parentNode.removeChild(el);
+  });
+
+  it('does not delete a row when the first column has text', () => {
+    const doc = {
+      type: 'doc',
+      content: [{
+        type: 'concurrentBlock',
+        attrs: { id: 'cb3' },
+        content: [
+          { type: 'speakerColumn', attrs: { id: 'ca', speakerName: 'A' }, content: [makeTextLine('a1', 'keep me')] },
+          { type: 'speakerColumn', attrs: { id: 'cb', speakerName: 'B' }, content: [makeEmptyLine('b1')] },
+        ],
+      }],
+    };
+    editor = new Editor({ ...getDraftEditorConfig({ content: doc }), element: el });
+
+    let firstLinePos = -1;
+    editor.state.doc.descendants((node, pos) => {
+      if (firstLinePos !== -1) return false;
+      if (node.type.name === 'lyricLine') { firstLinePos = pos + 1; return false; }
+    });
+    // Move cursor to start of line (offset 0 within the line)
+    const $pos = editor.state.doc.resolve(firstLinePos);
+    editor.view.dispatch(editor.state.tr.setSelection(TextSelection.near($pos)));
+
+    // Capture doc before
+    const docBefore = editor.state.doc.toJSON();
+    editor.view.someProp('handleKeyDown', fn => fn(editor.view, new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true })));
+    // Block must be intact
+    expect(editor.state.doc.firstChild?.type.name).toBe('concurrentBlock');
+    expect(editor.state.doc.toJSON()).toEqual(docBefore);
+  });
+});
+
+describe('T-13.21: deleteConcurrentBlock command removes the block', () => {
+  let editor: Editor;
+  let el: HTMLDivElement;
+
+  beforeEach(() => {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+  });
+  afterEach(() => {
+    editor.destroy();
+    if (el.parentNode) el.parentNode.removeChild(el);
+  });
+
+  it('replaces the block with a plain lyricLine', () => {
+    const doc = {
+      type: 'doc',
+      content: [{
+        type: 'concurrentBlock',
+        attrs: { id: 'cb4' },
+        content: [
+          { type: 'speakerColumn', attrs: { id: 'ca', speakerName: 'A' }, content: [makeTextLine('a1', 'hi')] },
+          { type: 'speakerColumn', attrs: { id: 'cb', speakerName: 'B' }, content: [makeTextLine('b1', 'there')] },
+        ],
+      }],
+    };
+    editor = new Editor({ ...getDraftEditorConfig({ content: doc }), element: el });
+
+    const blockPos = 0; // doc[0] = concurrentBlock at pos 0
+    editor.commands.deleteConcurrentBlock(blockPos);
+
+    expect(editor.state.doc.firstChild?.type.name).toBe('lyricLine');
+    expect(editor.state.doc.childCount).toBe(1);
   });
 });
 
