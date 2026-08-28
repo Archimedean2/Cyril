@@ -43,14 +43,16 @@ _Last stamped: **2026-08-28 13:06 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** nothing claimed — the queue is open at `BACKLOG.md` C-01.
+**Working on:** four agents running in parallel worktrees — lane P (C-01 write-permission
+check, C-03 beforeunload guard), lane E (C-09 `[[NAME]]` bracket bug), lane S (C-12 editor page
+surface, C-16 duplicate song title), lane X (C-18 CI e2e + blocking lint).
 
-**Last verified state:** full audit 2026-08-28. All five gates green (build, lint, 286 unit +
-integration tests, 100% feature coverage on 136 non-e2e criteria, 111/111 Playwright). The app
-was driven live and reviewed; findings are in `docs/design/DESIGN_REVIEW.md` §"Live app audit".
+**Last verified state:** full audit 2026-08-28, commit `a0ef836`. All five gates green (build,
+lint 0/0, 286 unit + integration tests, 100% feature coverage on 136 non-e2e criteria, 111/111
+Playwright). Live design audit in `docs/design/DESIGN_REVIEW.md`.
 
-**Blocked on:** nothing. C-01 (write-permission check) is the recommended start — see the P0
-note in `BACKLOG.md` about durability being the project's single largest risk.
+**Blocked on:** nothing. Next after the fleet lands: C-04 (IndexedDB recovery snapshot) — the
+single largest durability win, and it depends on C-01 which is in flight now.
 
 ---
 

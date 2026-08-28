@@ -55,9 +55,9 @@ no `beforeunload`, no recovery snapshot anywhere in `src/`.
 
 | # | Item | Lane | Status | Size | Depends on | Spec | Tests |
 |---|---|---|:--:|:--:|---|---|---|
-| C-01 | Check/request write permission before every write | P | ⬜ | S | — | HARDENING §H1 | `T-1.20`, `T-1.21` |
+| C-01 | Check/request write permission before every write | P | 🚧 lane-P | S | — | HARDENING §H1 | `T-1.20`, `T-1.21` |
 | C-02 | Validate on load; handle corrupt + newer-schema files | P | ⬜ | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
-| C-03 | `beforeunload` guard when dirty | P | ⬜ | S | — | HARDENING §H3 | `T-1.24` |
+| C-03 | `beforeunload` guard when dirty | P | 🚧 lane-P | S | — | HARDENING §H3 | `T-1.24` |
 | C-04 | **IndexedDB recovery snapshot** — the durability win | P | ⬜ | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
 | C-05 | Download/upload fallback when File System Access API is absent | P | ⬜ | M | C-04 | HARDENING §H4 | `T-1.25` |
 | C-06 | Save status never says "Saved" without a durable copy | P | ⬜ | S | C-04 | HARDENING §H7 | `T-1.29` |
@@ -102,16 +102,16 @@ prototype" and "built by professionals".
 
 | # | Item | Lane | Status | Size | Depends on | Spec |
 |---|---|---|:--:|:--:|---|---|
-| C-09 | `[[NAME]]` / `((text))` must accept the closing brackets | E | ⬜ | S | — | below |
+| C-09 | `[[NAME]]` / `((text))` must accept the closing brackets | E | 🚧 lane-E | S | — | below |
 | C-10 | Remove the `delivery` feature | E | ⬜ | M | — | DESIGN_PROPOSAL §3.4 |
 | C-11 | Inventory: real collected-words surface, not a raw `<textarea>` | S | ⬜ | M | — | DESIGN_REVIEW §9 |
-| C-12 | Give the editor a real page: measure, edges, elevation | S | ⬜ | M | — | below |
+| C-12 | Give the editor a real page: measure, edges, elevation | S | 🚧 lane-S | M | — | below |
 | C-13 | Rebuild the editor toolbar as grouped icon+label controls | S | ⬜ | M | C-10 | below |
 | C-14 | Tools pane: filter chips, honest empty/offline states | S | ⬜ | M | — | DESIGN_PROPOSAL §6 |
 | C-15 | Group View toggles under Structure / Sound sub-labels | S | ⬜ | S | — | DESIGN_REVIEW §6 |
-| C-16 | Stop showing the song title twice (top bar + left nav) | S | ⬜ | S | — | below |
+| C-16 | Stop showing the song title twice (top bar + left nav) | S | 🚧 lane-S | S | — | below |
 | C-17 | Chords left-align to their anchor letter (currently centred) | E | ⬜ | S | — | DESIGN_PROPOSAL §4.1 |
-| C-18 | CI: actually run e2e; make lint blocking | X | ⬜ | S | — | below |
+| C-18 | CI: actually run e2e; make lint blocking | X | 🚧 lane-X | S | — | below |
 
 ### C-09 · The speaker/stage-direction gesture is a trap — Lane E · Size S
 
