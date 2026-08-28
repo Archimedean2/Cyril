@@ -30,6 +30,7 @@ Project CRUD and local persistence.
 | T-1.11 | Project CRUD smoke flow passes in UI | e2e | `tests/e2e/stage-1-project-crud.spec.ts` | [ ] | [ ] | |
 | T-1.20 | Save on a 'prompt' permission handle requests permission, then writes | unit | `tests/unit/persistence/fileManager.test.ts` | [x] | [x] | HARDENING §H1 (C-01) |
 | T-1.21 | A 'denied' handle never reports 'saved'; status ends 'error' | unit | `tests/unit/persistence/fileManager.test.ts` | [x] | [x] | HARDENING §H1 (C-01); also `tests/integration/persistence/write-permission.test.ts` |
+| T-1.24 | Dirty state registers the beforeunload guard and sets returnValue; clean state removes it | unit | `tests/unit/persistence/beforeUnloadGuard.test.ts` | [x] | [x] | HARDENING §H3 (C-03) |
 
 ## Regression Requirements
 - Stage 0 tests must remain passing
