@@ -1,4 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+// The LaunchScreen replaced the old no-project shell, which used to render the
+// TopBar (and so the export button) before any project existed. Anything that
+// needs the app shell has to create a project first.
+async function openProject(page: Page) {
+  await page.getByTestId('create-project-button').click();
+  await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
+}
 
 test.describe('Stage 12: Lightweight Sharing', () => {
   test.beforeEach(async ({ page }) => {
@@ -8,6 +16,8 @@ test.describe('Stage 12: Lightweight Sharing', () => {
   });
 
   test('T-12.19: Share button is visible in ExportDialog', async ({ page }) => {
+    await openProject(page);
+
     // Open the export dialog via the export button in TopBar
     await page.click('[data-testid="export-button"]');
 
@@ -23,8 +33,7 @@ test.describe('Stage 12: Lightweight Sharing', () => {
     await page.context().grantPermissions(['clipboard-write', 'clipboard-read']);
 
     // Create a project so there's an active draft to share
-    await page.getByTestId('create-project-button').click();
-    await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
+    await openProject(page);
 
     // Open export dialog and click share
     await page.click('[data-testid="export-button"]');
@@ -84,6 +93,8 @@ test.describe('Stage 12: Lightweight Sharing', () => {
   });
 
   test('T-12.25: Export settings are not affected by share', async ({ page }) => {
+    await openProject(page);
+
     // Open export dialog
     await page.click('[data-testid="export-button"]');
 
