@@ -111,11 +111,11 @@ prototype" and "built by professionals".
 | C-09 | `[[NAME]]` / `((text))` must accept the closing brackets | E | ✅ | S | — | below |
 | C-10 | Remove the `delivery` feature | E | ⬜ | M | — | DESIGN_PROPOSAL §3.4 |
 | C-11 | Inventory: real collected-words surface, not a raw `<textarea>` | S | ⬜ | M | — | DESIGN_REVIEW §9 |
-| C-12 | Give the editor a real page: measure, edges, elevation | S | 🚧 lane-S | M | — | below |
+| C-12 | Give the editor a real page: measure, edges, elevation | S | ✅ | M | — | below |
 | C-13 | Rebuild the editor toolbar as grouped icon+label controls | S | ⬜ | M | C-10 | below |
 | C-14 | Tools pane: filter chips, honest empty/offline states | S | ⬜ | M | — | DESIGN_PROPOSAL §6 |
 | C-15 | Group View toggles under Structure / Sound sub-labels | S | ⬜ | S | — | DESIGN_REVIEW §6 |
-| C-16 | Stop showing the song title twice (top bar + left nav) | S | 🚧 lane-S | S | — | below |
+| C-16 | Stop showing the song title twice (top bar + left nav) | S | ✅ | S | — | below |
 | C-17 | Chords left-align to their anchor letter (currently centred) | E | ⬜ | S | — | DESIGN_PROPOSAL §4.1 |
 | C-18 | CI: make lint blocking, fix job name + browser scope | X | ✅ | S | — | below |
 

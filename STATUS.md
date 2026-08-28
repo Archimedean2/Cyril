@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-28 14:01 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-28 14:15 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,8 +20,8 @@ _Last stamped: **2026-08-28 14:01 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 300/300 tests, 53 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 144 passing, 0 failing, 0 untested, 36 e2e-only |
+| `npm test` | 🟢 | 310/310 tests, 55 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 146 passing, 0 failing, 0 untested, 36 e2e-only |
 | `npm run test:e2e` | 🟢 | 113 passed |
 
 ### Repo
@@ -29,10 +29,10 @@ _Last stamped: **2026-08-28 14:01 UTC** · regenerate with `npm run status`_
 | | |
 |---|---|
 | Branch | `feat/title-screen` |
-| Last commit | Merge lane P: write-permission check (C-01) and beforeunload guard (C-03) |
-| Committed | 2026-08-28 15:00:23 +0100 |
+| Last commit | Merge lane S: editor page surface (C-12) and single song title (C-16) |
+| Committed | 2026-08-28 15:14:17 +0100 |
 | Uncommitted files | **1** (`git status`) |
-| Backlog | **1 of 28** done · 5 in flight (C-01, C-03, C-09, C-12, C-16) · next up **C-02** |
+| Backlog | **4 of 28** done · 2 in flight (C-12, C-16) · next up **C-02** |
 <!-- END GENERATED -->
 
 ---
@@ -43,15 +43,16 @@ _Last stamped: **2026-08-28 14:01 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** lane S still running (C-12 editor page surface, C-16 duplicate song title).
-Lanes P, E and X are merged.
+**Working on:** nothing claimed. The first parallel run is complete and merged — C-01, C-03,
+C-09, C-12, C-16, C-18 all landed.
 
-**Last verified state:** all five gates green on the merged tree — build 0, lint 0/0, 294 unit +
-integration tests, feature coverage 100% (144/144 non-e2e), e2e 113/113.
+**Last verified state:** all five gates green on the merged tree — build 0, lint 0/0, 310 unit +
+integration tests, feature coverage 100% (146/146 non-e2e), e2e 113/113. Verified visually at
+1440×900: the editor now reads as a page, and `[[MARIA]]` renders clean.
 
-**Blocked on:** one open decision — whether the `beforeunload` guard should also treat `saving`
-as dirty (see the note in the P0 block of `BACKLOG.md`). Next item after lane S lands: C-04,
-the IndexedDB recovery snapshot.
+**Blocked on:** one open decision — whether the `beforeunload` guard should treat `saving` as
+dirty (note in the P0 block of `BACKLOG.md`). Recommended next: **C-04**, the IndexedDB recovery
+snapshot — the largest remaining durability win, now unblocked by C-01.
 
 ---
 
@@ -86,6 +87,23 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-08-28 — agent fleet (lane S) — Editor page surface and single title
+
+Did:      C-12 restructured the centre pane into a "desk + page" model — the page now carries a
+          capped width, border, soft shadow, paper tone and grain, with the lyric column on its
+          own ~65-character measure so concurrent-speaker blocks keep the full page width. Two
+          real bugs surfaced while building it: `display:flex` on the page stopped block children
+          stretching (a speaker label shrank to content width), and `min-height:100%` plus the
+          page margin overflowed the scroll container, so focusing the editor silently ate the
+          top and bottom gap on first keystroke. Both fixed. C-16 removed the duplicated song
+          title from LeftNav. New tokens, no hardcoded hex.
+Gates:    🟢 all five on the merged tree — 310 tests, 146/146 non-e2e criteria, e2e 113/113.
+Next:     C-04 (IndexedDB recovery snapshot).
+Notes:    T-14.07 asserts DOM nesting plus the CSS source rather than pixel values, because jsdom
+          runs no layout — a reasonable call, but it means the page's *appearance* is guarded by
+          screenshots and human review, not by the suite. Worth remembering before trusting the
+          gates alone on visual work.
 
 ### 2026-08-28 — agent fleet (lanes P/E/X) — First parallel run: 4 items landed
 
