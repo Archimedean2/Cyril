@@ -853,6 +853,17 @@ If the app supports multiple schema versions:
 - Unknown fields should be preserved where practical
 - No destructive migration should occur silently
 
+### Forward compatibility: a newer `schemaVersion` than the app supports
+Per `docs/engineering/HARDENING_PERSISTENCE.md` §H5 (C-02): if a file's `schemaVersion` is
+explicitly newer than the running app's `SCHEMA_VERSION`, the app must **not** run it through
+the normal defaulting/migration path — `migrateProject` fills in every missing field with
+defaults by design, which for a genuinely newer, unrecognized schema would silently drop or
+misinterpret data the file's own (newer) app understands. Instead, loading is refused with a
+clear, friendly error (`UnsupportedSchemaVersionError` in `src/domain/project/validation.ts`)
+before migration runs at all. The source file is never touched. Files with **no**
+`schemaVersion` at all (legacy/raw exports) are unaffected — those still go through the normal
+migration path described above.
+
 ---
 
 ## Example Minimal Project

@@ -33,6 +33,8 @@ Project CRUD and local persistence.
 | T-1.24 | Dirty state registers the beforeunload guard and sets returnValue; clean state removes it | unit | `tests/unit/persistence/beforeUnloadGuard.test.ts` | [x] | [x] | HARDENING §H3 (C-03) |
 | T-1.22 | Editing with no file handle writes a recovery snapshot | unit, integration | `tests/unit/persistence/recovery-store.test.ts`, `tests/integration/persistence/recovery-snapshot.test.ts` | [x] | [x] | HARDENING §H2 (C-04) |
 | T-1.23 | On init with a newer snapshot, recovery is offered; accepting restores it exactly; declining discards it | integration | `tests/integration/persistence/recovery-offer.test.ts` | [x] | [x] | HARDENING §H2 (C-04) |
+| T-1.26 | Opening corrupt JSON surfaces a validation error and does not throw to a crash | unit, integration | `tests/unit/persistence/load-validation.test.ts`, `tests/integration/persistence/load-validation.test.ts` | [x] | [x] | HARDENING §H5 (C-02) |
+| T-1.27 | A newer schemaVersion is handled (warned, not blindly loaded) | unit, integration | `tests/unit/persistence/load-validation.test.ts`, `tests/integration/persistence/load-validation.test.ts` | [x] | [x] | HARDENING §H5 (C-02) |
 
 ## Regression Requirements
 - Stage 0 tests must remain passing

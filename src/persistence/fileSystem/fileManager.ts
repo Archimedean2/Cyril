@@ -76,18 +76,48 @@ async function clearStoredFileHandle(): Promise<void> {
   }
 }
 
+/**
+ * Reopens the last project's stored file handle, if any.
+ *
+ * Per HARDENING_PERSISTENCE.md §H5, this distinguishes *permission lost* from
+ * *file gone/corrupt*:
+ * - If reading the handle fails with `NotAllowedError` (permission was revoked since
+ *   last session — persisted handles don't carry their grant across restarts in every
+ *   browser), the stored handle is kept: it may still be valid once permission is
+ *   re-granted, so there's no reason to force the user through "Open" again.
+ * - Any other failure — the file was moved/deleted (`NotFoundError`), or its content is
+ *   corrupt/truncated/wrong-schema (`deserializeProject` throws) — means the stored
+ *   reference is no longer useful, so it's cleared. This never touches the file itself;
+ *   only Cyril's own bookkeeping of "which file to reopen" is cleared.
+ */
 export async function tryReopenLastProject(): Promise<CyrilFile | null> {
+  const storedHandle = await getStoredFileHandle();
+  if (!storedHandle) return null;
+
+  let file: File;
   try {
-    const storedHandle = await getStoredFileHandle();
-    if (!storedHandle) return null;
-    
-    // Try to open the stored handle - this will fail if permission was revoked
-    const file = await storedHandle.getFile();
+    file = await storedHandle.getFile();
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'NotAllowedError') {
+      // Permission was revoked, not lost/corrupt — keep the handle so a future
+      // reopen (once permission is re-granted) can still succeed.
+      return null;
+    }
+    // File moved/deleted, or another unrecoverable error opening the handle.
+    await clearStoredFileHandle();
+    localStorage.removeItem(LAST_PROJECT_KEY);
+    return null;
+  }
+
+  try {
     const contents = await file.text();
+    const project = deserializeProject(contents);
     fileHandle = storedHandle;
-    return deserializeProject(contents);
+    return project;
   } catch {
-    // Stored handle no longer valid (permission revoked or file moved/deleted)
+    // Content is corrupt/truncated/wrong-schema (or a newer, unsupported schema) — the
+    // source file itself is untouched, but the auto-reopen reference isn't useful until
+    // the user fixes or replaces it via Open.
     await clearStoredFileHandle();
     localStorage.removeItem(LAST_PROJECT_KEY);
     return null;
