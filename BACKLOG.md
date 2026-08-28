@@ -50,15 +50,18 @@ in at least four ordinary ways, and the save indicator will say "Saved" while it
 block comes first.
 
 Full spec with sub-task detail: **`docs/engineering/HARDENING_PERSISTENCE.md`**.
-Verified 2026-08-28: **none of H1–H7 is implemented** — `grep` finds no `queryPermission`,
-no `beforeunload`, no recovery snapshot anywhere in `src/`.
+
+**Progress:** H1, H2, H3 and H5 (C-01, C-04, C-03, C-02) have landed. The zero-durability hole
+is closed — a never-saved project now writes an IndexedDB snapshot on the autosave debounce
+regardless of file handle, and a reload offers recovery. Verified in a real browser, not only in
+unit tests. C-05, C-06 and C-07 remain.
 
 | # | Item | Lane | Status | Size | Depends on | Spec | Tests |
 |---|---|---|:--:|:--:|---|---|---|
 | C-01 | Check/request write permission before every write | P | ✅ | S | — | HARDENING §H1 | `T-1.20`, `T-1.21` |
-| C-02 | Validate on load; handle corrupt + newer-schema files | P | 🚧 lane-P | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
+| C-02 | Validate on load; handle corrupt + newer-schema files | P | ✅ | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
 | C-03 | `beforeunload` guard when dirty | P | ✅ | S | — | HARDENING §H3 | `T-1.24` |
-| C-04 | **IndexedDB recovery snapshot** — the durability win | P | 🚧 lane-P | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
+| C-04 | **IndexedDB recovery snapshot** — the durability win | P | ✅ | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
 | C-05 | Download/upload fallback when File System Access API is absent | P | ⬜ | M | C-04 | HARDENING §H4 | `T-1.25` |
 | C-06 | Save status never says "Saved" without a durable copy | P | ⬜ | S | C-04 | HARDENING §H7 | `T-1.29` |
 | C-07 | Warn before overwriting a file changed outside Cyril | P | ⬜ | S | C-01 | HARDENING §H6 | `T-1.28` |

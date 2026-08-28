@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-28 14:17 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-28 15:29 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,19 +20,19 @@ _Last stamped: **2026-08-28 14:17 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 310/310 tests, 55 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 146 passing, 0 failing, 0 untested, 36 e2e-only |
+| `npm test` | 🟢 | 341/341 tests, 60 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 150 passing, 0 failing, 0 untested, 36 e2e-only |
 | `npm run test:e2e` | 🟢 | 113 passed |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` |
-| Last commit | chore: land lane S; first parallel run complete |
-| Committed | 2026-08-28 15:16:18 +0100 |
+| Branch | `feat/title-screen` (0 behind / 3 ahead) |
+| Last commit | Merge lane P: recovery snapshot (C-04) and load validation (C-02) |
+| Committed | 2026-08-28 16:28:37 +0100 |
 | Uncommitted files | none — clean tree |
-| Backlog | **6 of 28** done · next up **C-02** |
+| Backlog | **7 of 28** done · 2 in flight (C-02, C-04) · next up **C-05** |
 <!-- END GENERATED -->
 
 ---
