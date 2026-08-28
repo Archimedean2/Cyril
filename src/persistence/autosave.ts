@@ -21,7 +21,9 @@ async function flush() {
   saving = true;
   useSaveStatusStore.getState().setStatus('saving');
   try {
-    await saveProject(project, false);
+    // Autosave runs on a timer with no user gesture, so it must never attempt to
+    // (re-)request write permission — a non-granted handle should fail the save.
+    await saveProject(project, false, { allowPermissionPrompt: false });
     useSaveStatusStore.getState().setStatus('saved');
     if (savedTimer !== null) clearTimeout(savedTimer);
     savedTimer = setTimeout(() => {
