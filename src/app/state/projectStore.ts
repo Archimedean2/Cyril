@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { CyrilFile, ExportSettings } from '../../domain/project/types';
 import { createDraft, DuplicationMode } from '../../domain/project/drafts';
 import { openProject, saveProject, createNewProject, duplicateProject, tryReopenLastProject } from '../../persistence/fileSystem/fileManager';
+import { readRecoverySnapshot, clearRecoverySnapshot } from '../../persistence/indexeddb/recoveryStore';
 import { importFromShareBlob } from '../../domain/share/shareService';
 
 export type WorkspaceType = 'brief' | 'structure' | 'hookLab' | 'vocabularyWorld';
@@ -12,7 +13,14 @@ interface ProjectState {
   currentProject: CyrilFile | null;
   error: string | null;
   isInitializing: boolean;
-  
+
+  // A pending local recovery snapshot (HARDENING §H2 / C-04): set when app init finds a
+  // snapshot newer than whatever was opened (or nothing was opened at all). Non-null means
+  // "offer recovery" — the UI should ask the user to accept or decline it.
+  recoverySnapshot: CyrilFile | null;
+  acceptRecovery: () => void;
+  declineRecovery: () => void;
+
   // UI State
   activeView: ActiveView;
   
@@ -58,17 +66,50 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   currentProject: null,
   error: null,
   isInitializing: true,
+  recoverySnapshot: null,
   activeView: { type: 'draft', draftId: '' }, // Will be set properly when project loads
 
   initApp: async () => {
     // Try to reopen the last project first
     const lastProject = await tryReopenLastProject();
+
+    // Then check for a local recovery snapshot (HARDENING §H2 / C-04) — best-effort, so a
+    // storage failure here just means "no snapshot", never a thrown init error.
+    const snapshot = await readRecoverySnapshot().catch(() => null);
+
+    if (snapshot) {
+      // A snapshot from a different project than the one just reopened is stale (e.g. left
+      // over from a project that was open earlier, before the user switched files) — treat
+      // it as irrelevant to *this* file rather than offering to recover the wrong project.
+      const isSameProject = !lastProject || snapshot.file.project.id === lastProject.project.id;
+      const isNewer = isSameProject && (!lastProject || snapshot.file.project.updatedAt > lastProject.project.updatedAt);
+
+      if (isNewer) {
+        set({
+          currentProject: lastProject,
+          isProjectLoaded: !!lastProject,
+          isInitializing: false,
+          error: null,
+          recoverySnapshot: snapshot.file,
+          activeView: lastProject
+            ? { type: 'draft', draftId: lastProject.project.activeDraftId || lastProject.project.drafts[0]?.id || '' }
+            : { type: 'draft', draftId: '' }
+        });
+        return;
+      }
+
+      // Stale relative to what's on disk (or belongs to a different project) — discard
+      // quietly rather than asking the user about work that's already superseded.
+      await clearRecoverySnapshot();
+    }
+
     if (lastProject) {
       set({
         currentProject: lastProject,
         isProjectLoaded: true,
         isInitializing: false,
         error: null,
+        recoverySnapshot: null,
         activeView: { type: 'draft', draftId: lastProject.project.activeDraftId || lastProject.project.drafts[0]?.id || '' }
       });
       return;
@@ -81,8 +122,30 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       isProjectLoaded: false,
       isInitializing: false,
       error: null,
+      recoverySnapshot: null,
       activeView: { type: 'draft', draftId: '' }
     });
+  },
+
+  acceptRecovery: () => {
+    const { recoverySnapshot } = get();
+    if (!recoverySnapshot) return;
+    set({
+      currentProject: recoverySnapshot,
+      isProjectLoaded: true,
+      isInitializing: false,
+      error: null,
+      recoverySnapshot: null,
+      activeView: {
+        type: 'draft',
+        draftId: recoverySnapshot.project.activeDraftId || recoverySnapshot.project.drafts[0]?.id || ''
+      }
+    });
+  },
+
+  declineRecovery: () => {
+    clearRecoverySnapshot();
+    set({ recoverySnapshot: null });
   },
 
   createProject: (title?: string) => {
