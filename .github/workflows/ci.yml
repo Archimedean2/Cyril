@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   test:
-    name: Build, test, coverage, e2e
+    name: Build, lint, test, coverage, e2e
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -32,11 +32,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Lint runs but does not block yet (~50 warnings to burn down).
-      # Flip continue-on-error to false once the warning backlog is cleared.
       - name: Lint
         run: npm run lint
-        continue-on-error: true
 
       - name: Unit & integration tests
         run: npm run test
@@ -59,7 +56,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       - name: E2E tests
         run: npm run test:e2e
