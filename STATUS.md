@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-28 13:06 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-28 14:01 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,19 +20,19 @@ _Last stamped: **2026-08-28 13:06 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 286/286 tests, 49 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 136 passing, 0 failing, 0 untested, 36 e2e-only |
-| `npm run test:e2e` | 🟢 | 111 passed |
+| `npm test` | 🟢 | 300/300 tests, 53 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 144 passing, 0 failing, 0 untested, 36 e2e-only |
+| `npm run test:e2e` | 🟢 | 113 passed |
 
 ### Repo
 
 | | |
 |---|---|
 | Branch | `feat/title-screen` |
-| Last commit | fix(e2e): create a project before the sharing tests that need the app shell |
-| Committed | 2026-08-28 13:36:32 +0100 |
-| Uncommitted files | **46** (`git status`) |
-| Backlog | **0 of 28** done · next up **C-01** |
+| Last commit | Merge lane P: write-permission check (C-01) and beforeunload guard (C-03) |
+| Committed | 2026-08-28 15:00:23 +0100 |
+| Uncommitted files | **1** (`git status`) |
+| Backlog | **1 of 28** done · 5 in flight (C-01, C-03, C-09, C-12, C-16) · next up **C-02** |
 <!-- END GENERATED -->
 
 ---
@@ -43,16 +43,15 @@ _Last stamped: **2026-08-28 13:06 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** four agents running in parallel worktrees — lane P (C-01 write-permission
-check, C-03 beforeunload guard), lane E (C-09 `[[NAME]]` bracket bug), lane S (C-12 editor page
-surface, C-16 duplicate song title), lane X (C-18 CI e2e + blocking lint).
+**Working on:** lane S still running (C-12 editor page surface, C-16 duplicate song title).
+Lanes P, E and X are merged.
 
-**Last verified state:** full audit 2026-08-28, commit `a0ef836`. All five gates green (build,
-lint 0/0, 286 unit + integration tests, 100% feature coverage on 136 non-e2e criteria, 111/111
-Playwright). Live design audit in `docs/design/DESIGN_REVIEW.md`.
+**Last verified state:** all five gates green on the merged tree — build 0, lint 0/0, 294 unit +
+integration tests, feature coverage 100% (144/144 non-e2e), e2e 113/113.
 
-**Blocked on:** nothing. Next after the fleet lands: C-04 (IndexedDB recovery snapshot) — the
-single largest durability win, and it depends on C-01 which is in flight now.
+**Blocked on:** one open decision — whether the `beforeunload` guard should also treat `saving`
+as dirty (see the note in the P0 block of `BACKLOG.md`). Next item after lane S lands: C-04,
+the IndexedDB recovery snapshot.
 
 ---
 
@@ -87,6 +86,27 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-08-28 — agent fleet (lanes P/E/X) — First parallel run: 4 items landed
+
+Did:      C-01 write-permission check before every save, with autosave explicitly barred from
+          prompting (it has no user gesture) so a non-granted handle ends in `error`, never
+          `saved`. C-03 `beforeunload` guard registered while dirty. C-09 `[[NAME]]` / `((text))`
+          now strip their closing brackets — the rule only fires on a line the opening trigger
+          already converted, so a plain lyric line typing `]]` is untouched. C-18 lint made
+          blocking, CI job name fixed, Playwright install scoped to chromium.
+Gates:    🟢 all five on the merged tree — 294 tests, 144/144 non-e2e criteria, e2e 113/113.
+Next:     C-04 (IndexedDB recovery snapshot) — the largest remaining durability win, unblocked
+          now that C-01 has landed.
+Notes:    Three things worth carrying. (1) The C-18 item was partly wrong: it claimed CI had no
+          e2e step, which came from reading 60 lines of a 73-line file. E2E was already wired;
+          corrected in place in BACKLOG.md. (2) C-09's undo behaviour was verified in a real
+          browser, not just in unit tests: Backspace after `[[MARIA]]` does restore `MARIA]]`.
+          But the unit test also asserts `undoInputRule()` restores a bare `[[`, which no user
+          can reach — lyricLine's own Backspace handler wins that case and yields an empty lyric
+          line. Harmless, but the assertion overstates. (3) Every merge conflicted on
+          FEATURE_COVERAGE.md, because every agent regenerates it. Resolve by regenerating from
+          the merged tree, never by picking a side — or stop tracking it.
 
 ### 2026-08-28 — Claude (product/design audit) — Restructured the docs; built the tracker
 

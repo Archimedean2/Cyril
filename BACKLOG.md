@@ -55,13 +55,19 @@ no `beforeunload`, no recovery snapshot anywhere in `src/`.
 
 | # | Item | Lane | Status | Size | Depends on | Spec | Tests |
 |---|---|---|:--:|:--:|---|---|---|
-| C-01 | Check/request write permission before every write | P | 🚧 lane-P | S | — | HARDENING §H1 | `T-1.20`, `T-1.21` |
+| C-01 | Check/request write permission before every write | P | ✅ | S | — | HARDENING §H1 | `T-1.20`, `T-1.21` |
 | C-02 | Validate on load; handle corrupt + newer-schema files | P | ⬜ | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
-| C-03 | `beforeunload` guard when dirty | P | 🚧 lane-P | S | — | HARDENING §H3 | `T-1.24` |
+| C-03 | `beforeunload` guard when dirty | P | ✅ | S | — | HARDENING §H3 | `T-1.24` |
 | C-04 | **IndexedDB recovery snapshot** — the durability win | P | ⬜ | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
 | C-05 | Download/upload fallback when File System Access API is absent | P | ⬜ | M | C-04 | HARDENING §H4 | `T-1.25` |
 | C-06 | Save status never says "Saved" without a durable copy | P | ⬜ | S | C-04 | HARDENING §H7 | `T-1.29` |
 | C-07 | Warn before overwriting a file changed outside Cyril | P | ⬜ | S | C-01 | HARDENING §H6 | `T-1.28` |
+
+> **Open decision from C-03 (2026-08-28).** The `beforeunload` guard treats only `unsaved` and
+> `error` as dirty — matching the literal §H3 wording — so a tab closed *mid-write* (status
+> `saving`) gets no warning. The window is short but it is a real data-loss path. Adding
+> `'saving'` to `DIRTY_STATUSES` in `src/persistence/beforeUnloadGuard.ts` is a one-line change;
+> it needs a deliberate call, not a silent edit.
 
 > **C-04 is the one that matters most.** A project the writer has never manually saved currently
 > has *zero* durability — autosave no-ops when there is no file handle, silently. A snapshot on
@@ -102,7 +108,7 @@ prototype" and "built by professionals".
 
 | # | Item | Lane | Status | Size | Depends on | Spec |
 |---|---|---|:--:|:--:|---|---|
-| C-09 | `[[NAME]]` / `((text))` must accept the closing brackets | E | 🚧 lane-E | S | — | below |
+| C-09 | `[[NAME]]` / `((text))` must accept the closing brackets | E | ✅ | S | — | below |
 | C-10 | Remove the `delivery` feature | E | ⬜ | M | — | DESIGN_PROPOSAL §3.4 |
 | C-11 | Inventory: real collected-words surface, not a raw `<textarea>` | S | ⬜ | M | — | DESIGN_REVIEW §9 |
 | C-12 | Give the editor a real page: measure, edges, elevation | S | 🚧 lane-S | M | — | below |
