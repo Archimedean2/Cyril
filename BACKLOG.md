@@ -116,8 +116,12 @@ prototype" and "built by professionals".
 | C-14 | Tools pane: filter chips, honest empty/offline states | S | ⬜ | M | — | DESIGN_PROPOSAL §6 |
 | C-15 | Group View toggles under Structure / Sound sub-labels | S | ⬜ | S | — | DESIGN_REVIEW §6 |
 | C-16 | Stop showing the song title twice (top bar + left nav) | S | ✅ | S | — | below |
-| C-17 | Chords left-align to their anchor letter (currently centred) | E | ⬜ | S | — | DESIGN_PROPOSAL §4.1 |
-| C-18 | CI: make lint blocking, fix job name + browser scope | X | ✅ | S | — | below |
+| C-17 | ~~Chords left-align to their anchor letter~~ | E | ✅ | S | — | already fixed on `main` in `8e82639` |
+| C-18 | CI: make lint blocking, fix job name + browser scope | X | ✅ |
+
+> **C-17 was already done.** It landed on `main` in `8e82639` ("left-align chord pills to the
+> first letter of the word") before this backlog was written. The audit missed it because a
+> `translateX(-50%)` survives in `editor.css` — but on `.cyril-stress-mark`, not the chord marker. S | — | below |
 
 ### C-09 · The speaker/stage-direction gesture is a trap — Lane E · Size S
 
