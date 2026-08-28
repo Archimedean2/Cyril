@@ -63,6 +63,7 @@ unit tests. C-05, C-06 and C-07 remain.
 | C-03 | `beforeunload` guard when dirty | P | ✅ | S | — | HARDENING §H3 | `T-1.24` |
 | C-04 | **IndexedDB recovery snapshot** — the durability win | P | ✅ | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
 | C-05 | Download/upload fallback when File System Access API is absent | P | ⬜ | M | C-04 | HARDENING §H4 | `T-1.25` |
+| C-29 | Re-grant UI when a file handle loses permission | P | ⬜ | S | C-02 | below | — |
 | C-06 | Save status never says "Saved" without a durable copy | P | ⬜ | S | C-04 | HARDENING §H7 | `T-1.29` |
 | C-07 | Warn before overwriting a file changed outside Cyril | P | ⬜ | S | C-01 | HARDENING §H6 | `T-1.28` |
 
@@ -75,6 +76,22 @@ unit tests. C-05, C-06 and C-07 remain.
 > **C-04 is the one that matters most.** A project the writer has never manually saved currently
 > has *zero* durability — autosave no-ops when there is no file handle, silently. A snapshot on
 > the same debounce, written regardless of handle, closes that hole and softens every other one.
+
+### C-29 · No way to re-grant a lost file permission — Lane P · Size S · ⬜
+
+C-02 made `tryReopenLastProject` correctly *keep* the file handle when the failure is
+`NotAllowedError` (permission lost) rather than clearing it — but nothing in the UI lets the
+writer act on that. Their only route back to their own file is `Open` and the picker again,
+which is exactly the friction the handle was preserved to avoid.
+
+Needs a shape decision before building: an inline banner above the editor, a modal on init, or a
+control in the top bar next to the save indicator. Recommend the banner — it is non-blocking and
+sits near the work.
+
+- Acceptance: with a stored handle in `prompt`/`denied` state, the app surfaces a re-grant
+  affordance; activating it calls `requestPermission` from the user gesture and, on success,
+  resumes normal saving without re-picking the file; declining leaves the project usable and the
+  save status honest.
 
 ### C-08 · Deal with the uncommitted word-data pile — Lane X · Size S · ⬜
 
