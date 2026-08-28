@@ -166,6 +166,29 @@ export function createConcurrentBlockView({
       headerRow.appendChild(colHeader);
     }
 
+    // Delete-block button — hover-revealed trash bin at the right of the add-button row
+    const deleteBtn = document.createElement('button');
+    deleteBtn.classList.add('concurrent-delete-block-btn');
+    deleteBtn.setAttribute('data-testid', 'concurrent-delete-block-btn');
+    deleteBtn.title = 'Delete this concurrent block';
+    deleteBtn.textContent = '🗑';
+    deleteBtn.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const pos = typeof getPos === 'function' ? getPos() : undefined;
+      if (pos === undefined) return;
+      const hasContent = currentNode.childCount > 0 && (() => {
+        let any = false;
+        currentNode.forEach(c => {
+          c.forEach((line: { content: { size: number } }) => { if (line.content.size > 0) any = true; });
+        });
+        return any;
+      })();
+      if (hasContent && !window.confirm('Delete this concurrent block? All content will be lost.')) return;
+      (editor as Editor).commands.deleteConcurrentBlock(pos);
+    });
+    addBtnRow.appendChild(deleteBtn);
+
     // Add column button (when < 4 columns) — lives in addBtnRow below the header
     // so it never participates in the header flex layout
     if (colCount < 4) {

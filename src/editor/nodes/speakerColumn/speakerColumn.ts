@@ -6,6 +6,7 @@ export interface SpeakerColumnOptions {
   HTMLAttributes: Record<string, unknown>;
 }
 
+
 export const SpeakerColumn = Node.create<SpeakerColumnOptions>({
   name: 'speakerColumn',
 
@@ -56,18 +57,116 @@ export const SpeakerColumn = Node.create<SpeakerColumnOptions>({
       new Plugin({
         props: {
           handleKeyDown(view, event) {
-            // Prevent Backspace at the start of a lyricLine from deleting the line.
-            // Rows must stay in sync across all columns.
             if (event.key === 'Backspace') {
               const { $from } = view.state.selection;
-              let inSpeakerColumn = false;
+
+              // Only intercept when at offset 0 of a lyricLine inside a speakerColumn
+              let colDepth = -1;
+              let blockDepth = -1;
               for (let d = $from.depth; d > 0; d--) {
-                if ($from.node(d).type.name === 'speakerColumn') { inSpeakerColumn = true; break; }
+                const name = $from.node(d).type.name;
+                if (name === 'speakerColumn' && colDepth === -1) colDepth = d;
+                if (name === 'concurrentBlock' && blockDepth === -1) blockDepth = d;
               }
-              if (inSpeakerColumn && $from.parent.type.name === 'lyricLine' && $from.parentOffset === 0) {
-                return true;
+              if (colDepth === -1 || $from.parent.type.name !== 'lyricLine' || $from.parentOffset !== 0) {
+                return false;
               }
-              return false;
+
+              const block = $from.node(blockDepth);
+              const col = $from.node(colDepth);
+              const blockPos = $from.before(blockDepth);
+              const colStart = $from.before(colDepth);
+
+              // Find column index
+              let colIndex = -1;
+              let colCursor = blockPos + 1;
+              block.forEach((c, _, i) => {
+                if (colCursor === colStart) colIndex = i;
+                colCursor += c.nodeSize;
+              });
+
+              // Find line index within column
+              let lineIndex = -1;
+              let lineCursor = colStart + 1;
+              col.forEach((line, _, li) => {
+                if ($from.pos >= lineCursor && $from.pos <= lineCursor + line.nodeSize) {
+                  lineIndex = li;
+                }
+                lineCursor += line.nodeSize;
+              });
+
+              if (colIndex === -1 || lineIndex === -1) return true; // safety block
+
+              // Non-first columns: always block at start of any line to prevent
+              // ProseMirror from merging across column boundaries.
+              if (colIndex !== 0) return true;
+
+              // First column. Allow within-column merge when the line has content and
+              // is not the first line (standard merge with the previous line).
+              if ($from.parent.content.size > 0) {
+                if (lineIndex === 0) return true; // can't merge out of the block
+                return false; // allow within-column merge
+              }
+
+              // Check whether every column is also empty at this row index.
+              let allEmpty = true;
+              block.forEach((c) => {
+                if (c.type.name === 'speakerColumn' && c.childCount > lineIndex) {
+                  if (c.child(lineIndex).content.size > 0) allEmpty = false;
+                }
+              });
+              if (!allEmpty) return true; // row has content elsewhere — block
+
+              // Smart delete: entire row is empty.
+              // If every column has exactly 1 line, this is the last row — delete the block.
+              let maxLines = 0;
+              block.forEach((c) => { if (c.childCount > maxLines) maxLines = c.childCount; });
+
+              const { tr } = view.state;
+
+              if (maxLines === 1) {
+                // Delete the whole concurrent block; leave an empty lyricLine in its place.
+                const emptyLine = view.state.schema.nodeFromJSON({
+                  type: 'lyricLine',
+                  attrs: { id: generateId('line'), delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+                  content: [],
+                });
+                if (!emptyLine) return true;
+                tr.replaceWith(blockPos, blockPos + block.nodeSize, emptyLine);
+                const $target = tr.doc.resolve(blockPos + 1);
+                tr.setSelection(TextSelection.near($target));
+              } else {
+                // Delete the empty row from every column (reverse order preserves positions).
+                const deleteRanges: { from: number; to: number }[] = [];
+                let cPos = blockPos + 1;
+                block.forEach((c) => {
+                  if (c.type.name === 'speakerColumn' && c.childCount > lineIndex) {
+                    let lPos = cPos + 1;
+                    for (let li = 0; li < lineIndex; li++) lPos += c.child(li).nodeSize;
+                    deleteRanges.push({ from: lPos, to: lPos + c.child(lineIndex).nodeSize });
+                  }
+                  cPos += c.nodeSize;
+                });
+                [...deleteRanges].reverse().forEach(({ from, to }) => tr.delete(from, to));
+
+                // Place cursor in first column at the row above (or row 0).
+                const targetRow = Math.max(0, lineIndex - 1);
+                const newBlockPos = tr.mapping.map(blockPos);
+                const newBlock = tr.doc.nodeAt(newBlockPos);
+                if (newBlock && newBlock.childCount > 0) {
+                  const firstCol = newBlock.child(0);
+                  let targetPos = newBlockPos + 2; // past block-open + col-open
+                  for (let li = 0; li < Math.min(targetRow, firstCol.childCount - 1); li++) {
+                    targetPos += firstCol.child(li).nodeSize;
+                  }
+                  targetPos += 1; // inside the line open token
+                  const $target = tr.doc.resolve(Math.min(targetPos, tr.doc.content.size - 1));
+                  tr.setSelection(TextSelection.near($target));
+                }
+              }
+
+              view.dispatch(tr.scrollIntoView());
+              return true;
             }
 
             if (event.key !== 'Enter' || event.shiftKey || event.ctrlKey || event.metaKey) return false;
@@ -152,7 +251,6 @@ export const SpeakerColumn = Node.create<SpeakerColumnOptions>({
             }
 
             // Walk tr.doc to find the exact position of the new line in thisColIndex.
-            // This is robust to any reordering caused by padding inserts in earlier columns.
             const updatedBlock = tr.doc.nodeAt(tr.mapping.map(blockPos));
             if (!updatedBlock) return false;
 
@@ -161,11 +259,10 @@ export const SpeakerColumn = Node.create<SpeakerColumnOptions>({
               updatedColAbsStart += updatedBlock.child(ci).nodeSize;
             }
             const updatedCol = updatedBlock.child(thisColIndex);
-            // The newly inserted line is at lineIndex + 1 (0-based)
             const newLineIndex = lineIndex + 1;
-            let cursorPos = updatedColAbsStart + 1; // past col open token
+            let cursorPos = updatedColAbsStart + 1;
             for (let li = 0; li < newLineIndex; li++) cursorPos += updatedCol.child(li).nodeSize;
-            cursorPos += 1; // step inside the new line's open token
+            cursorPos += 1;
 
             const $target = tr.doc.resolve(Math.min(cursorPos, tr.doc.content.size - 1));
             tr.setSelection(TextSelection.near($target));

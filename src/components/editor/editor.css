@@ -816,6 +816,26 @@ input[type="text"].concurrent-speaker-name:focus {
   color: var(--text-muted, #738093);
 }
 
+/* Delete-block button — hidden until the block is hovered */
+.concurrent-delete-block-btn {
+  margin-left: auto;
+  padding: 1px 4px;
+  border: none;
+  background: transparent;
+  color: transparent;
+  font-size: 0.75em;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+
+.concurrent-block:hover .concurrent-delete-block-btn {
+  color: var(--text-faint, #94a0b0);
+}
+
+.concurrent-delete-block-btn:hover {
+  color: var(--danger, #c0392b) !important;
+}
+
 /*
   Column content: flex row with a single faint vertical line between columns.
   The line is on the left edge of every column except the first.
