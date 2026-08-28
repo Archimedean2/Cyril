@@ -111,7 +111,7 @@ prototype" and "built by professionals".
 | C-15 | Group View toggles under Structure / Sound sub-labels | S | ⬜ | S | — | DESIGN_REVIEW §6 |
 | C-16 | Stop showing the song title twice (top bar + left nav) | S | 🚧 lane-S | S | — | below |
 | C-17 | Chords left-align to their anchor letter (currently centred) | E | ⬜ | S | — | DESIGN_PROPOSAL §4.1 |
-| C-18 | CI: actually run e2e; make lint blocking | X | 🚧 lane-X | S | — | below |
+| C-18 | CI: make lint blocking, fix job name + browser scope | X | ✅ | S | — | below |
 
 ### C-09 · The speaker/stage-direction gesture is a trap — Lane E · Size S
 
@@ -163,12 +163,18 @@ argument applies — the top bar is the home for identity.
 
 ### C-18 · CI is weaker than the project thinks — Lane X · Size S
 
-`.github/workflows/ci.yml` names its job *"Build, test, coverage, e2e"* and **has no e2e step**.
-Lint is `continue-on-error: true` with a comment about "~50 warnings to burn down" — but lint now
-passes at `--max-warnings 0`, so the exemption is stale and is hiding a gate that already works.
+**Correction (2026-08-28):** this item originally claimed CI had no e2e step. That was wrong —
+the claim came from reading only the first 60 lines of a 73-line file. E2E *was* already wired up
+(install + run + report upload). The real gaps were smaller:
 
-- Acceptance: CI runs `npm run test:e2e` (with the Playwright browser install step) and fails the
-  build on e2e failure; the lint step is blocking; the stale comments are removed.
+- Lint was `continue-on-error: true` with a stale comment about "~50 warnings to burn down", but
+  lint now passes at `--max-warnings 0` — the exemption was hiding a gate that already works.
+- The job name omitted lint.
+- The Playwright install pulled all three browser engines; `playwright.config.ts` declares no
+  `projects`, so the default is chromium-only and the other two were wasted CI minutes.
+
+- Acceptance: the lint step is blocking; the job name matches what runs; the browser install is
+  scoped to the engines actually used; stale comments removed.
 
 ---
 

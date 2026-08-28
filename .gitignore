@@ -32,3 +32,6 @@ conceptnet-assertions-*.csv.gz
 
 # Vite writes these next to the config during dev
 vite.config.ts.timestamp-*.mjs
+
+# Agent worktrees
+.claude/worktrees/
