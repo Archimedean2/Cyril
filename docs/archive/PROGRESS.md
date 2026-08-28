@@ -65,7 +65,7 @@ is in `FEATURE_COVERAGE.md`.
 
 ## Active Stage Acceptance Checklist
 
-Copy the acceptance criteria for the current stage from `STAGES.md` and track them here.
+Copy the acceptance criteria for the current stage from `docs/archive/STAGES.md` and track them here.
 
 ### Stage 12 Acceptance Checklist
 - [x] Clipboard-based sharing is implemented with Copy Share Link in ExportDialog and Import from Share dialog
@@ -185,7 +185,7 @@ Copy the relevant checklist rows from `tests/specs/stage-N.md` here while workin
 - Started: 2026-04-24
 - Notes: Implementing multi-speaker concurrent block feature. New `concurrentBlock` and `speakerColumn` ProseMirror nodes. Vanilla DOM NodeView for concurrent block with editable speaker names, add/remove column controls. Tab/Shift-Tab column navigation, Enter-at-last-row appends row across all columns. Export: squash (interleaved) for markdown and print, side-by-side CSS flex layout for print. `concurrentLayout` field added to `ExportSettings`. 15+ unit tests, 3 integration tests, 8 e2e tests.
 - Files created: `src/editor/nodes/concurrentBlock/concurrentBlock.ts`, `src/editor/nodes/speakerColumn/speakerColumn.ts`, `src/components/editor/ConcurrentBlockView.tsx`, `src/components/editor/InsertConcurrentBlockDialog.tsx`, `src/domain/export/concurrentExport.ts`, `tests/unit/editor/concurrent-block.test.ts`, `tests/integration/editor/concurrent-block-integration.test.ts`, `tests/e2e/stage-13-concurrent-speakers.spec.ts`, `tests/specs/stage-13.md`
-- Files modified: `src/editor/core/draftConfig.ts`, `src/components/editor/DraftToolbar.tsx`, `src/domain/project/types.ts`, `src/domain/project/defaults.ts`, `src/domain/project/migration.ts`, `src/domain/export/exportTypes.ts`, `src/domain/export/exportSelectors.ts`, `src/domain/export/exportService.ts`, `src/domain/export/concurrentExport.ts`, `src/domain/export/markdownTransformer.ts`, `src/domain/export/printRenderer.ts`, `README_AGENT.md`
+- Files modified: `src/editor/core/draftConfig.ts`, `src/components/editor/DraftToolbar.tsx`, `src/domain/project/types.ts`, `src/domain/project/defaults.ts`, `src/domain/project/migration.ts`, `src/domain/export/exportTypes.ts`, `src/domain/export/exportSelectors.ts`, `src/domain/export/exportService.ts`, `src/domain/export/concurrentExport.ts`, `src/domain/export/markdownTransformer.ts`, `src/domain/export/printRenderer.ts`, `docs/process/DOC_MAP.md`
 - Deviations: None
 - Regression impact: None expected
 

@@ -81,4 +81,4 @@ Desktop layout should default to:
 
 ## Scope Control Rule
 
-If a feature is not listed as in-scope for the current stage in `STAGES.md`, do not build it yet even if it appears in long-term product goals.
+If a feature is not listed as in-scope for the current stage in `docs/archive/STAGES.md`, do not build it yet even if it appears in long-term product goals.

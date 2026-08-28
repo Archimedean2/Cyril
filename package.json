@@ -12,6 +12,9 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "coverage:features": "node scripts/feature-coverage.mjs",
+    "status": "node scripts/status.mjs",
+    "build:rhymes": "node scripts/build-rhyme-index.cjs",
+    "build:families": "node scripts/build-family-index.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test"
   },

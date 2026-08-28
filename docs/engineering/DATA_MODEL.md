@@ -1281,7 +1281,7 @@ Suggested fields:
 - cache entries should be stored locally
 - repeated lookups should update `lastUsedAt`
 - if a provider response is refreshed, `fetchedAt` should update
-- if provider constraints make full payload storage undesirable, persist only the normalized subset needed for Cyril features and record the limitation in `PROGRESS.md`
+- if provider constraints make full payload storage undesirable, persist only the normalized subset needed for Cyril features and record the limitation in `docs/archive/PROGRESS.md`
 
 ### Modeling guidance
 - treat cached lexical data as supporting reference data, not as part of the canonical song draft content

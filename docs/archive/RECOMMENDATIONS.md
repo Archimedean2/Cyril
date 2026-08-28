@@ -73,7 +73,7 @@ The following directories/files exist but are completely empty:
 
 ### 1.4 Component Architecture Doesn't Match the Component Map
 
-`COMPONENT_MAP.md` prescribes 44 components with clear separation of concerns. In practice:
+`docs/engineering/COMPONENT_MAP.md` prescribes 44 components with clear separation of concerns. In practice:
 - `LeftNav.tsx` (231 lines) mixes project CRUD actions (save, open, duplicate, close, rename), project title editing, and navigation all in one component with inline styles and inline event handlers.
 - The "features" directory has a mix of populated and empty folders. There are no `ProjectCreateDialog`, `ProjectOpenDialog`, or `ConfirmDialog` components as specified — project creation uses `prompt()` (a browser alert).
 - `DraftEditor.tsx` directly manages context menus, chord popovers, and display class toggles instead of delegating to child components.
@@ -116,7 +116,7 @@ There is no React error boundary anywhere in the app. If a Tiptap extension thro
 
 ### 2.1 Coverage Is Unknown
 
-`PROGRESS.md` has a "Coverage Tracking" table that is completely empty. The `vitest.config.ts` has no coverage configuration. The `TESTING.md` prescribes 90%+ for domain code and 80%+ overall, but there is zero measurement infrastructure.
+`docs/archive/PROGRESS.md` has a "Coverage Tracking" table that is completely empty. The `vitest.config.ts` has no coverage configuration. The `docs/testing/TESTING.md` prescribes 90%+ for domain code and 80%+ overall, but there is zero measurement infrastructure.
 
 **Recommendation:** Add `coverage` config to vitest (e.g., `c8` or `istanbul`). Run it. Fill in the coverage table. You cannot claim quality without measuring it.
 
@@ -172,13 +172,13 @@ The chord E2E test is notably thorough (21KB, many scenarios). The rest are thin
 
 ### 2.5 Regression Log Is Empty
 
-`PROGRESS.md` has a regression log that's completely empty. Either there have genuinely been zero regressions across 13 stages (unlikely given the notes about "Fixed Stage 0 assertions" and "pre-existing T-4.07/T-4.08 failures"), or regressions weren't tracked.
+`docs/archive/PROGRESS.md` has a regression log that's completely empty. Either there have genuinely been zero regressions across 13 stages (unlikely given the notes about "Fixed Stage 0 assertions" and "pre-existing T-4.07/T-4.08 failures"), or regressions weren't tracked.
 
 **Recommendation:** Retroactively document known regressions. Going forward, use the regression log honestly.
 
 ### 2.6 No Load/Save Round-Trip Integration Tests
 
-Despite `ARCHITECTURE.md` listing "load/save correctness" as the #1 testing priority, there are no integration tests that:
+Despite `docs/engineering/ARCHITECTURE.md` listing "load/save correctness" as the #1 testing priority, there are no integration tests that:
 1. Create a complex project programmatically
 2. Serialize it
 3. Deserialize it
@@ -204,15 +204,15 @@ The architecture doc calls undo/redo integrity "critical" and lists 4 specific s
 - There is only one schema version (`1.0.0`). No version-to-version migration chain exists.
 - The function accepts `any` input with eslint-disable comments
 - Unknown fields are sometimes preserved (`.passthrough()`) and sometimes not
-- `DraftSettings` migration silently adds `showStressMarks: false` which isn't in the original DATA_MODEL.md spec
+- `DraftSettings` migration silently adds `showStressMarks: false` which isn't in the original docs/engineering/DATA_MODEL.md spec
 
 **Recommendation:** Implement a versioned migration chain. Each schema version bump should have a named migrator. Add tests for migrating from v1.0.0 to v1.1.0 etc.
 
 ### 3.3 `DraftSettings.showStressMarks` Is Undocumented
 
-The `types.ts` `DraftSettings` interface includes `showStressMarks: boolean`, which doesn't appear in `DATA_MODEL.md` or `FEATURES.md`. The migration layer adds it silently. The syllable extension uses it.
+The `types.ts` `DraftSettings` interface includes `showStressMarks: boolean`, which doesn't appear in `docs/engineering/DATA_MODEL.md` or `docs/product/FEATURES.md`. The migration layer adds it silently. The syllable extension uses it.
 
-**Recommendation:** Update `DATA_MODEL.md` to document this field, or remove it if it's not part of the v1 spec.
+**Recommendation:** Update `docs/engineering/DATA_MODEL.md` to document this field, or remove it if it's not part of the v1 spec.
 
 ### 3.4 Export Doesn't Handle Rich Text Formatting
 
@@ -222,9 +222,9 @@ The `types.ts` `DraftSettings` interface includes `showStressMarks: boolean`, wh
 
 ### 3.5 `LyricLineAttrs.lineType` Is a Domain Deviation
 
-The `DATA_MODEL.md` spec defines `speakerLine` and `stageDirection` as separate node types. The implementation unifies them into `lyricLine` with a `lineType` attribute. This is arguably better architecture, but it's undocumented as a deviation.
+The `docs/engineering/DATA_MODEL.md` spec defines `speakerLine` and `stageDirection` as separate node types. The implementation unifies them into `lyricLine` with a `lineType` attribute. This is arguably better architecture, but it's undocumented as a deviation.
 
-**Recommendation:** Update `DATA_MODEL.md` to reflect the actual unified model, or document it in the Deviations table in `PROGRESS.md`.
+**Recommendation:** Update `docs/engineering/DATA_MODEL.md` to reflect the actual unified model, or document it in the Deviations table in `docs/archive/PROGRESS.md`.
 
 ### 3.6 Concurrent Block Export Uses `as any` Casts
 
@@ -271,7 +271,7 @@ Keyboard shortcuts are scattered across individual Tiptap extensions (`lyricLine
 
 ### 4.5 Inventory Is a Plain Textarea
 
-The inventory pane uses a raw `<textarea>` rather than a rich text editor. The `DATA_MODEL.md` defines `InventoryDocument` as containing a `RichTextDocument`, but the implementation stores plain text.
+The inventory pane uses a raw `<textarea>` rather than a rich text editor. The `docs/engineering/DATA_MODEL.md` defines `InventoryDocument` as containing a `RichTextDocument`, but the implementation stores plain text.
 
 **Recommendation:** Upgrade to a lightweight Tiptap instance for inventory, or change the data model to match the implementation. The current mismatch means serialized inventory data may not round-trip correctly.
 
@@ -298,7 +298,7 @@ The inventory pane uses a raw `<textarea>` rather than a rich text editor. The `
 | 8 | **Rewrite "trivial pass" tests as real tests or mark pending** | False confidence is dangerous |
 | 9 | **Add undo/redo integration tests** | Called "critical" in architecture doc but untested |
 | 10 | **Fix export to handle bold/italic** | Silent data loss in a core workflow |
-| 11 | **Update DATA_MODEL.md for unified lineType model** | Spec and implementation diverge |
+| 11 | **Update docs/engineering/DATA_MODEL.md for unified lineType model** | Spec and implementation diverge |
 | 12 | **Remove all `as any` casts** | Type safety is why you chose TypeScript |
 | 13 | **Move inline styles to CSS** | Consistency, testability, maintainability |
 

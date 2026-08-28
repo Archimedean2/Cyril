@@ -2,8 +2,13 @@
 
 _Expert heuristic review, 2026-07-05. Scores are a designer's read of the current build
 (components + the ink-on-paper visual pass), not a pixel audit of the running app — treat them
-as direction, not gospel. This is guidance for the implementing agents; **nothing here is built
-yet.** Every item, when built, follows `DEFINITION_OF_DONE.md` (gates green, `T-`tagged tests)._
+as direction, not gospel. This is guidance for the implementing agents. Every item, when built,
+follows `DEFINITION_OF_DONE.md` (gates green, `T-`tagged tests)._
+
+> **Status note (2026-08-28).** The 2026-07-05 review below said "nothing here is built yet".
+> That is no longer true — QoL items 1–5 shipped, along with focus mode, the command menu and the
+> title screen. A fresh audit of the *running* app is appended at the end of this file as
+> **"Live app audit"**; where the two disagree, the live audit is current.
 
 ## How to read the scores
 
@@ -83,7 +88,7 @@ so it scans instead of reading as a flat checklist.
 
 ### 7. Keyboard shortcuts + tooltips
 Cmd/Ctrl+S save, Cmd/Ctrl+O open, shortcuts for toggling panes and view options, all surfaced in
-a command menu. (Overlaps `DESIGN_PROPOSAL.md` §8 feel layer.)
+a command menu. (Overlaps `docs/product/DESIGN_PROPOSAL.md` §8 feel layer.)
 
 ### 8. Draft list affordances
 Inline rename on double-click, a clear active-draft marker, and an always-visible "New draft"
@@ -92,7 +97,7 @@ affordance rather than burying it.
 ### 9. Right-sidebar polish
 Give the Tools and Inventory panes proper collapsible section headers, and make Inventory feel
 like a collected-words surface (chips) rather than a bare textarea — this dovetails with the
-`DESIGN_PROPOSAL.md` §6 collect loop.
+`docs/product/DESIGN_PROPOSAL.md` §6 collect loop.
 
 ### 10. Save-state clarity
 Wire the top-bar save dot to real autosave state (saved / saving / unsaved) — the store already
@@ -104,7 +109,7 @@ tracks it (`saveStatusStore`); make it unmissable. (Overlaps §8.)
 
 Do items **2, 3, 4, 5** first — they're small, visible, and directly answer the "feels
 half-baked" complaint. Then **1** (editable identity), then **6–10** as part of the broader feel
-pass in `DESIGN_PROPOSAL.md` §8. None of these expand data scope except where noted, so they're
+pass in `docs/product/DESIGN_PROPOSAL.md` §8. None of these expand data scope except where noted, so they're
 low-risk, high-polish work.
 
 ---
@@ -137,7 +142,7 @@ the title screen quietly shows you your own words), with a fixed house line as f
 are no drafts yet. (Confirm this vs. a always-fixed line.)
 
 Scope note: **"Collaborate" must not over-promise.** Real-time collaboration is out of scope
-(`SCOPE.md`); this link points at Cyril's existing lightweight share/import. If that framing feels
+(`docs/product/SCOPE.md`); this link points at Cyril's existing lightweight share/import. If that framing feels
 misleading, relabel to something like "Share" — flag for the maintainer.
 
 Acceptance criteria:
@@ -149,3 +154,69 @@ Acceptance criteria:
 - The pull-quote renders on the right third with oversized quotation marks and a line drawn from a
   recent draft (or the fallback line when none exist).
 - No layout element is a filled button; the screen has no visible app chrome.
+
+
+---
+
+# Live app audit — 2026-08-28
+
+_Written after driving the built app in a real browser at 1440×900: launch screen, project
+creation, and typing a speaker line plus two lyric lines. This supersedes the score table above
+where they disagree. Every finding here is an item in `BACKLOG.md`._
+
+## What is genuinely good
+
+Say this plainly, because it is easy to lose in a defect list: **the taste level is high.** The
+launch screen is the best-designed surface in the product and would not look out of place in a
+shipping app — the corner lockup, the oversized quotation marks in a barely-there tint, the
+understated text links instead of buttons, the faint quill. It is restrained and confident. The
+warm ink-on-paper palette is coherent, the Newsreader serif for lyrics is the right call, and the
+View toggles (post-QoL-pass) read as real switches. Nothing here needs a redesign. What it needs
+is **finishing** — the gap is craft on the last 15%, not direction.
+
+## Findings, in the order a new user meets them
+
+**1. The speaker gesture leaves punctuation in the line.** `[[MARIA]]` renders a speaker line
+reading `MARIA]]`. This is the very first structural thing a musical-theatre writer will type,
+and it fails visibly. → **C-09**
+
+**2. The page doesn't read as a page.** The centre pane is a warm rectangle at nearly the same
+value as the shell — no page edge, no elevation, no measure limit, text running the full ~870 px
+at a hard left margin. The whole ink-on-paper concept lands only in the editor's *type*, never in
+its *surface*. This is the single highest-leverage visual fix in the product. → **C-12**
+
+**3. The toolbar is a row of undifferentiated words.** `B I § Section Speaker Stage Dir Delivery
+⇉ Concurrent`, mixed icon and text treatments, no grouping, no separator from the paper, undo/redo
+stranded at the far right. It reads as a debug strip. → **C-13**
+
+**4. "Delivery" is still there.** `docs/product/DESIGN_PROPOSAL.md` §3.4 decided in July to remove
+this feature outright — it's a binary attribute whose only effect is italics, redundant with stage
+directions, and the label means nothing to a writer. It is still in the toolbar. → **C-10**
+
+**5. The Inventory is a bare `<textarea>` with a visible native resize grabber** in its bottom-right
+corner. That grabber is a browser artefact and reads as unfinished more than anything else in the
+right rail. The pane is also the "collect" half of the reference loop the design proposal is built
+around, and it can't hold anything but plain text. → **C-11**
+
+**6. The Tools pane has no filters and a lonely empty state.** Five mode tabs, a search box, and
+"Search for a word to see results" floating in a large void. No perfect/close/wide chips, no
+offline state, no collect affordance. → **C-14**
+
+**7. The song title appears twice** — top bar and left-nav heading. The QoL pass fixed exactly this
+problem for the *draft* name and left the song name duplicated. → **C-16**
+
+**8. The View toggles are a flat list of six.** Sections / Speakers / Stage Dir / Chords /
+Syllables / Stress want the Structure-vs-Sound grouping already proposed as item 6 above. → **C-15**
+
+**9. Save state is a small grey word.** "Unsaved" sits in muted text next to the title. Given that
+there is currently *no durability behind it at all* (see the P0 block in `BACKLOG.md`), this is the
+place where the UI is least honest. Fix the durability first, then make the indicator match. →
+**C-06**
+
+## The one-line verdict
+
+Cyril does not read as half-built because it is missing features — it has more real,
+tested functionality than most projects at this stage. It reads as half-built because the
+**surfaces around the writing** (page, toolbar, right rail) are still at wireframe fidelity while
+the brand and typography are at ship fidelity. Closing that gap is P1 in the backlog, and it is
+perhaps a week of focused work, not a rebuild.
