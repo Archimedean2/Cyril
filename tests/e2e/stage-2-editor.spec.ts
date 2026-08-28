@@ -19,8 +19,10 @@ test.describe('Stage 2: Editor Foundation', () => {
 
     await expect(editor).toContainText('Hello from Playwright.');
 
-    // 4. Try bolding text — select all and click Bold
-    await page.keyboard.press('Meta+A');
+    // 4. Try bolding text — select all and click Bold.
+    // ControlOrMeta, not Meta: select-all here is the browser's own binding, so
+    // on Linux CI it is Ctrl+A. Meta is the Super key there and selects nothing.
+    await page.keyboard.press('ControlOrMeta+A');
     await page.getByTestId('editor-bold-button').click();
 
     // The text should now be wrapped in a strong tag
