@@ -258,4 +258,24 @@ test.describe('Speaker and Stage Direction', () => {
     await expect(stageDirLine).toBeVisible();
     await expect(stageDirLine).toContainText('To infinity and beyond!');
   });
+
+  test('T-4.21: Typing [[MARIA]] yields a speaker line whose text is exactly "MARIA"', async ({ page }) => {
+    // Type the full gesture, closing brackets included, the way a lyricist
+    // naturally would per DESIGN_PROPOSAL.md §3.1.
+    await page.keyboard.type('[[MARIA]]');
+    await waitForLineType(page, 'speaker');
+
+    const speakerLine = page.locator('[data-line-type="speaker"]').first();
+    await expect(speakerLine).toBeVisible();
+    await expect(speakerLine).toHaveText('MARIA');
+  });
+
+  test('T-4.23: Typing ((beat)) yields a stage-direction line reading exactly "beat"', async ({ page }) => {
+    await page.keyboard.type('((beat))');
+    await waitForLineType(page, 'stageDirection');
+
+    const stageDirLine = page.locator('[data-line-type="stageDirection"]').first();
+    await expect(stageDirLine).toBeVisible();
+    await expect(stageDirLine).toHaveText('beat');
+  });
 });
