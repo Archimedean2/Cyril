@@ -8,6 +8,15 @@
   background: var(--bg-editor);
 }
 
+/* The "desk": a shell-toned backdrop the draft page sits on, distinct from --bg-editor
+   (the page itself) so the page reads as an object, not a continuation of the shell.
+   Scoped to the draft editor specifically (.draft-view-canvas) so the workspace
+   editor (Brief/Structure/Hook Lab/Vocabulary World, which reuses .editor-container
+   as a plain max-width wrapper) keeps its existing paper-toned background. */
+.draft-view-canvas .editor-container {
+  background: var(--bg-app);
+}
+
 /* Tiptap renders EditorContent as a div wrapping .ProseMirror.
    It receives the className we pass (editor-surface + toggles).
    We need it to flex-grow to fill the container. */
@@ -21,13 +30,40 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  /* Warm paper: flat paper colour with a very faint grain overlay */
-  background-color: var(--bg-editor);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  /* Center the page horizontally; explicit widths on .ProseMirror (below) combine
+     with this to clamp-and-center rather than stretch full pane width. Desk padding
+     guarantees a visible gutter around the page even when the pane is narrower than
+     --editor-page-max-width, so the page edge never coincides with the pane edge. */
+  align-items: center;
+  padding: 0 var(--space-6);
+  box-sizing: border-box;
+  background-color: var(--bg-app);
   overflow-y: auto;
   scrollbar-gutter: stable;
   cursor: default;
-  border-bottom: 1px solid var(--border-default);
+}
+
+/* The page. A defined sheet with its own edge and elevation, sitting on the desk
+   above (.editor-surface). Width is capped well above the lyric measure so
+   full-width children (concurrent blocks) still have real room; the lyric column
+   itself is narrowed separately below. */
+.editor-surface .ProseMirror {
+  width: 100%;
+  max-width: var(--editor-page-max-width);
+  /* flex:1 makes this a well-behaved flex ITEM of .editor-surface (fills available
+     height); it must NOT itself be display:flex, or its own children (lyric-line
+     divs etc.) become flex items and lose their normal block width-stretching. */
+  flex: 1;
+  box-sizing: border-box;
+  margin: var(--space-8) 0;
+  padding: var(--space-6) 0 var(--editor-page-bottom-padding);
+  /* Warm paper: flat paper colour with a very faint grain overlay */
+  background-color: var(--bg-editor);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  box-shadow: var(--shadow-soft);
+  cursor: text;
 }
 
 /* Lyrics are the hero: set the editor body in the editorial serif */
@@ -75,31 +111,25 @@
 }
 
 .editor-surface .ProseMirror {
-  /* Full-width: centering is done per block-child below */
-  padding: 0;
-  min-height: 100%;
-  width: 100%;
+  /* Page padding is set above (top/bottom); this rule only needs the leftovers.
+     min-height accounts for the page's own top/bottom margin (var(--space-8) each)
+     so a short/empty draft still fills the pane WITHOUT overflowing it — an
+     overflow here would make the focus caret auto-scroll to center the oversized
+     box, silently eating the desk margin the instant the editor is focused. */
+  min-height: calc(100% - (2 * var(--space-8)));
   outline: none;
-  box-sizing: border-box;
-  cursor: text;
 }
 
-/* Every direct block child except concurrent-block is constrained and centered */
+/* The lyric column: a comfortable reading measure, centred within the page.
+   Concurrent blocks are excluded — they use the full width of the page itself
+   so multiple speaker columns have real room. */
 .editor-surface .ProseMirror > *:not(.concurrent-block) {
-  max-width: 46rem;
+  max-width: var(--editor-lyric-measure);
   margin-left: auto;
   margin-right: auto;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: var(--space-7);
+  padding-right: var(--space-7);
   box-sizing: border-box;
-}
-
-.editor-surface .ProseMirror > *:not(.concurrent-block):first-child {
-  padding-top: 1.5rem;
-}
-
-.editor-surface .ProseMirror > *:not(.concurrent-block):last-child {
-  padding-bottom: 1.5rem;
 }
 
 /* Top/bottom rhythm */
