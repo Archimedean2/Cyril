@@ -277,6 +277,39 @@ export const LyricLine = Node.create<LyricLineOptions>({
 
         },
       }),
+      // ]] → closes an in-progress [[NAME]] gesture: strip the trailing brackets
+      // instead of leaving them in the text. Only fires on a line the opening
+      // trigger already converted to 'speaker' — a plain lyric line typing a
+      // literal "]]" is left alone.
+      new InputRule({
+        find: /\]\]$/,
+        handler: ({ state, range }) => {
+          const { tr } = state;
+          const $from = state.doc.resolve(range.from);
+
+          if ($from.parent.type.name !== 'lyricLine' || $from.parent.attrs.lineType !== 'speaker') {
+            return null;
+          }
+
+          tr.delete(range.from, range.to);
+        },
+      }),
+      // )) → closes an in-progress ((text)) gesture: strip the trailing parens
+      // instead of leaving them in the text. Only fires on a line the opening
+      // trigger already converted to 'stageDirection'.
+      new InputRule({
+        find: /\)\)$/,
+        handler: ({ state, range }) => {
+          const { tr } = state;
+          const $from = state.doc.resolve(range.from);
+
+          if ($from.parent.type.name !== 'lyricLine' || $from.parent.attrs.lineType !== 'stageDirection') {
+            return null;
+          }
+
+          tr.delete(range.from, range.to);
+        },
+      }),
     ];
   },
 

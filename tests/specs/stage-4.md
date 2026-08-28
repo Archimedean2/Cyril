@@ -37,6 +37,11 @@ Structured sections, metadata tags, and metadata display toggles.
 | T-4.11 | Speaker and stage direction buttons are visible in toolbar | e2e | `tests/e2e/speaker-stage-direction.spec.ts` | [x] | [x] | |
 | T-4.12 | Multiple lines with different types in same document | e2e | `tests/e2e/speaker-stage-direction.spec.ts` | [x] | [x] | |
 | T-4.13 | Speaker line text is rendered in bold after typing [[ | e2e | `tests/e2e/speaker-stage-direction.spec.ts` | [x] | [x] | Verifies CSS font-weight: 700 and text-transform: uppercase |
+| T-4.21 | Typing [[MARIA]] yields a speaker line whose text is exactly "MARIA" | unit, e2e | `tests/unit/editor/lyric-line-brackets.test.ts`, `tests/e2e/speaker-stage-direction.spec.ts` | [x] | [x] | C-09: closing `]]` no longer left in the text |
+| T-4.22 | Typing [[ alone still converts immediately, leaving an empty speaker line | unit | `tests/unit/editor/lyric-line-brackets.test.ts` | [x] | [x] | C-09: existing opening-trigger shortcut preserved |
+| T-4.23 | Typing ((beat)) yields a stage-direction line reading exactly "beat" | unit, e2e | `tests/unit/editor/lyric-line-brackets.test.ts`, `tests/e2e/speaker-stage-direction.spec.ts` | [x] | [x] | C-09: closing `))` no longer left in the text |
+| T-4.24 | Typing (( alone still converts immediately | unit | `tests/unit/editor/lyric-line-brackets.test.ts` | [x] | [x] | C-09: existing opening-trigger shortcut preserved |
+| T-4.25 | Undo of the auto-conversion restores the literal typed characters | unit | `tests/unit/editor/lyric-line-brackets.test.ts` | [x] | [x] | C-09: verified via `undoInputRule` for both the opening and closing gestures |
 
 ## Regression Requirements
 - Stages 0–3 must remain passing
