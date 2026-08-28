@@ -64,13 +64,18 @@ export class CachedToolLookupService {
         };
         
         await this.cacheStore.set(entry);
+
+        return {
+          ...response,
+          source: 'live',
+          fetchedAt: entry.fetchedAt,
+          lastUsedAt: entry.lastUsedAt,
+        };
       }
 
       return {
         ...response,
         source: 'live',
-        fetchedAt: new Date().toISOString(),
-        lastUsedAt: new Date().toISOString(),
       };
     } catch (error) {
       // Provider failed - check if we have cached data to fallback to

@@ -30,7 +30,7 @@ test.describe('Speaker and Stage Direction', () => {
     await page.goto('/');
 
     // Create project first — .app-shell only renders after project is loaded
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
 
     // Wait for editor to be fully initialized

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Stage 6: Prosody and Syllable Counts', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.click('text=Create Project');
+    await page.click('[data-testid="create-project-button"]');
     await page.click('text=Draft 1');
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible();
   });
@@ -150,7 +150,7 @@ test.describe('Stage 6: Prosody and Syllable Counts', () => {
 test.describe('Stage 6: Syllable counter workflow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.click('text=Create Project');
+    await page.click('[data-testid="create-project-button"]');
     await page.click('text=Draft 1');
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible();
   });
@@ -219,7 +219,7 @@ test.describe('Stage 6: Syllable counter workflow', () => {
 test.describe('Stage 6: Stress marks workflow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.click('text=Create Project');
+    await page.click('[data-testid="create-project-button"]');
     await page.click('text=Draft 1');
     await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible();
   });

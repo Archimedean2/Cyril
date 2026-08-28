@@ -4,7 +4,7 @@ test.describe('Stage 11: Export and Print', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Create a project so the app-shell (with TopBar export button) renders
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
   });
 

@@ -9,7 +9,7 @@ test.describe('Tool Cache E2E', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Create a project so the tools pane is visible
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
     await expect(page.locator('[data-testid="tools-pane"]')).toBeVisible({ timeout: 5000 });
   });
@@ -49,7 +49,7 @@ test.describe('Tool Cache E2E', () => {
 
     // Reload page and recreate project
     await page.reload();
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
 
     // Select thesaurus mode

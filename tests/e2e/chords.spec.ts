@@ -32,7 +32,7 @@ test.describe('Stage 9: Chord Lane', () => {
     await page.waitForSelector('[data-testid="create-project-button"]', { state: 'visible', timeout: 15000 });
 
     // Create project and navigate to draft
-    await page.click('text=Create Project');
+    await page.click('[data-testid="create-project-button"]');
     await page.click('text=Draft 1');
 
     // Wait for editor to be fully initialized

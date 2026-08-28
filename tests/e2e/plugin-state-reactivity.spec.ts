@@ -18,7 +18,7 @@ import { test, expect, Page } from '@playwright/test';
 
 async function setup(page: Page) {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Create Project' }).click();
+  await page.getByTestId('create-project-button').click();
   await page.waitForSelector('.app-shell', { state: 'visible', timeout: 15000 });
   await expect(page.locator('[data-testid="draft-editor"]')).toBeVisible({ timeout: 10000 });
 }

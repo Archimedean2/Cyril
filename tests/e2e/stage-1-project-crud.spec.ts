@@ -6,11 +6,11 @@ test.describe('Stage 1: Project CRUD', () => {
   });
 
   test('T-1.11: Project CRUD smoke flow passes in UI', async ({ page }) => {
-    // 1. App should start at empty state
-    await expect(page.getByText('Write · Draft · Score')).toBeVisible();
+    // 1. App should start at launch screen
+    await expect(page.getByTestId('launch-screen')).toBeVisible();
 
     // 2. Create new project
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
 
     // 3. Left nav should display default title
     await expect(page.getByTestId('project-title')).toHaveText('Untitled Song');
@@ -27,6 +27,6 @@ test.describe('Stage 1: Project CRUD', () => {
     // 5. Close project to return to empty state (Close is in the overflow ⋯ menu)
     await page.getByTestId('topbar-overflow-btn').click();
     await page.getByTestId('topbar-close-btn').click();
-    await expect(page.getByText('Write · Draft · Score')).toBeVisible();
+    await expect(page.getByTestId('launch-screen')).toBeVisible();
   });
 });

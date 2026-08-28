@@ -7,7 +7,7 @@ test.describe('Stage 2: Editor Foundation', () => {
 
   test('T-2.10: Editor smoke flow passes in UI', async ({ page }) => {
     // 1. Create a project to see the editor
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
 
     // 2. Editor should be visible
     const editor = page.locator('.ProseMirror');

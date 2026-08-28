@@ -15,10 +15,11 @@ describe('Stage 0: App Shell Integration', () => {
 
   it('T-0.06: Empty state renders when no project is loaded', () => {
     render(<AppShell />);
-    // AppShell renders EmptyState (launch lockup) when no project is loaded
-    expect(screen.getByText('Write · Draft · Score')).toBeInTheDocument();
-    expect(screen.getByText('Create Project')).toBeInTheDocument();
-    expect(screen.getByText('Open Project')).toBeInTheDocument();
+    // AppShell renders LaunchScreen when no project is loaded — no top bar, full-bleed layout
+    expect(screen.getByTestId('launch-screen')).toBeInTheDocument();
+    expect(screen.getByText('Create something')).toBeInTheDocument();
+    expect(screen.getByText('Improve something')).toBeInTheDocument();
+    expect(screen.queryByText('Write · Draft · Score')).not.toBeInTheDocument();
   });
 
   describe('When project is loaded', () => {

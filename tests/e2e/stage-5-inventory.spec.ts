@@ -4,7 +4,7 @@ test.describe('Stage 5: Inventory Pane', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Create a project first
-    await page.click('text=Create Project');
+    await page.click('[data-testid="create-project-button"]');
   });
 
   test('T-5.06: Inventory workflow passes in UI', async ({ page }) => {

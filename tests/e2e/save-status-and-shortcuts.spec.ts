@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Save Status & Keyboard Shortcuts', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Create Project' }).click();
+    await page.getByTestId('create-project-button').click();
     await expect(page.locator('.ProseMirror')).toBeVisible();
   });
 
