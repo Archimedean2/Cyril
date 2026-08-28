@@ -80,10 +80,10 @@ These steps fix the gap between "tests pass" and "features work."
 
 ### Step 10: Backfill the regression log
 
-**Do:** Review git history and `PROGRESS.md` deviation notes. For every fix that changed test assertions or fixed a broken stage, add an entry to the regression log in `PROGRESS.md` with: date, description, affected stage, test ID if applicable.
+**Do:** Review git history and `docs/archive/PROGRESS.md` deviation notes. For every fix that changed test assertions or fixed a broken stage, add an entry to the regression log in `docs/archive/PROGRESS.md` with: date, description, affected stage, test ID if applicable.
 
 **Measurable outcome:**
-- Regression log has at least 3 entries (based on known deviations in PROGRESS.md)
+- Regression log has at least 3 entries (based on known deviations in docs/archive/PROGRESS.md)
 - Each entry has a date and description
 - This is a documentation-only step — no code changes
 
@@ -194,9 +194,9 @@ The editor session store should hold only the active draft's document, syncing b
 
 ---
 
-### Step 17: Update DATA_MODEL.md to match implementation
+### Step 17: Update docs/engineering/DATA_MODEL.md to match implementation
 
-**Do:** Update `DATA_MODEL.md` to document:
+**Do:** Update `docs/engineering/DATA_MODEL.md` to document:
 - The unified `lyricLine` model with `lineType` attribute (replacing separate `speakerLine`/`stageDirection` node types)
 - The `showStressMarks` field in `DraftSettings`
 - The `concurrentLayout` field in `ExportSettings`
@@ -205,7 +205,7 @@ The editor session store should hold only the active draft's document, syncing b
 Add a "Deviations from Original Spec" section explaining why the unified model was chosen.
 
 **Measurable outcome:**
-- Every type in `src/domain/project/types.ts` has a corresponding section in `DATA_MODEL.md`
+- Every type in `src/domain/project/types.ts` has a corresponding section in `docs/engineering/DATA_MODEL.md`
 - No undocumented fields exist in the TypeScript interfaces
 - This is a documentation-only step
 

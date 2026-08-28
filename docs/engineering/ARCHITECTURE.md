@@ -275,7 +275,7 @@ Keep modules small. Do not centralize everything into a few giant files.
 ## State Management Strategy
 
 ### Domain state
-Project data should be represented as a normalized in-memory project object matching `DATA_MODEL.md`.
+Project data should be represented as a normalized in-memory project object matching `docs/engineering/DATA_MODEL.md`.
 
 ### UI state
 UI-only state should be kept separate from project content.
