@@ -2,6 +2,7 @@ import { useProjectStore } from '../app/state/projectStore';
 import { useSaveStatusStore } from '../app/state/saveStatusStore';
 import { hasFileHandle, saveProject } from './fileSystem/fileManager';
 import { startBeforeUnloadGuard, stopBeforeUnloadGuard } from './beforeUnloadGuard';
+import { writeRecoverySnapshot } from './indexeddb/recoveryStore';
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 let unsubscribe: (() => void) | null = null;
@@ -12,9 +13,19 @@ const DEBOUNCE_MS = 3000;
 const SAVED_DISPLAY_MS = 2000;
 
 async function flush() {
+  // Read live state at flush time (not whatever triggered `scheduleFlush`) so a draft
+  // switch — or any other edit — that happens while the debounce is pending is always
+  // reflected in what gets written; nothing here captures a stale closure over one draft.
   const state = useProjectStore.getState();
   const project = state.currentProject;
   if (!project) return;
+
+  // Regardless of file handle or the autosave setting, keep a local recovery snapshot
+  // current on every debounce tick (HARDENING_PERSISTENCE.md §H2 / C-04). This is the
+  // durability floor for a project that has never been saved to disk — autosave-to-file
+  // below this point still requires a handle and the autosave setting, but this doesn't.
+  await writeRecoverySnapshot(project);
+
   if (!project.project.projectSettings.autosave) return;
   if (!hasFileHandle()) return;
   if (saving) return;

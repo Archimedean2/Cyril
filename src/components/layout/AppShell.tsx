@@ -8,6 +8,7 @@ import { CommandMenu } from './CommandMenu';
 import { ExportDialog } from '../../features/export-panel/ExportDialog';
 import { ShareImportDialog } from '../../features/share/ShareImportDialog';
 import { LaunchScreen } from './LaunchScreen';
+import { RecoveryPrompt } from './RecoveryPrompt';
 import { useProjectStore } from '../../app/state/projectStore';
 import { useResizable } from '../../hooks/useResizable';
 import { startAutosave } from '../../persistence/autosave';
@@ -111,21 +112,25 @@ export function AppShell() {
           onClose={() => setIsShareImportOpen(false)}
           onImport={(blob) => importShare(blob)}
         />
+        <RecoveryPrompt />
       </>
     );
   }
 
   if (!isProjectLoaded) {
     return (
-      <div className="app-shell-loading" style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        background: 'var(--bg-app)',
-      }}>
-        <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Loading...</span>
-      </div>
+      <>
+        <div className="app-shell-loading" style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          background: 'var(--bg-app)',
+        }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Loading...</span>
+        </div>
+        <RecoveryPrompt />
+      </>
     );
   }
 
@@ -202,6 +207,7 @@ export function AppShell() {
         onImport={(blob) => importShare(blob)}
       />
       {isCommandMenuOpen && <CommandMenu onClose={() => setIsCommandMenuOpen(false)} />}
+      <RecoveryPrompt />
     </div>
   );
 }
