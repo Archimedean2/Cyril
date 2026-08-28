@@ -1288,4 +1288,48 @@ Suggested fields:
 - do not let cache storage bypass the provider abstraction layer
 - do not store UI-only formatting state as canonical cached data
 
+---
+
+## Local Recovery Snapshot Model
+
+Per `docs/engineering/HARDENING_PERSISTENCE.md` §H2 (BACKLOG C-04): a project that has never
+been manually saved to disk — or whose autosave has no file handle to write to — otherwise has
+**zero** durability. Cyril keeps a local, best-effort recovery snapshot of the in-memory project
+in IndexedDB so that closing the tab doesn't lose it.
+
+This is an intentional, deliberate schema addition, documented here per the project's rule that
+new persisted schema is never added incidentally. It is **not** part of the `.cyril` file format:
+it never leaves the browser's IndexedDB and is never written into any `.cyril` file on disk.
+
+### Store: `cyril-recovery` (IndexedDB database, object store `snapshots`)
+
+Single-slot store, keyed by the constant `'current'`. Cyril edits one project at a time, so
+there is no need to key by project id — writing a snapshot for a different project simply
+overwrites the previous one.
+
+### Entity: RecoverySnapshot
+
+| Field | Type | Description |
+|---|---|---|
+| `file` | `CyrilFile` | The full in-memory project (same shape as the `.cyril` file format) as of the last debounced write |
+| `savedAt` | string (ISO 8601) | When this snapshot was captured — distinct from `file.project.updatedAt`, which reflects the last *content* edit, not the write itself |
+
+### Persistence rules
+- Written on the same 3s debounce as autosave, but **unconditionally** — regardless of whether
+  a file handle exists or `projectSettings.autosave` is on. This is what closes the "never-saved
+  project is lost" and "autosave silently no-ops without a handle" holes.
+- On app init, a snapshot is offered as "Recover unsaved work?" only when it is newer than the
+  file that was reopened (or nothing was opened at all) **and** belongs to the same project
+  (`file.project.id`) as that reopened file. A snapshot from a different, unrelated project (left
+  over from before the user switched files) is discarded quietly rather than offered.
+- Accepting replaces `currentProject` with the snapshot exactly; declining clears the snapshot
+  and discards it.
+- Writes (and reads) degrade gracefully: if IndexedDB is unavailable or the operation fails
+  (private browsing, quota exceeded, another storage failure), the snapshot is silently skipped
+  rather than throwing — this is a best-effort safety net, never a hard requirement for the app
+  to function.
+- This store intentionally sits outside `.cyril` schema versioning/migration: it always holds a
+  `CyrilFile` shaped for whichever `SCHEMA_VERSION` the writing app session understood, since it
+  is written and read back within the same running app.
+
 ```
