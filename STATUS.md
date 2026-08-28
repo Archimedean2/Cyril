@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-28 14:15 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-28 14:17 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -29,10 +29,10 @@ _Last stamped: **2026-08-28 14:15 UTC** · regenerate with `npm run status`_
 | | |
 |---|---|
 | Branch | `feat/title-screen` |
-| Last commit | Merge lane S: editor page surface (C-12) and single song title (C-16) |
-| Committed | 2026-08-28 15:14:17 +0100 |
-| Uncommitted files | **1** (`git status`) |
-| Backlog | **4 of 28** done · 2 in flight (C-12, C-16) · next up **C-02** |
+| Last commit | chore: land lane S; first parallel run complete |
+| Committed | 2026-08-28 15:16:18 +0100 |
+| Uncommitted files | none — clean tree |
+| Backlog | **6 of 28** done · next up **C-02** |
 <!-- END GENERATED -->
 
 ---
