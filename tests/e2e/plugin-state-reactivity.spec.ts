@@ -35,6 +35,12 @@ async function focusEditor(page: Page) {
   await pm.click();
 }
 
+async function setChordMode(page: Page, enabled: boolean) {
+  // T-14.03 reconciled the separate draft-mode options into the single Chords
+  // switch in DisplayControls, so the mode change goes through that toggle.
+  await page.getByTestId('toggle-show-chords').setChecked(enabled);
+}
+
 async function addChord(page: Page, symbol: string) {
   // Ensure cursor is in a lyric line so chord-add-button is enabled
   await focusEditor(page);
@@ -63,7 +69,7 @@ test.describe('Chord plugin state reactivity', () => {
     // No markers before mode switch
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0);
 
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await setChordMode(page, true);
     // After adding a chord the lane should appear (decoration layer is now live)
     await addChord(page, 'G');
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
@@ -71,19 +77,19 @@ test.describe('Chord plugin state reactivity', () => {
   });
 
   test('PR-C.03: Switching back to Lyrics mode removes chord decorations from DOM', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await setChordMode(page, true);
     await typeInEditor(page, 'Amazing grace');
     await addChord(page, 'Am');
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
 
     // The critical path: plugin state must update when mode prop changes
-    await page.click('[data-testid="draft-mode-option-lyrics"]');
+    await setChordMode(page, false);
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0, { timeout: 5000 });
     await expect(page.locator('[data-testid="chord-marker"]')).toHaveCount(0);
   });
 
   test('PR-C.04: Unchecking showChords removes lane widget from DOM (not just hidden via CSS)', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await setChordMode(page, true);
     await typeInEditor(page, 'Amazing grace');
     await addChord(page, 'D');
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
@@ -94,7 +100,7 @@ test.describe('Chord plugin state reactivity', () => {
   });
 
   test('PR-C.05: Re-checking showChords re-creates lane widgets in DOM', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await setChordMode(page, true);
     await typeInEditor(page, 'Amazing grace');
     await addChord(page, 'Em');
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
@@ -109,7 +115,7 @@ test.describe('Chord plugin state reactivity', () => {
   });
 
   test('PR-C.06: Chord decoration layer still works after document edits in chord mode', async ({ page }) => {
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
+    await setChordMode(page, true);
     await typeInEditor(page, 'Amazing grace');
     await addChord(page, 'C');
     await expect(page.locator('[data-testid="chord-marker"]')).toBeVisible({ timeout: 5000 });
@@ -209,8 +215,8 @@ test.describe('Syllable plugin state reactivity', () => {
     await expect(page.locator('[data-testid="syllable-count"]')).toBeVisible({ timeout: 5000 });
 
     // Mode round-trip must not destroy syllable plugin state
-    await page.click('[data-testid="draft-mode-option-lyrics-with-chords"]');
-    await page.click('[data-testid="draft-mode-option-lyrics"]');
+    await setChordMode(page, true);
+    await setChordMode(page, false);
 
     await expect(page.locator('[data-testid="syllable-count"]')).toBeVisible({ timeout: 5000 });
   });
