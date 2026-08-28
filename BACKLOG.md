@@ -56,9 +56,9 @@ no `beforeunload`, no recovery snapshot anywhere in `src/`.
 | # | Item | Lane | Status | Size | Depends on | Spec | Tests |
 |---|---|---|:--:|:--:|---|---|---|
 | C-01 | Check/request write permission before every write | P | ✅ | S | — | HARDENING §H1 | `T-1.20`, `T-1.21` |
-| C-02 | Validate on load; handle corrupt + newer-schema files | P | ⬜ | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
+| C-02 | Validate on load; handle corrupt + newer-schema files | P | 🚧 lane-P | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
 | C-03 | `beforeunload` guard when dirty | P | ✅ | S | — | HARDENING §H3 | `T-1.24` |
-| C-04 | **IndexedDB recovery snapshot** — the durability win | P | ⬜ | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
+| C-04 | **IndexedDB recovery snapshot** — the durability win | P | 🚧 lane-P | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
 | C-05 | Download/upload fallback when File System Access API is absent | P | ⬜ | M | C-04 | HARDENING §H4 | `T-1.25` |
 | C-06 | Save status never says "Saved" without a durable copy | P | ⬜ | S | C-04 | HARDENING §H7 | `T-1.29` |
 | C-07 | Warn before overwriting a file changed outside Cyril | P | ⬜ | S | C-01 | HARDENING §H6 | `T-1.28` |

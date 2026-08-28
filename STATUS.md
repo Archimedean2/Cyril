@@ -43,16 +43,16 @@ _Last stamped: **2026-08-28 14:17 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** nothing claimed. The first parallel run is complete and merged — C-01, C-03,
-C-09, C-12, C-16, C-18 all landed.
+**Working on:** one agent on C-04 (IndexedDB recovery snapshot) then C-02 (load validation).
+Both are lane P and share `fileManager.ts`, so they run sequentially in one worktree, not as two
+concurrent agents.
 
-**Last verified state:** all five gates green on the merged tree — build 0, lint 0/0, 310 unit +
-integration tests, feature coverage 100% (146/146 non-e2e), e2e 113/113. Verified visually at
-1440×900: the editor now reads as a page, and `[[MARIA]]` renders clean.
+**Last verified state:** the first parallel run is pushed as five PRs against `main` — #4 docs,
+#5 persistence (C-01/C-03), #6 editor (C-09), #7 visual (C-12/C-16), #8 CI (C-18). Each branch
+builds and tests green independently off `origin/main`.
 
 **Blocked on:** one open decision — whether the `beforeunload` guard should treat `saving` as
-dirty (note in the P0 block of `BACKLOG.md`). Recommended next: **C-04**, the IndexedDB recovery
-snapshot — the largest remaining durability win, now unblocked by C-01.
+dirty (note in the P0 block of `BACKLOG.md`).
 
 ---
 
