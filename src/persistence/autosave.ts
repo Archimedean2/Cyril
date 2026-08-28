@@ -1,6 +1,7 @@
 import { useProjectStore } from '../app/state/projectStore';
 import { useSaveStatusStore } from '../app/state/saveStatusStore';
 import { hasFileHandle, saveProject } from './fileSystem/fileManager';
+import { startBeforeUnloadGuard, stopBeforeUnloadGuard } from './beforeUnloadGuard';
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 let unsubscribe: (() => void) | null = null;
@@ -21,7 +22,9 @@ async function flush() {
   saving = true;
   useSaveStatusStore.getState().setStatus('saving');
   try {
-    await saveProject(project, false);
+    // Autosave runs on a timer with no user gesture, so it must never attempt to
+    // (re-)request write permission — a non-granted handle should fail the save.
+    await saveProject(project, false, { allowPermissionPrompt: false });
     useSaveStatusStore.getState().setStatus('saved');
     if (savedTimer !== null) clearTimeout(savedTimer);
     savedTimer = setTimeout(() => {
@@ -48,6 +51,10 @@ function scheduleFlush() {
 }
 
 export function startAutosave(): () => void {
+  // The beforeunload guard tracks saveStatusStore, which is only kept up to date
+  // while autosave is running; start/stop it alongside autosave (C-03).
+  startBeforeUnloadGuard();
+
   if (unsubscribe) return unsubscribe;
 
   unsubscribe = useProjectStore.subscribe((state, prev) => {
@@ -72,6 +79,7 @@ export function stopAutosave(): void {
     unsubscribe();
     unsubscribe = null;
   }
+  stopBeforeUnloadGuard();
 }
 
 export { DEBOUNCE_MS };
