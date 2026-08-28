@@ -28,6 +28,8 @@ Project CRUD and local persistence.
 | T-1.09 | Duplicate project generates new IDs | integration | `tests/integration/project/project-crud-integration.test.ts` | [ ] | [ ] | |
 | T-1.10 | Invalid project file fails gracefully | integration | `tests/integration/project/project-crud-integration.test.ts` | [ ] | [ ] | |
 | T-1.11 | Project CRUD smoke flow passes in UI | e2e | `tests/e2e/stage-1-project-crud.spec.ts` | [ ] | [ ] | |
+| T-1.20 | Save on a 'prompt' permission handle requests permission, then writes | unit | `tests/unit/persistence/fileManager.test.ts` | [x] | [x] | HARDENING §H1 (C-01) |
+| T-1.21 | A 'denied' handle never reports 'saved'; status ends 'error' | unit | `tests/unit/persistence/fileManager.test.ts` | [x] | [x] | HARDENING §H1 (C-01); also `tests/integration/persistence/write-permission.test.ts` |
 
 ## Regression Requirements
 - Stage 0 tests must remain passing

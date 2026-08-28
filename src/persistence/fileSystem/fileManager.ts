@@ -137,7 +137,12 @@ export function getLastProjectName(): string | null {
   return localStorage.getItem(LAST_PROJECT_KEY);
 }
 
-export async function saveProject(fileContent: CyrilFile, isSaveAs: boolean = false): Promise<void> {
+export async function saveProject(
+  fileContent: CyrilFile,
+  isSaveAs: boolean = false,
+  options?: SaveProjectOptions
+): Promise<void> {
+  const allowPermissionPrompt = options?.allowPermissionPrompt ?? true;
   try {
     // Refresh updated timestamp
     fileContent.project.updatedAt = new Date().toISOString();
@@ -162,6 +167,8 @@ export async function saveProject(fileContent: CyrilFile, isSaveAs: boolean = fa
       await storeFileHandle(fileHandle);
     }
 
+    await ensureWritePermission(fileHandle!, allowPermissionPrompt);
+
     const writable = await fileHandle!.createWritable();
     await writable.write(serializedData);
     await writable.close();
@@ -171,6 +178,36 @@ export async function saveProject(fileContent: CyrilFile, isSaveAs: boolean = fa
       throw new Error(`Failed to save project: ${message}`);
     }
   }
+}
+
+/**
+ * Ensures the given handle has 'readwrite' permission before a write is attempted.
+ *
+ * `requestPermission` requires an active user gesture, so it can only be invoked from a
+ * manual Save (`allowPermissionPrompt: true`, the default). Autosave runs on a timer with
+ * no gesture, so it must pass `allowPermissionPrompt: false` — on anything less than
+ * 'granted' this throws instead of prompting, so the caller can surface a save error
+ * rather than silently (or invisibly) failing.
+ */
+async function ensureWritePermission(handle: FileSystemFileHandle, allowPermissionPrompt: boolean): Promise<void> {
+  let permission = await handle.queryPermission({ mode: 'readwrite' });
+  if (permission === 'granted') return;
+
+  if (allowPermissionPrompt) {
+    permission = await handle.requestPermission({ mode: 'readwrite' });
+  }
+
+  if (permission !== 'granted') {
+    throw new Error('Permission to write this file was not granted. Use Save to grant access again.');
+  }
+}
+
+export interface SaveProjectOptions {
+  /**
+   * Whether a non-granted permission may be escalated with `requestPermission` (needs a
+   * user gesture). Defaults to `true` for manual Save/Save As. Autosave must pass `false`.
+   */
+  allowPermissionPrompt?: boolean;
 }
 
 export function hasFileHandle(): boolean {
