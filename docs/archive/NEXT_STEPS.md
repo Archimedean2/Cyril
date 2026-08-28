@@ -1,6 +1,6 @@
 # Cyril — What's Next
 
-_Owner's roadmap, written after a hands-on audit of the repo on 2026-07-03. This is the plan of record; `PROGRESS.md` describes what a prior agent *claimed*, this describes what is actually true and what to do about it._
+_Owner's roadmap, written after a hands-on audit of the repo on 2026-07-03. This is the plan of record; `docs/archive/PROGRESS.md` describes what a prior agent *claimed*, this describes what is actually true and what to do about it._
 
 ## The one-paragraph situation
 
@@ -22,7 +22,7 @@ Two new metrics now exist:
 
 ## The guiding principle from here
 
-Code coverage tells you which lines ran. It does not tell you whether a feature works. The recurring failure mode on this project has been marking a stage "complete" on the strength of one or two shallow tests. So the source of truth going forward is **feature coverage**: every acceptance criterion in the spec pack must map to a real, passing test before it is called done. The generated `FEATURE_COVERAGE.md` is that ledger. Don't check a box in `PROGRESS.md` that the ledger doesn't back up.
+Code coverage tells you which lines ran. It does not tell you whether a feature works. The recurring failure mode on this project has been marking a stage "complete" on the strength of one or two shallow tests. So the source of truth going forward is **feature coverage**: every acceptance criterion in the spec pack must map to a real, passing test before it is called done. The generated `FEATURE_COVERAGE.md` is that ledger. Don't check a box in `docs/archive/PROGRESS.md` that the ledger doesn't back up.
 
 ## Phase 1 — Make green trustworthy (in progress)
 
@@ -49,11 +49,11 @@ Once green is trustworthy, pay down the structural debt that will otherwise make
 
 ## Phase 3 — Make it feel finished (the "look better / smoother" ask)
 
-This is the polish layer, and it should come *after* the app is trustworthy — a beautiful UI over a fragile core still feels broken. I haven't driven the running UI yet, so treat these as candidates to confirm by using the app: save-status feedback that's actually wired to autosave, graceful empty and error states (the error boundaries exist — make their fallbacks genuinely helpful), keyboard shortcuts for the core writing loop, print/PDF output polish, and a consistent pass over spacing/typography against `DESIGN_SYSTEM.md`. I'd like to spend a session in the live app with you to turn this into a concrete punch list rather than guessing.
+This is the polish layer, and it should come *after* the app is trustworthy — a beautiful UI over a fragile core still feels broken. I haven't driven the running UI yet, so treat these as candidates to confirm by using the app: save-status feedback that's actually wired to autosave, graceful empty and error states (the error boundaries exist — make their fallbacks genuinely helpful), keyboard shortcuts for the core writing loop, print/PDF output polish, and a consistent pass over spacing/typography against `docs/design/DESIGN_SYSTEM.md`. I'd like to spend a session in the live app with you to turn this into a concrete punch list rather than guessing.
 
 ## Phase 4 — New scope
 
-`SCOPE.md`'s out-of-scope list (AI assist, collaboration, audio, chord diagrams) stays out until the core drafting experience is excellent and honestly at 100% verified feature coverage. The project's own principle — "no speculative complexity before core drafting is excellent" — is the right call. Hold the line.
+`docs/product/SCOPE.md`'s out-of-scope list (AI assist, collaboration, audio, chord diagrams) stays out until the core drafting experience is excellent and honestly at 100% verified feature coverage. The project's own principle — "no speculative complexity before core drafting is excellent" — is the right call. Hold the line.
 
 ## How to use the two metrics going forward
 

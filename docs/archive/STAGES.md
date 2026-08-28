@@ -9,11 +9,11 @@ Do not begin a later stage until the current stage satisfies all acceptance crit
 
 For each stage:
 1. Read the stage section here
-2. Read the referenced feature sections in `FEATURES.md`
-3. Check required schema in `DATA_MODEL.md`
+2. Read the referenced feature sections in `docs/product/FEATURES.md`
+3. Check required schema in `docs/engineering/DATA_MODEL.md`
 4. Implement only what is in scope
 5. Run the matching tests in `TESTS.md`
-6. Update `PROGRESS.md`
+6. Update `docs/archive/PROGRESS.md`
 
 ---
 
@@ -28,9 +28,9 @@ Create the project skeleton and application shell with the intended desktop layo
 Provides a stable place to add features without redesigning the app structure later.
 
 ### Read First
-- `SCOPE.md`
-- `ARCHITECTURE.md`
-- `DATA_MODEL.md` (overview only)
+- `docs/product/SCOPE.md`
+- `docs/engineering/ARCHITECTURE.md`
+- `docs/engineering/DATA_MODEL.md` (overview only)
 
 ### Feature Sections to Read
 - none required
@@ -101,8 +101,8 @@ Make `.cyril` projects real: create, open, save, rename, duplicate, delete.
 Everything else depends on stable project loading and saving.
 
 ### Read First
-- `DATA_MODEL.md`
-- `ARCHITECTURE.md` persistence sections
+- `docs/engineering/DATA_MODEL.md`
+- `docs/engineering/ARCHITECTURE.md` persistence sections
 
 ### Feature Sections to Read
 - Feature 1: Project CRUD
@@ -138,7 +138,7 @@ Everything else depends on stable project loading and saving.
 - state modules for project state
 
 ### Implementation Notes
-- Follow `DATA_MODEL.md` strictly
+- Follow `docs/engineering/DATA_MODEL.md` strictly
 - Save/load must preserve unknown fields if practical
 - Duplicating a project must generate new project ID
 - If drafts exist, duplicate draft IDs too
@@ -169,8 +169,8 @@ Create a high-quality rich text editor foundation.
 If editing quality is weak, the product fails regardless of later features.
 
 ### Read First
-- `ARCHITECTURE.md` editor sections
-- `DATA_MODEL.md` rich text document model
+- `docs/engineering/ARCHITECTURE.md` editor sections
+- `docs/engineering/DATA_MODEL.md` rich text document model
 
 ### Feature Sections to Read
 - Feature 2: Rich Text Editor Foundation
@@ -243,7 +243,7 @@ Support the user’s real workflow with multiple project-level workspaces and mu
 This stage turns the shell + editor into a usable writing environment.
 
 ### Read First
-- `DATA_MODEL.md` workspace and draft schemas
+- `docs/engineering/DATA_MODEL.md` workspace and draft schemas
 
 ### Feature Sections to Read
 - Feature 3: Workspaces
@@ -267,7 +267,7 @@ This stage turns the shell + editor into a usable writing environment.
   - duplicate both
 - Active draft switching
 - Separate editor content for workspaces vs drafts
-- Ensure layout and interaction follow `WIREFRAMES.md`, `DESIGN_SYSTEM.md`, `UI_TOKENS.md`, `COMPONENT_MAP.md`, and `docs/interactions/workspace-and-draft-flows.md`
+- Ensure layout and interaction follow `docs/design/WIREFRAMES.md`, `docs/design/DESIGN_SYSTEM.md`, `docs/design/UI_TOKENS.md`, `docs/engineering/COMPONENT_MAP.md`, and `docs/interactions/workspace-and-draft-flows.md`
 
 ### Explicitly Out of Scope
 - Structured sections
@@ -319,8 +319,8 @@ Replace formatting hacks with structured lyric-aware semantics.
 This is one of Cyril’s key differentiators from Google Docs.
 
 ### Read First
-- `DATA_MODEL.md` sectionBlock, speakerLine, stageDirection, lyricLine
-- `ARCHITECTURE.md` structured editing strategy
+- `docs/engineering/DATA_MODEL.md` sectionBlock, speakerLine, stageDirection, lyricLine
+- `docs/engineering/ARCHITECTURE.md` structured editing strategy
 
 ### Feature Sections to Read
 - Feature 5: Structured Sections
@@ -394,8 +394,8 @@ Add the draft-specific inventory scratchpad in the bottom-right pane.
 Inventory is central to the user’s real drafting workflow.
 
 ### Read First
-- `DATA_MODEL.md` inventory schema
-- `ARCHITECTURE.md` inventory architecture
+- `docs/engineering/DATA_MODEL.md` inventory schema
+- `docs/engineering/ARCHITECTURE.md` inventory architecture
 
 ### Feature Sections to Read
 - Feature 8: Inventory Pane
@@ -453,8 +453,8 @@ Add subtle lyric intelligence with minimal disruption.
 This adds genuine value for lyric writing without requiring heavy architecture.
 
 ### Read First
-- `DATA_MODEL.md` prosody fields and rhyme group fields
-- `ARCHITECTURE.md` prosody architecture
+- `docs/engineering/DATA_MODEL.md` prosody fields and rhyme group fields
+- `docs/engineering/ARCHITECTURE.md` prosody architecture
 
 ### Feature Sections to Read
 - Feature 9: Syllable Counts
@@ -509,7 +509,7 @@ Make the top-right pane useful for contextual word exploration.
 This replaces external browser-tab lookups in the writing flow.
 
 ### Read First
-- `ARCHITECTURE.md` tools sidebar architecture
+- `docs/engineering/ARCHITECTURE.md` tools sidebar architecture
 - relevant provider abstraction notes
 
 ### Feature Sections to Read
@@ -578,8 +578,8 @@ Add lightweight line-level alternates.
 Allows creative branching without cluttering the main draft.
 
 ### Read First
-- `DATA_MODEL.md` alternate schema
-- `ARCHITECTURE.md` alternates architecture
+- `docs/engineering/DATA_MODEL.md` alternate schema
+- `docs/engineering/ARCHITECTURE.md` alternates architecture
 
 ### Feature Sections to Read
 - Feature 14: Alternate Lyrics
@@ -638,8 +638,8 @@ Add chord support for chord-enabled drafts.
 This addresses one of the user’s strongest pain points versus Google Docs.
 
 ### Read First
-- `DATA_MODEL.md` chord schema
-- `ARCHITECTURE.md` chord architecture
+- `docs/engineering/DATA_MODEL.md` chord schema
+- `docs/engineering/ARCHITECTURE.md` chord architecture
 
 ### Feature Sections to Read
 - Feature 15: Chord Lane
@@ -675,7 +675,7 @@ This addresses one of the user’s strongest pain points versus Google Docs.
 ### Implementation Notes
 - Chords must not be stored as plain text spacing hacks
 - Chord display may use decorations or custom node views
-- Keep placement model consistent with `DATA_MODEL.md`
+- Keep placement model consistent with `docs/engineering/DATA_MODEL.md`
 
 ### Acceptance Criteria
 - Draft can be marked chord-enabled
@@ -701,9 +701,9 @@ Persist normalized results from user-triggered lexical tool lookups so repeated 
 The tools sidebar (Stage 7) calls external providers on every lookup. Caching normalized results locally reduces redundant network calls, makes previously looked-up terms available offline, and makes the tool layer more resilient to provider failures — all without changing the provider abstraction or product direction.
 
 ### Read First
-- `ARCHITECTURE.md` Tool Provider Caching section
-- `DATA_MODEL.md` Local Tool Cache Model section
-- `FEATURES.md` Feature 10: Local Tool Result Cache
+- `docs/engineering/ARCHITECTURE.md` Tool Provider Caching section
+- `docs/engineering/DATA_MODEL.md` Local Tool Cache Model section
+- `docs/product/FEATURES.md` Feature 10: Local Tool Result Cache
 
 ### Feature Sections to Read
 - Feature 10: Local Tool Result Cache
@@ -764,8 +764,8 @@ Produce clean output from canonical project data.
 Printing and export are a core workflow, not just polish.
 
 ### Read First
-- `DATA_MODEL.md` export settings
-- `ARCHITECTURE.md` export architecture
+- `docs/engineering/DATA_MODEL.md` export settings
+- `docs/engineering/ARCHITECTURE.md` export architecture
 
 ### Feature Sections to Read
 - Feature 11: Export and Print
@@ -827,7 +827,7 @@ Add a minimal sharing mechanism only after the local-first core is strong.
 Useful, but not part of the critical path for the initial product.
 
 ### Read First
-- `SCOPE.md` sharing limits
+- `docs/product/SCOPE.md` sharing limits
 - any updated architecture decision if sharing is pursued
 
 ### Feature Sections to Read
@@ -874,8 +874,8 @@ Add a structured authoring mode for passages where two or more characters sing o
 Musical theatre lyric writing frequently involves duets, trios, and counter-melody passages. Without this feature, writers must manually interleave concurrent content — an error-prone process that makes the draft unreadable while writing. Cyril can represent columns natively, display them side-by-side, and emit interleaved sequential output on export.
 
 ### Read First
-- `DATA_MODEL.md` (DraftDocument, SectionBlock, LyricLine, ExportSettings)
-- `ARCHITECTURE.md` editor node architecture
+- `docs/engineering/DATA_MODEL.md` (DraftDocument, SectionBlock, LyricLine, ExportSettings)
+- `docs/engineering/ARCHITECTURE.md` editor node architecture
 - `docs/features/feature-concurrent-speakers.md`
 
 ### Feature Sections to Read
@@ -925,8 +925,8 @@ Musical theatre lyric writing frequently involves duets, trios, and counter-melo
 - `src/domain/export/printRenderer.ts` — squash or side-by-side rendering
 - `src/domain/project/types.ts` — add `concurrentBlock`, `speakerColumn` types
 - `src/domain/project/migration.ts` — handle missing `concurrentLayout` default
-- `DATA_MODEL.md` — add new node schemas and ExportSettings field
-- `FEATURES.md` — Feature 13 (already added)
+- `docs/engineering/DATA_MODEL.md` — add new node schemas and ExportSettings field
+- `docs/product/FEATURES.md` — Feature 13 (already added)
 
 ### Implementation Notes
 - `speakerColumn` is a ProseMirror node containing `lyricLine+`

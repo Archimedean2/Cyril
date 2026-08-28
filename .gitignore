@@ -19,3 +19,16 @@ Thumbs.db
 .idea/
 *.tmp
 *.temp
+
+# --- Generated word-data (rebuild with npm run build:rhymes / build:families) ---
+# These are large build artefacts, not source. See scripts/README.md and BACKLOG.md C-08.
+src/domain/prosody/rhyme-index.json
+src/domain/tools/family-index.json
+vocab.txt
+cache/
+
+# Raw corpora — multi-hundred-MB downloads, never commit
+conceptnet-assertions-*.csv.gz
+
+# Vite writes these next to the config during dev
+vite.config.ts.timestamp-*.mjs
