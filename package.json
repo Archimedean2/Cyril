@@ -16,7 +16,8 @@
     "build:rhymes": "node scripts/build-rhyme-index.cjs",
     "build:families": "node scripts/build-family-index.mjs",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test --project=e2e",
+    "test:visual": "playwright test --project=visual"
   },
   "dependencies": {
     "@tiptap/pm": "^3.22.3",
