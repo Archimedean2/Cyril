@@ -85,3 +85,23 @@ the ProseMirror NodeView stale-closure bug will save you real debugging time if 
 
 - `.windsurfrules` — describes a Windows/PowerShell setup for a different tool. **Ignore it.**
 - `scripts/README.md` — how to build the offline rhyme and word-family indexes.
+
+## Running Cyril outside the terminal
+
+`npm run launcher` builds **`~/Desktop/Cyril.app`** (pass `--to /Applications` for a different
+home). Double-clicking it rebuilds only if a source file is newer than `dist/`, serves the build
+on `localhost:4180`, and opens Chrome as an app window with no tab strip or address bar.
+
+Two things about it are deliberate:
+
+- **It serves over `http://localhost` rather than opening `dist/index.html` directly.** Cyril
+  saves through the File System Access API, which browsers only expose in a secure context. A
+  `file://` page is not one, so from there the app could not save at all.
+- **It insists on Chrome, and says so if Chrome is missing.** Safari and Firefox do not implement
+  that API. Opening silently in one of them would give a Cyril that looks fine and cannot save.
+
+The icon is rendered at build time from the app's own quill mark in
+`src/components/brand/CyrilLogo.tsx`, so the two cannot drift apart.
+
+Port 4180 is chosen to stay clear of 4173, which Playwright's `webServer` uses — the launcher and
+the test suite can run at the same time.

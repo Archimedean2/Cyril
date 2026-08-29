@@ -13,6 +13,7 @@
     "test:coverage": "vitest run --coverage",
     "coverage:features": "node scripts/feature-coverage.mjs",
     "status": "node scripts/status.mjs",
+    "launcher": "node scripts/make-launcher.mjs",
     "build:rhymes": "node scripts/build-rhyme-index.cjs",
     "build:families": "node scripts/build-family-index.mjs",
     "test:watch": "vitest",
