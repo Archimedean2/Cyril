@@ -3,11 +3,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('../../../src/persistence/fileSystem/fileManager', () => ({
   hasFileHandle: vi.fn(() => false),
-  saveProject: vi.fn(() => Promise.resolve()),
+  saveProject: vi.fn(() => Promise.resolve(true)),
   openProject: vi.fn(),
   createNewProject: vi.fn(),
   duplicateProject: vi.fn(),
   tryReopenLastProject: vi.fn(),
+  hasPendingPermissionRequest: vi.fn(() => false),
+  getPendingPermissionFileName: vi.fn(() => null),
+  regrantFilePermission: vi.fn(),
 }));
 
 import { tryReopenLastProject } from '../../../src/persistence/fileSystem/fileManager';

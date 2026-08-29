@@ -2,13 +2,30 @@ import * as React from 'react';
 import { Download, FolderOpen, Save, MoreHorizontal, SaveAll, X, Import, Expand, Shrink } from 'lucide-react';
 import { useProjectStore } from '../../app/state/projectStore';
 import { useSaveStatusStore, SaveStatus } from '../../app/state/saveStatusStore';
+import { isFileSystemAccessSupported } from '../../persistence/fileSystem/fileManager';
 import { CyrilMark } from '../brand/CyrilLogo';
 
+// HARDENING §H4 / C-05: this browser capability never changes mid-session, so it's safe to
+// read once at module scope rather than re-checking on every render.
+const FILE_SYSTEM_ACCESS_SUPPORTED = isFileSystemAccessSupported();
+const OPEN_BUTTON_TITLE = FILE_SYSTEM_ACCESS_SUPPORTED
+  ? 'Open project'
+  : "Open project — this browser can't reopen a file directly; pick a .cyril file to load";
+const SAVE_BUTTON_TITLE = FILE_SYSTEM_ACCESS_SUPPORTED
+  ? 'Save project (⌘S)'
+  : "Save project (⌘S) — this browser can't save to disk directly; downloads a .cyril copy instead";
+
+// C-06 / HARDENING §H7: 'local-only' means the project is durably snapshotted in this
+// browser's IndexedDB (HARDENING §H2 / C-04) but no file on disk reflects it — a plain
+// dot or "Unsaved" would either look broken (no dot at all once the debounce settles) or
+// understate what actually happened (the work *is* safe here, just not on disk). Spell
+// that out so a writer without an engineering model of the app can act on it correctly.
 const STATUS_LABELS: Record<SaveStatus, string> = {
   idle: '',
   unsaved: 'Unsaved',
   saving: 'Saving…',
   saved: 'Saved',
+  'local-only': 'Saved in browser — not on disk yet',
   error: 'Save failed',
 };
 
@@ -17,6 +34,7 @@ const STATUS_COLORS: Record<SaveStatus, string> = {
   unsaved: 'var(--status-unsaved)',
   saving: 'var(--text-faint)',
   saved: 'var(--status-saved)',
+  'local-only': 'var(--status-unsaved)',
   error: 'var(--status-error)',
 };
 
@@ -189,7 +207,7 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare, focusModeAct
         <button
           className="topbar-btn"
           onClick={() => openProject()}
-          title="Open project"
+          title={OPEN_BUTTON_TITLE}
           data-testid="topbar-open-btn"
         >
           <FolderOpen size={14} />
@@ -201,7 +219,7 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare, focusModeAct
           <button
             className="topbar-btn"
             onClick={() => onSaveClick ? onSaveClick() : undefined}
-            title="Save project (⌘S)"
+            title={SAVE_BUTTON_TITLE}
             data-testid="topbar-save-btn"
           >
             <Save size={14} />
@@ -250,7 +268,14 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare, focusModeAct
                 <button
                   className="topbar-overflow-item"
                   role="menuitem"
-                  onClick={() => { saveProjectAs(); setOverflowOpen(false); }}
+                  onClick={() => {
+                    // saveProjectAs() can now reject (HARDENING §H6 / C-07 propagates real
+                    // save failures) — the project store already records `error` state, so
+                    // this fire-and-forget call just needs to not become an unhandled
+                    // rejection.
+                    saveProjectAs().catch(() => {});
+                    setOverflowOpen(false);
+                  }}
                   data-testid="topbar-save-as-btn"
                 >
                   <SaveAll size={13} />
