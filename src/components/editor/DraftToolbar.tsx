@@ -70,14 +70,15 @@ export function DraftToolbar({ editor, draftMode, settings }: DraftToolbarProps)
   };
 
   return (
-    <div className="editor-toolbar" data-testid="editor-toolbar" style={{ position: 'relative' }}>
+    <div className="editor-toolbar" data-testid="editor-toolbar">
+      {/* Inline format */}
       <div className="toolbar-group">
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={!editor.can().chain().focus().toggleBold().run()}
           className={editor.isActive('bold') ? 'active' : ''}
           data-testid="editor-bold-button"
-          title="Bold"
+          title="Bold (Ctrl+B)"
         >
           B
         </button>
@@ -86,39 +87,19 @@ export function DraftToolbar({ editor, draftMode, settings }: DraftToolbarProps)
           disabled={!editor.can().chain().focus().toggleItalic().run()}
           className={editor.isActive('italic') ? 'active' : ''}
           data-testid="editor-italic-button"
-          title="Italic"
+          title="Italic (Ctrl+I)"
         >
           I
         </button>
       </div>
 
-      <div className="toolbar-group" style={{ position: 'relative' }}>
-        <button
-          ref={sectionButtonRef}
-          onClick={handleSectionButtonClick}
-          className={isInSection || pickerOpen ? 'active' : ''}
-          data-testid="editor-add-section-button"
-          title={isInSection ? 'Section options' : 'Add Section'}
-        >
-          § Section
-        </button>
-        {pickerOpen && (
-          <SectionTypePicker
-            mode={pickerMode}
-            anchorRef={sectionButtonRef}
-            onSelect={handlePickerSelect}
-            onRemove={() => { setPickerOpen(false); editor.commands.unwrapSection(); }}
-            onClose={handlePickerClose}
-          />
-        )}
-      </div>
-
+      {/* Line type */}
       <div className="toolbar-group">
         <button
           onClick={() => editor.chain().focus().toggleLineType('speaker').run()}
           className={isSpeakerActive ? 'active' : ''}
           data-testid="toolbar-speaker"
-          title="Toggle Speaker Line"
+          title="Speaker line (or type [[ at the start of a line)"
         >
           Speaker
         </button>
@@ -126,29 +107,52 @@ export function DraftToolbar({ editor, draftMode, settings }: DraftToolbarProps)
           onClick={() => editor.chain().focus().toggleLineType('stageDirection').run()}
           className={isStageDirActive ? 'active' : ''}
           data-testid="toolbar-stage-dir"
-          title="Toggle Stage Direction"
+          title="Stage direction (or type (( at the start of a line)"
         >
           Stage Dir
         </button>
       </div>
 
-      <div className="toolbar-group" style={{ position: 'relative' }}>
-        <button
-          ref={concurrentButtonRef}
-          onClick={() => setConcurrentDialogOpen(v => !v)}
-          className={concurrentDialogOpen ? 'active' : ''}
-          data-testid="toolbar-insert-concurrent"
-          title="Insert Concurrent Block (Ctrl+Shift+K)"
-        >
-          ⇉ Concurrent
-        </button>
-        {concurrentDialogOpen && (
-          <InsertConcurrentBlockDialog
-            anchorRef={concurrentButtonRef}
-            onConfirm={handleInsertConcurrent}
-            onClose={() => setConcurrentDialogOpen(false)}
-          />
-        )}
+      {/* Structure: section + concurrent block */}
+      <div className="toolbar-group">
+        <div className="toolbar-anchor">
+          <button
+            ref={sectionButtonRef}
+            onClick={handleSectionButtonClick}
+            className={isInSection || pickerOpen ? 'active' : ''}
+            data-testid="editor-add-section-button"
+            title={isInSection ? 'Section options' : 'Add section (or type << at the start of a line)'}
+          >
+            Section
+          </button>
+          {pickerOpen && (
+            <SectionTypePicker
+              mode={pickerMode}
+              anchorRef={sectionButtonRef}
+              onSelect={handlePickerSelect}
+              onRemove={() => { setPickerOpen(false); editor.commands.unwrapSection(); }}
+              onClose={handlePickerClose}
+            />
+          )}
+        </div>
+        <div className="toolbar-anchor">
+          <button
+            ref={concurrentButtonRef}
+            onClick={() => setConcurrentDialogOpen(v => !v)}
+            className={concurrentDialogOpen ? 'active' : ''}
+            data-testid="toolbar-insert-concurrent"
+            title="Insert concurrent block"
+          >
+            Concurrent
+          </button>
+          {concurrentDialogOpen && (
+            <InsertConcurrentBlockDialog
+              anchorRef={concurrentButtonRef}
+              onConfirm={handleInsertConcurrent}
+              onClose={() => setConcurrentDialogOpen(false)}
+            />
+          )}
+        </div>
       </div>
 
       {isChordMode && (
@@ -159,12 +163,13 @@ export function DraftToolbar({ editor, draftMode, settings }: DraftToolbarProps)
             data-testid="chord-add-button"
             title={canAddChord ? 'Add chord at cursor position' : 'Place cursor in a lyric line to add a chord'}
           >
-            ♩ Add Chord
+            Add Chord
           </button>
         </div>
       )}
 
-      <div className="toolbar-group" style={{ marginLeft: 'auto' }}>
+      {/* History */}
+      <div className="toolbar-group toolbar-group--end">
         <button
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().chain().focus().undo().run()}
