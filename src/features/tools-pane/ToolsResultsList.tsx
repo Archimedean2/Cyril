@@ -187,30 +187,34 @@ function RhymeWord({ word, isHigh, isFirst, onCopy, onCollect }: {
 }) {
   const { feedback, flash, flashCopy } = useGestureFeedback();
 
+  // C-43 / DESIGN_PROPOSAL.md §13.3: the primary click collects (a writer browsing
+  // forty rhymes wants to keep five — the clipboard only holds one). Copy is the
+  // secondary action, reachable via the small hover/focus icon.
+  const collect = () => { onCollect(word); flash('collected'); };
+
   return (
     <span className="rhyme-word-wrap">
       {!isFirst && <span className="rhyme-sep">,</span>}
       <span
         className={`rhyme-word${isHigh ? ' rhyme-word-bold' : ''}`}
-        onClick={() => { void flashCopy(onCopy(word)); }}
-        onDoubleClick={(e) => { e.preventDefault(); onCollect(word); flash('collected'); }}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void flashCopy(onCopy(word)); } }}
+        onClick={collect}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); collect(); } }}
         role="button"
         tabIndex={0}
-        title="Click to copy · double-click to collect"
+        title="Click to collect · use the copy icon to copy"
         data-testid="tools-result-item"
       >
         {word}
       </span>
       <button
         type="button"
-        className="rhyme-collect-btn"
-        data-testid="tools-collect-button"
-        aria-label={`Collect "${word}" into Inventory`}
-        title="Add to Inventory"
-        onClick={() => { onCollect(word); flash('collected'); }}
+        className="rhyme-copy-btn"
+        data-testid="tools-copy-button"
+        aria-label={`Copy "${word}" to clipboard`}
+        title="Copy"
+        onClick={(e) => { e.stopPropagation(); void flashCopy(onCopy(word)); }}
       >
-        +
+        copy
       </button>
       {feedback && (
         <span className={`tools-result-feedback tools-result-feedback-${feedback}`} data-testid="tools-result-feedback">
@@ -231,28 +235,30 @@ interface ResultItemProps {
 function ResultItem({ result, mode, onCopy, onCollect }: ResultItemProps) {
   const { feedback, flash, flashCopy } = useGestureFeedback();
 
+  // C-43 / DESIGN_PROPOSAL.md §13.3: the primary click collects; copy is secondary.
+  const collect = () => { onCollect(); flash('collected'); };
+
   return (
     <div
       className="tools-result-item"
-      onClick={() => { void flashCopy(onCopy()); }}
-      onDoubleClick={(e) => { e.preventDefault(); onCollect(); flash('collected'); }}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void flashCopy(onCopy()); } }}
+      onClick={collect}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); collect(); } }}
       role="button"
       tabIndex={0}
       data-testid="tools-result-item"
-      title="Click to copy · double-click to collect"
+      title="Click to collect · use the copy button to copy"
     >
       <div className="tools-result-row">
         <div className="tools-result-word">{result.word}</div>
         <button
           type="button"
-          className="tools-collect-button"
-          data-testid="tools-collect-button"
-          aria-label={`Collect "${result.word}" into Inventory`}
-          title="Add to Inventory"
-          onClick={(e) => { e.stopPropagation(); onCollect(); flash('collected'); }}
+          className="tools-copy-button"
+          data-testid="tools-copy-button"
+          aria-label={`Copy "${result.word}" to clipboard`}
+          title="Copy"
+          onClick={(e) => { e.stopPropagation(); void flashCopy(onCopy()); }}
         >
-          + collect
+          copy
         </button>
       </div>
 

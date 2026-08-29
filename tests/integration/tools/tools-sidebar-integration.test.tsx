@@ -90,7 +90,12 @@ describe('Tools Sidebar Integration', () => {
     });
   });
 
-  test('T-7.06: Clicking result copies text to clipboard', async () => {
+  // T-7.06 is RETIRED (see tests/specs/stage-7.md): C-43 (DESIGN_PROPOSAL.md §13.3)
+  // inverted the gesture it asserted ("primary click copies" is no longer true — the
+  // primary click now collects). Re-tagging this test as T-14.20 rather than reusing
+  // T-7.06's ID keeps the coverage ledger's history honest: a passing T-7.06 must
+  // always mean the same claim it meant before, not silently change meaning in place.
+  test('T-14.20: Clicking the secondary copy control copies text to clipboard', async () => {
     const mockLookup = vi.fn().mockResolvedValue({
       term: 'cat',
       mode: 'rhyme-exact',
@@ -127,12 +132,13 @@ describe('Tools Sidebar Integration', () => {
       expect(screen.getAllByTestId('tools-result-item')).toHaveLength(2);
     });
 
-    // Click first result
-    const results = screen.getAllByTestId('tools-result-item');
-    fireEvent.click(results[0]);
+    // Click the secondary copy control on the first result (C-43: the result item
+    // itself now collects on primary click; copy moved to this secondary affordance).
+    const copyButtons = screen.getAllByTestId('tools-copy-button');
+    fireEvent.click(copyButtons[0]);
 
     // Verify clipboard was called
-    expect(mockClipboard.writeText).toHaveBeenCalledWith('bat');
+    await waitFor(() => expect(mockClipboard.writeText).toHaveBeenCalledWith('bat'));
   });
 
   test('T-7.07: Provider failure does not crash editor', async () => {

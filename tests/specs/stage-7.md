@@ -19,7 +19,7 @@ Tools sidebar and provider-backed lookup workflows.
 | T-7.03 | Tools pane renders in top-right panel | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | [ ] | [ ] | |
 | T-7.04 | Selected word populates tool search term | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | [ ] | [ ] | |
 | T-7.05 | Switching tool modes works | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | [ ] | [ ] | |
-| T-7.06 | Clicking result copies text to clipboard | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | [ ] | [ ] | |
+| ~~T-7.06~~ | **RETIRED** (ID cell struck so `scripts/feature-coverage.mjs` no longer requires a matching test — see its "Match table rows that start with an ID cell" parsing). Was "Clicking result copies text to clipboard" — C-43 (§13.3) inverted this gesture by design: the primary click now collects, not copies. Superseded by `T-14.20` (`tests/specs/stage-14.md`), which carries the current copy-control behaviour forward under the same test file. | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | [ ] | [ ] | Retired 2026-08-29, C-43 |
 | T-7.07 | Provider failure does not crash editor | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | [ ] | [ ] | |
 | T-7.08 | Tools workflow passes in UI | e2e | `tests/e2e/stage-7-tools.spec.ts` | [ ] | [ ] | |
 

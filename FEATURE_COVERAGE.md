@@ -25,14 +25,14 @@ This is a different, stricter number than code coverage. It measures whether the
 | 4 | 38 | 25 | 0 | 0 | 13 | 100% |
 | 5 | 6 | 5 | 0 | 0 | 1 | 100% |
 | 6 | 8 | 7 | 0 | 0 | 1 | 100% |
-| 7 | 8 | 7 | 0 | 0 | 1 | 100% |
+| 7 | 7 | 6 | 0 | 0 | 1 | 100% |
 | 8 | 7 | 6 | 0 | 0 | 1 | 100% |
 | 9 | 7 | 6 | 0 | 0 | 1 | 100% |
 | 10 | 8 | 7 | 0 | 0 | 1 | 100% |
 | 11 | 25 | 23 | 0 | 0 | 2 | 100% |
 | 12 | 25 | 18 | 0 | 0 | 7 | 100% |
 | 13 | 18 | 17 | 0 | 0 | 1 | 100% |
-| 14 | 19 | 19 | 0 | 0 | 0 | 100% |
+| 14 | 20 | 20 | 0 | 0 | 0 | 100% |
 | 15 | 10 | 9 | 0 | 0 | 1 | 100% |
 
 ## Detail
@@ -192,7 +192,6 @@ This is a different, stricter number than code coverage. It measures whether the
 | T-7.03 | Tools pane renders in top-right panel | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | ✅ passing |
 | T-7.04 | Selected word populates tool search term | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | ✅ passing |
 | T-7.05 | Switching tool modes works | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | ✅ passing |
-| T-7.06 | Clicking result copies text to clipboard | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | ✅ passing |
 | T-7.07 | Provider failure does not crash editor | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | ✅ passing |
 | T-7.08 | Tools workflow passes in UI | e2e | `tests/e2e/stage-7-tools.spec.ts` | 🔶 e2e (not checked) |
 
@@ -339,6 +338,7 @@ This is a different, stricter number than code coverage. It measures whether the
 | T-14.17 | A visible "+ collect" affordance adds a result to the active draft's Inventory and persists it, with feedback distinguishable from the existing click-to-copy gesture | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | ✅ passing |
 | T-14.18 | A refused clipboard reports "Couldn't copy" and logs no error | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | ✅ passing |
 | T-14.19 | Rhyme emphasis uses an absolute score threshold, not a relative "top 30%"; a weak result set shows nothing emphasised and no result is hidden by score | integration | `tests/integration/tools/tools-rhyme-emphasis.test.tsx` | ✅ passing |
+| T-14.20 | Clicking a tool result collects it into the Inventory (primary click); copy is reachable as a secondary hover control and still reports honestly on a refused clipboard (D-22) | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx, tests/integration/tools/tools-sidebar-integration.test.tsx` | ✅ passing |
 
 ### Stage 15
 
