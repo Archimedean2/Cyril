@@ -103,9 +103,9 @@ describe('Stage 0: App Shell Integration', () => {
       // Tools pane should now render (with mode tabs and search input)
       expect(screen.getByTestId('tools-pane')).toBeInTheDocument();
       expect(screen.getByTestId('tools-search-input')).toBeInTheDocument();
-      // Inventory pane should render with the textarea
+      // Inventory pane should render with the collected-words chip surface
       expect(screen.getByTestId('inventory-pane')).toBeInTheDocument();
-      expect(screen.getByTestId('inventory-textarea')).toBeInTheDocument();
+      expect(screen.getByTestId('inventory-add-input')).toBeInTheDocument();
     });
   });
 });
