@@ -1,25 +1,29 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useProjectStore } from '../../app/state/projectStore';
-import { RichTextDocument } from '../../domain/project/types';
+import { inventoryDocToItems, itemsToInventoryDoc } from './inventoryDoc';
 
 /**
- * Inventory Pane - Draft-specific scratchpad for spare lines, rhymes, and fragments.
- * 
- * For v1, this uses a simple textarea for rich text entry.
- * The content is stored as plain text in a RichTextDocument structure.
+ * Inventory Pane - Draft-specific collected-words surface for spare lines, rhymes,
+ * and fragments.
+ *
+ * Storage is unchanged: the inventory is still a `RichTextDocument` (one paragraph per
+ * line) inside the `.cyril` file. This pane just renders each non-empty line as a
+ * removable chip and offers an input to add new ones, instead of a raw textarea.
  */
 export function InventoryPane() {
   const currentProject = useProjectStore((s) => s.currentProject);
   const activeView = useProjectStore((s) => s.activeView);
   const updateDraftInventory = useProjectStore((s) => s.updateDraftInventory);
 
+  const [newItemText, setNewItemText] = useState('');
+
   // Get the active draft's inventory
   const inventory = useMemo(() => {
     if (!currentProject || activeView.type !== 'draft') return null;
-    
+
     const draft = currentProject.project.drafts.find(d => d.id === activeView.draftId);
     if (!draft) return null;
-    
+
     return draft.inventory;
   }, [currentProject, activeView]);
 
@@ -29,47 +33,24 @@ export function InventoryPane() {
     return null;
   }, [activeView]);
 
-  // Convert inventory doc to plain text for textarea
-  const textValue = useMemo(() => {
-    if (!inventory || !inventory.doc || !inventory.doc.content) return '';
-    
-    // Extract text from the RichTextDocument
-    // For v1, we flatten the content to simple text
-    return inventory.doc.content
-      .map(node => {
-        if (node.type === 'paragraph') {
-          // Extract text from paragraph content
-          if (node.content) {
-            return node.content
-              .map(child => child.text || '')
-              .join('');
-          }
-          return '';
-        }
-        return '';
-      })
-      .join('\n');
-  }, [inventory]);
+  const items = useMemo(() => inventoryDocToItems(inventory?.doc), [inventory]);
 
-  // Handle text changes
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const commitItems = (nextItems: string[]) => {
     if (!activeDraftId) return;
+    updateDraftInventory(activeDraftId, itemsToInventoryDoc(nextItems));
+  };
 
-    const newText = e.target.value;
-    
-    // Convert plain text to RichTextDocument
-    const lines = newText.split('\n');
-    const content = lines.map(line => ({
-      type: 'paragraph',
-      content: line ? [{ type: 'text', text: line }] : []
-    }));
+  const handleAddItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newItemText.trim();
+    if (!trimmed) return;
 
-    const newInventoryDoc: RichTextDocument = {
-      type: 'doc',
-      content
-    };
+    commitItems([...items, trimmed]);
+    setNewItemText('');
+  };
 
-    updateDraftInventory(activeDraftId, newInventoryDoc);
+  const handleRemoveItem = (index: number) => {
+    commitItems(items.filter((_, i) => i !== index));
   };
 
   // If no project or no active draft, show a placeholder
@@ -85,14 +66,49 @@ export function InventoryPane() {
 
   return (
     <div className="inventory-pane" data-testid="inventory-pane">
-      <textarea
-        className="inventory-textarea"
-        data-testid="inventory-textarea"
-        value={textValue}
-        onChange={handleChange}
-        placeholder="Spare lines, rhymes, and useful fragments..."
-        spellCheck={false}
-      />
+      <div className="inventory-chips" data-testid="inventory-chips">
+        {items.length === 0 ? (
+          <p className="inventory-empty-state" data-testid="inventory-empty-state">
+            Collect words, rhymes, and fragments as you write.
+          </p>
+        ) : (
+          items.map((item, index) => (
+            <span className="inventory-chip" data-testid="inventory-chip" key={`${item}-${index}`}>
+              <span className="inventory-chip-text">{item}</span>
+              <button
+                type="button"
+                className="inventory-chip-remove"
+                data-testid="inventory-chip-remove"
+                aria-label={`Remove "${item}" from inventory`}
+                title="Remove"
+                onClick={() => handleRemoveItem(index)}
+              >
+                ×
+              </button>
+            </span>
+          ))
+        )}
+      </div>
+
+      <form className="inventory-add-form" onSubmit={handleAddItem}>
+        <input
+          type="text"
+          className="inventory-add-input"
+          data-testid="inventory-add-input"
+          value={newItemText}
+          onChange={(e) => setNewItemText(e.target.value)}
+          placeholder="Add a line, rhyme, or fragment…"
+          aria-label="Add an inventory item"
+        />
+        <button
+          type="submit"
+          className="inventory-add-button"
+          data-testid="inventory-add-button"
+          disabled={!newItemText.trim()}
+        >
+          Add
+        </button>
+      </form>
     </div>
   );
 }

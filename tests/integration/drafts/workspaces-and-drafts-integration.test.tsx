@@ -44,7 +44,7 @@ describe('Workspaces and Drafts Integration', () => {
     render(<AppShell />);
     
     // Click Structure workspace
-    await user.click(screen.getByText('Structure'));
+    await user.click(screen.getByTestId('workspace-nav-structure'));
     
     // Should see structure content
     await waitFor(() => {

@@ -29,7 +29,7 @@ test.describe('Stage 7: Tools Sidebar', () => {
     // Wait for results (or empty state if offline)
     const resultsList = page.locator('[data-testid="tools-results-list"]');
     const emptyState = page.locator('[data-testid="tools-results-empty"]');
-    const errorState = page.locator('[data-testid="tools-results-error"]');
+    const errorState = page.locator('[data-testid="tools-results-offline"]');
 
     // Results should appear or we should see empty/error state
     await expect(resultsList.or(emptyState).or(errorState)).toBeVisible();
