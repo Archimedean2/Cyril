@@ -52,8 +52,9 @@ this table and tells you what is next, so this ordering is the one that counts.
 | Pri | # | Item | Lane | Status | Size | Depends | Spec |
 |--:|---|---|:--:|:--:|:--:|---|---|
 | 10 | C-32 | Track the lint config and the coverage script (main cannot run its own gates) | X | ⬜ | S | — | below |
-| 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ⬜ | M | — | §13.1 |
-| 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ⬜ | S | — | §13.2 |
+| 15 | C-48 | **Editor command bridge** — let the rail read and write the caret | E | ⬜ | S | — | §13.0 |
+| 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ⬜ | M | C-48 | §13.1 |
+| 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ⬜ | S | C-48 | §13.2 |
 | 40 | C-45 | Emphasise results by an absolute score, not a relative one | S | ⬜ | S | — | §13.5 |
 | 50 | C-35 | Speaker picker on the character colour dot | E | ⬜ | S | C-20 | §12.1 |
 | 60 | C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | ⬜ | M | C-35 | §12.2 |

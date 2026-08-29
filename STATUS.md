@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 15:45 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 15:47 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -29,9 +29,9 @@ _Last stamped: **2026-08-29 15:45 UTC** · regenerate with `npm run status`_
 | | |
 |---|---|
 | Branch | `feat/title-screen` |
-| Last commit | docs(D-24): log the inert 'populate from selection' control |
-| Committed | 2026-08-29 16:26:52 +0100 |
-| Uncommitted files | **3** (`git status`) |
+| Last commit | docs: priority-ordered queue, and spec the lookup-and-collect loop (§13) |
+| Committed | 2026-08-29 16:46:02 +0100 |
+| Uncommitted files | none — clean tree |
 | Backlog | **25 of 45** done · 2 blocked on you (C-25, C-27) |
 | Next up | **C-32 (10) Track the lint config and the coverage script (main cannot run its own gates)**<br>C-41 (20) Double-click a word in the lyric to look it up<br>C-42 (30) Click an Inventory chip to insert it at the caret |
 <!-- END GENERATED -->

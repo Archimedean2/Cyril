@@ -567,6 +567,46 @@ is **broken at both ends**: the only way in is retyping a word into the search b
 "populate from selection" control is a stub that returns `null` — defect D-24), and there is no
 way out at all, because nothing in the Inventory can put a word back into the lyric._
 
+### 13.0 The plumbing this needs first (C-48)
+
+**Neither 13.1 nor 13.2 is buildable today.** The Tiptap editor is created inside
+`DraftEditor.tsx` with `useEditor(...)` and never leaves that component — there is no context,
+no store, no ref. The right rail has no way to read the caret or write to it. That is why the ⌖
+"populate from selection" control was left as a stub returning `null` (D-24).
+
+Build a narrow bridge first, following the existing `lineMenuStore` / `sectionMenuStore` pattern.
+
+**Expose commands, not the editor.** Do *not* put the Tiptap `Editor` object into React state —
+it mutates on every keystroke and would cause re-render storms across the whole shell. Store it
+as a non-reactive ref behind a small command surface:
+
+```ts
+// src/app/state/activeEditorStore.ts
+type ActiveEditorCommands = {
+  /** Insert text at the caret as one undo step. No-op when there is no caret. */
+  insertAtCaret(text: string): boolean;
+  /** The word under the caret, or the selected word. null for empty/multi-word selections. */
+  getFocusedWord(): string | null;
+};
+```
+
+- `DraftEditor` registers its command surface on mount and **clears it on unmount**.
+- Only the *draft* editor registers. The workspace `RichTextEditor` must not — otherwise a chip
+  click would insert into the Brief while the writer thinks they are editing a lyric.
+- Every command returns a boolean and is a safe no-op when no draft is open, when the editor is
+  unmounted, or when the selection is not in a text block. Callers must never throw.
+- Reading the store must not subscribe a component to editor changes.
+
+Acceptance criteria:
+- With a draft open, `insertAtCaret('word')` inserts at the caret and the whole insertion undoes
+  in **one** `Cmd+Z`.
+- With no draft open (a workspace is showing, or the launch screen), every command returns
+  `false`/`null` and nothing throws.
+- Unmounting the draft editor clears the registration; a later call is a safe no-op.
+- Switching drafts re-registers, and an insert lands in the newly-active draft, never the old one.
+- Subscribing to the store does not cause a re-render on every keystroke — assert this, because
+  it is the failure mode that would make the whole app feel slow.
+
 ### 13.1 Getting in — double-click a word
 
 Double-click already means "select this word" in every text editor. Don't invent a gesture;
