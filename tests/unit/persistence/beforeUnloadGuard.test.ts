@@ -50,15 +50,34 @@ describe('beforeunload guard (C-03)', () => {
     expect(removeSpy).toHaveBeenCalledWith('beforeunload', handler);
   });
 
-  it('T-1.24: idle and saving statuses are not treated as dirty', () => {
+  it('T-1.24: idle status is not treated as dirty', () => {
     useSaveStatusStore.setState({ status: 'idle' });
     startBeforeUnloadGuard();
 
-    useSaveStatusStore.getState().setStatus('saving');
     expect(isBeforeUnloadGuardActive()).toBe(false);
 
     useSaveStatusStore.getState().setStatus('idle');
     expect(isBeforeUnloadGuardActive()).toBe(false);
+  });
+
+  it("T-1.30: a tab closed mid-write ('saving') is warned like any other dirty state", () => {
+    // C-30: 'saving' means a write is currently in flight — closing the tab now would
+    // interrupt it. That's dirty, not clean, even though it isn't 'unsaved' or 'error'.
+    useSaveStatusStore.setState({ status: 'idle' });
+    startBeforeUnloadGuard();
+    expect(isBeforeUnloadGuardActive()).toBe(false);
+
+    useSaveStatusStore.getState().setStatus('saving');
+    expect(isBeforeUnloadGuardActive()).toBe(true);
+
+    // Landing safely as 'saved' clears the guard again.
+    useSaveStatusStore.getState().setStatus('saved');
+    expect(isBeforeUnloadGuardActive()).toBe(false);
+
+    // And a write that starts from a clean idle state re-arms it too.
+    useSaveStatusStore.getState().setStatus('idle');
+    useSaveStatusStore.getState().setStatus('saving');
+    expect(isBeforeUnloadGuardActive()).toBe(true);
   });
 
   it('T-1.24: stopBeforeUnloadGuard tears the listener down even while dirty', () => {

@@ -1,10 +1,16 @@
 import { useSaveStatusStore, SaveStatus } from '../app/state/saveStatusStore';
 
 // Per HARDENING_PERSISTENCE.md §H3: unsaved changes are represented by the save
-// status being 'unsaved' (edits pending, not yet written) or 'error' (a write
-// attempt failed — e.g. permission was denied). Both mean the in-memory project
-// is not durably saved, so the tab should warn before closing.
-const DIRTY_STATUSES: ReadonlySet<SaveStatus> = new Set(['unsaved', 'error']);
+// status being 'unsaved' (edits pending, not yet written), 'saving' (a write is
+// currently in flight), or 'error' (a write attempt failed — e.g. permission was
+// denied). All three mean the in-memory project is not (yet, or no longer) durably
+// saved, so the tab should warn before closing.
+//
+// C-30: 'saving' is included deliberately. A tab closed mid-write previously got no
+// warning at all. The cost of a false positive here — a spurious dialog in the
+// sub-second window a write is normally in flight — is far smaller than the cost of
+// a false negative: losing the write that was interrupted.
+const DIRTY_STATUSES: ReadonlySet<SaveStatus> = new Set(['unsaved', 'saving', 'error']);
 
 function isDirty(status: SaveStatus): boolean {
   return DIRTY_STATUSES.has(status);
@@ -32,8 +38,8 @@ function syncGuard(status: SaveStatus): void {
 
 /**
  * Starts watching `saveStatusStore` and keeps a `beforeunload` warning registered
- * for as long as the project has unsaved changes (status 'unsaved' or 'error').
- * Safe to call multiple times; returns `stopBeforeUnloadGuard`.
+ * for as long as the project has unsaved changes (status 'unsaved', 'saving', or
+ * 'error'). Safe to call multiple times; returns `stopBeforeUnloadGuard`.
  */
 export function startBeforeUnloadGuard(): () => void {
   if (!unsubscribe) {

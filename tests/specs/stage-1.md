@@ -35,6 +35,7 @@ Project CRUD and local persistence.
 | T-1.23 | On init with a newer snapshot, recovery is offered; accepting restores it exactly; declining discards it | integration | `tests/integration/persistence/recovery-offer.test.ts` | [x] | [x] | HARDENING §H2 (C-04) |
 | T-1.26 | Opening corrupt JSON surfaces a validation error and does not throw to a crash | unit, integration | `tests/unit/persistence/load-validation.test.ts`, `tests/integration/persistence/load-validation.test.ts` | [x] | [x] | HARDENING §H5 (C-02) |
 | T-1.27 | A newer schemaVersion is handled (warned, not blindly loaded) | unit, integration | `tests/unit/persistence/load-validation.test.ts`, `tests/integration/persistence/load-validation.test.ts` | [x] | [x] | HARDENING §H5 (C-02) |
+| T-1.30 | A tab closed mid-write ('saving') is warned like any other dirty state | unit | `tests/unit/persistence/beforeUnloadGuard.test.ts` | [x] | [x] | C-30 |
 
 ## Regression Requirements
 - Stage 0 tests must remain passing
