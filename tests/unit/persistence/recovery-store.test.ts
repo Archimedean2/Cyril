@@ -63,7 +63,7 @@ describe('Recovery snapshot store (HARDENING §H2 / C-04)', () => {
     expect(await readRecoverySnapshot()).toBeNull();
   });
 
-  it('degrades gracefully (no throw) when IndexedDB.open fails, e.g. quota exceeded/private browsing', async () => {
+  it('T-1.34: degrades gracefully (no throw) when IndexedDB.open fails, e.g. quota exceeded/private browsing', async () => {
     const realOpen = indexedDB.open;
     // Simulate IndexedDB being unusable, matching EDGE_CASES.md §8: "IndexedDB
     // unavailable/quota-exceeded (private browsing) must degrade gracefully, no crash."
