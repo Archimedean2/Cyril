@@ -17,7 +17,7 @@ describe('Recovery snapshot store (HARDENING §H2 / C-04)', () => {
 
     expect(await readRecoverySnapshot()).toBeNull();
 
-    await writeRecoverySnapshot(file);
+    await expect(writeRecoverySnapshot(file)).resolves.toBe(true);
 
     const snapshot = await readRecoverySnapshot();
     expect(snapshot).not.toBeNull();
@@ -73,7 +73,10 @@ describe('Recovery snapshot store (HARDENING §H2 / C-04)', () => {
 
     try {
       const file = createCyrilFile(createDefaultProject('Quota Test'));
-      await expect(writeRecoverySnapshot(file)).resolves.toBeUndefined();
+      // C-06: callers use the return value to decide whether to report the work as
+      // durably snapshotted, so a degraded write must resolve `false`, not silently
+      // succeed-looking `undefined`.
+      await expect(writeRecoverySnapshot(file)).resolves.toBe(false);
       await expect(readRecoverySnapshot()).resolves.toBeNull();
     } finally {
       (indexedDB as unknown as { open: unknown }).open = realOpen;
