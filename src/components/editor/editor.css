@@ -345,10 +345,6 @@
 /* Stage directions are NEVER indented — no sibling rule needed */
 /* Their italic + parentheses styling is sufficient distinction */
 
-[data-type="lyricLine"][data-delivery="spoken"] {
-  font-style: italic;
-}
-
 /* ======================
    Selected section
    ====================== */

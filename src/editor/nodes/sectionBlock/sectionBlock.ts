@@ -166,7 +166,6 @@ function makeLyricLineNodeJSON() {
     type: 'lyricLine',
     attrs: {
       id: generateId('line'),
-      delivery: 'sung',
       rhymeGroup: null,
       meta: { alternates: [], prosody: null, chords: [] },
     },
@@ -358,7 +357,6 @@ export const SectionBlock = Node.create<SectionBlockOptions>({
 
           const newLine = lyricLineType.createAndFill({
             id: generateId('line'),
-            delivery: 'sung',
             rhymeGroup: null,
             meta: { alternates: [], prosody: null, chords: [] },
           });
@@ -438,7 +436,6 @@ export const SectionBlock = Node.create<SectionBlockOptions>({
 
         const newLine = state.schema.nodes.lyricLine.createAndFill({
           id: generateId('line'),
-          delivery: 'sung',
           rhymeGroup: null,
           meta: { alternates: [], prosody: null, chords: [] },
         });

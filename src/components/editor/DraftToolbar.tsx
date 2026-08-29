@@ -130,14 +130,6 @@ export function DraftToolbar({ editor, draftMode, settings }: DraftToolbarProps)
         >
           Stage Dir
         </button>
-        <button
-          onClick={() => editor.chain().focus().toggleDelivery().run()}
-          disabled={!editor.isActive('lyricLine')}
-          data-testid="editor-toggle-delivery-button"
-          title="Toggle Sung/Spoken"
-        >
-          Delivery
-        </button>
       </div>
 
       <div className="toolbar-group" style={{ position: 'relative' }}>

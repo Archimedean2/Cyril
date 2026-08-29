@@ -13,7 +13,6 @@ function makeLyricLineJSON() {
     type: 'lyricLine',
     attrs: {
       id: generateId('line'),
-      delivery: 'sung',
       rhymeGroup: null,
       lineType: 'lyric',
       meta: { alternates: [], prosody: null, chords: [] },
@@ -168,7 +167,7 @@ export const ConcurrentBlock = Node.create<ConcurrentBlockOptions>({
           // Replace the block with a single empty lyricLine so editing can continue.
           const emptyLine = state.schema.nodeFromJSON({
             type: 'lyricLine',
-            attrs: { id: generateId('line'), delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+            attrs: { id: generateId('line'), rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
             content: [],
           });
           if (!emptyLine) return false;

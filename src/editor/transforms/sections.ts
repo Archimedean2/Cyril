@@ -11,7 +11,6 @@ export const insertSectionBlock = (options?: { id?: string; sectionType?: string
         type: 'lyricLine',
         attrs: {
           id: generateId('line'),
-          delivery: 'sung',
           rhymeGroup: null,
           meta: { alternates: [], prosody: null, chords: [] },
         },
