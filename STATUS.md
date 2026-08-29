@@ -43,14 +43,14 @@ _Last stamped: **2026-08-29 10:21 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** one agent left — C-20 (character registry). Everything else this round is
-merged and shipped as PRs.
+**Working on:** nothing — all agents finished. Everything is merged, verified and pushed.
 
-**Last verified state:** integration branch green — 428 tests, 184/184 non-e2e criteria,
-e2e 114/114. Eleven PRs open (#4-#14).
+**Last verified state:** integration branch green — build 0, lint 0/0, **464 tests**,
+**192/192 non-e2e criteria**, **e2e 115/115**. Twelve PRs open: #4-#14 granular, #15 integration.
 
-**Blocked on:** C-25 and C-27 need the maintainer (file-format change / scope expansion).
-**Read C-32 first** — the lint config and the coverage script were never committed to `main`.
+**Read first when you're back:** (1) *Decisions taken unsupervised* below; (2) **C-32** — the
+lint config and coverage script were never committed to `main`; (3) **C-25** and **C-27** still
+need your call and were deliberately not started.
 
 ## Decisions taken unsupervised (2026-08-29) — review these
 

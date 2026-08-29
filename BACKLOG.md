@@ -78,6 +78,18 @@ tests.
 > has *zero* durability — autosave no-ops when there is no file handle, silently. A snapshot on
 > the same debounce, written regardless of handle, closes that hole and softens every other one.
 
+### C-33 · A suppressed duplicate speaker label leaves a blank row — Lane S · Size S · ⬜
+
+C-20 hides the repeated label on consecutive lines by the same character and shows a colour
+gutter tick instead (correct, script-style). But the hidden label still occupies its line
+height, so the continuation reads as an accidental blank line with a tick beside it rather than
+a tight continuation.
+
+- Acceptance: consecutive same-character lines sit at normal line spacing; the gutter tick
+  aligns with the continuation text; no empty row appears where the label was.
+
+For the look-and-feel pass.
+
 ### C-32 · The lint config and the coverage script are not in version control — Lane X · Size S · ⬜
 
 **Found 2026-08-29 and it matters.** `main` tracks neither `.eslintrc.cjs` nor
@@ -261,7 +273,7 @@ one, don't take three.
 | # | Item | Lane | Status | Size | Depends on | Spec |
 |---|---|---|:--:|:--:|---|---|
 | C-19 | Finish the token sweep (danger + selection tints) | E | ✅ | S | — | DESIGN_PROPOSAL §2 |
-| C-20 | **Characters registry** — colour identity + autocomplete | S | 🚧 | L | C-09 | DESIGN_PROPOSAL §3.1 |
+| C-20 | **Characters registry** — colour identity + autocomplete | S | ✅ | L | C-09 | DESIGN_PROPOSAL §3.1 |
 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | DESIGN_PROPOSAL §3.2–3.3 |
 | C-22 | **Print profiles** — lyric / chord / libretto / annotated | S | ✅ | L | C-21 | DESIGN_PROPOSAL §7 |
 | C-23 | Reference tools: offline indexes, tabs, filters, collect loop | D | ⬜ | L | C-08, C-14 | DESIGN_PROPOSAL §6, §6.1 |
