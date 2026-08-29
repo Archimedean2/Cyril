@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 09:06 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 09:20 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,19 +20,19 @@ _Last stamped: **2026-08-29 09:06 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 357/357 tests, 63 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 160 passing, 0 failing, 0 untested, 36 e2e-only |
-| `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
+| `npm test` | 🟢 | 397/397 tests, 73 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 168 passing, 0 failing, 0 untested, 36 e2e-only |
+| `npm run test:e2e` | 🟢 | 113 passed |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 4 ahead) |
-| Last commit | Merge lane S: view-toggle grouping (C-15), inventory chips (C-11), tools filters and offline states (C-14) |
-| Committed | 2026-08-29 10:04:57 +0100 |
+| Branch | `feat/title-screen` (0 behind / 12 ahead) |
+| Last commit | chore: regenerate ledger from the merged tree |
+| Committed | 2026-08-29 10:20:06 +0100 |
 | Uncommitted files | none — clean tree |
-| Backlog | **10 of 29** done · 10 in flight (C-05, C-29, C-06, C-07, C-10, C-11, C-13, C-14, C-15, C-19) · next up **C-20** |
+| Backlog | **13 of 30** done · 7 in flight (C-05, C-29, C-06, C-07, C-10, C-13, C-19) · next up **C-20** |
 <!-- END GENERATED -->
 
 ---
