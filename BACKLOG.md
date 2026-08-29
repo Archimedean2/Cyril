@@ -43,74 +43,80 @@ Two agents in the same lane will conflict. One agent per lane is the safe fleet 
 
 ---
 
-## P0 — Trust. Nothing else matters until this is true.
+## The queue
 
-Cyril is a writing tool that a lyricist will keep a year of work in. Today it can lose that work
-in at least four ordinary ways, and the save indicator will say "Saved" while it happens. This
-block comes first.
+Ordered by **Pri**, lowest first. Priorities are spaced by ten so an item can be slid in
+between two others by giving it a number in the gap — no renumbering. `npm run status` reads
+this table and tells you what is next, so this ordering is the one that counts.
 
-Full spec with sub-task detail: **`docs/engineering/HARDENING_PERSISTENCE.md`**.
+| Pri | # | Item | Lane | Status | Size | Depends | Spec |
+|--:|---|---|:--:|:--:|:--:|---|---|
+| 10 | C-32 | Track the lint config and the coverage script (main cannot run its own gates) | X | ⬜ | S | — | below |
+| 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ⬜ | M | — | §13.1 |
+| 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ⬜ | S | — | §13.2 |
+| 40 | C-45 | Emphasise results by an absolute score, not a relative one | S | ⬜ | S | — | §13.5 |
+| 50 | C-35 | Speaker picker on the character colour dot | E | ⬜ | S | C-20 | §12.1 |
+| 60 | C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | ⬜ | M | C-35 | §12.2 |
+| 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | ⬜ | S | C-42 | §13.3 |
+| 80 | C-44 | Dim collected words once they appear in the draft | S | ⬜ | S | C-42 | §13.4 |
+| 90 | C-47 | Empty states teach the double-click gesture | S | ⬜ | S | C-41 | §13.7 |
+| 100 | C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | §5 |
+| 110 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | §3.2–3.3 |
+| 120 | C-37 | Structure outline with drag-reorder and jump-to | S | ⬜ | M | C-21 | §12.3 |
+| 130 | C-39 | Smart paste — detect `NAME:` prefixes into speaker lines | E | ⬜ | M | C-20 | §12.5 |
+| 140 | C-23 | Reference tools: wire the offline word indexes | D | ⬜ | L | C-08 | §6 |
+| 150 | C-26 | Unified right-click context menu | E | ⬜ | L | C-35 | §10 |
+| 160 | C-38 | Bulk line-type conversion on a multi-line selection | E | ⬜ | S | C-26 | §12.4 |
+| 170 | C-40 | Make `Cmd+K` selection-aware | S | ⬜ | S | C-38 | §12.5 |
+| 180 | C-46 | One shared word-bank component (Inventory + Vocabulary World) | S | ⬜ | M | C-44 | §13.6 |
+| 190 | C-33 | A suppressed duplicate speaker label leaves a blank row | S | ⬜ | S | C-20 | below |
+| 200 | C-28 | Burn down the edge-case register (ongoing) | X | ⬜ | — | — | below |
 
-**Progress: this block is COMPLETE.** All of H1–H7 have landed (C-01, C-04, C-03, C-02, C-06,
-C-07, C-05), plus C-29 (re-grant banner) and C-30 (`saving` is dirty). The zero-durability hole
-is closed — a never-saved project writes an IndexedDB snapshot on the autosave debounce
-regardless of file handle, a reload offers recovery, and the indicator reads "Saved in browser —
-not on disk yet" rather than a false "Saved". All verified in a real browser, not only in unit
-tests.
+### Blocked on the maintainer
 
-| # | Item | Lane | Status | Size | Depends on | Spec | Tests |
-|---|---|---|:--:|:--:|---|---|---|
-| C-01 | Check/request write permission before every write | P | ✅ | S | — | HARDENING §H1 | `T-1.20`, `T-1.21` |
-| C-02 | Validate on load; handle corrupt + newer-schema files | P | ✅ | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
-| C-03 | `beforeunload` guard when dirty | P | ✅ | S | — | HARDENING §H3 | `T-1.24` |
-| C-04 | **IndexedDB recovery snapshot** — the durability win | P | ✅ | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
-| C-05 | Download/upload fallback when File System Access API is absent | P | ✅ | M | C-04 | HARDENING §H4 | `T-1.25` |
-| C-29 | Re-grant UI when a file handle loses permission | P | ✅ | S | C-02 | below | — |
-| C-06 | Save status never says "Saved" without a durable copy | P | ✅ | S | C-04 | HARDENING §H7 | `T-1.29` |
-| C-07 | Warn before overwriting a file changed outside Cyril | P | ✅ |
-| C-30 | `beforeunload` also treats `saving` as dirty | P | ✅ | S | C-03 | decision, see above | `T-1.30` | S | C-01 | HARDENING §H6 | `T-1.28` |
+Not started deliberately — each changes something only the owner should agree to.
 
-> **Decided 2026-08-29 (C-30).** `saving` now counts as dirty. A false positive costs a spurious
-> dialog in a sub-second window; a false negative costs work. Taken while the maintainer was
-> away — reversible in one line if they disagree.
+| # | Item | Lane | Size | Why it is blocked | Spec |
+|---|---|:--:|:--:|---|---|
+| C-25 | Chords: transpose, trailing runs, instrumental lines | E | L | changes `ChordMarker.position` in the **file format** | §4.4–4.5 |
+| C-27 | Hook Lab as a structured workspace | X | L | expands **v1 scope** | §9 |
 
-> **C-04 is the one that matters most.** A project the writer has never manually saved currently
-> has *zero* durability — autosave no-ops when there is no file handle, silently. A snapshot on
-> the same debounce, written regardless of handle, closes that hole and softens every other one.
+### Done
 
-### C-34 · Close the three gaps that let a green suite ship broken features — Lane X · Size M · ⬜
+25 items. Detail for the ones with a written-up rationale is kept below.
 
-115 passing Playwright tests coexisted with an export that produced an empty document for an
-ordinary song. `docs/testing/TESTING.md` §"Catching the bugs this suite keeps missing" has the
-analysis and seven concrete harnesses. Do at least the first four, in order — they are cheap and
-they cover the classes that actually bit us:
+- **C-01** — Write-permission check before every save
+- **C-02** — Validate on load; corrupt + newer-schema files
+- **C-03** — `beforeunload` guard when dirty
+- **C-04** — IndexedDB recovery snapshot — the durability win
+- **C-05** — Fallback Open/Save without the File System Access API
+- **C-06** — Honest `local-only` save status
+- **C-07** — Warn before overwriting a file changed outside Cyril
+- **C-08** — Gitignore the word-data pile; track its scripts
+- **C-09** — `[[NAME]]` / `((text))` accept their closing brackets
+- **C-10** — Removed the `delivery` feature
+- **C-11** — Inventory as removable chips
+- **C-12** — The editor reads as a real page
+- **C-13** — Toolbar rebuilt as grouped controls
+- **C-14** — Tools filter chips + honest offline states
+- **C-15** — View toggles grouped under Structure / Sound
+- **C-16** — Song title appears once
+- **C-17** — Chords left-align to their anchor letter (landed on `main` earlier)
+- **C-18** — CI: blocking lint, correct job name, chromium-only, 5 MB guard
+- **C-19** — Editor token sweep finished
+- **C-20** — Character registry with colours, migration, autocomplete
+- **C-22** — Print profiles — lyric / chord / libretto / annotated
+- **C-29** — Re-grant banner when a handle loses permission
+- **C-30** — `beforeunload` also treats `saving` as dirty
+- **C-31** — Feature-coverage gate moved into CI
+- **C-34** — Console guard, golden files, visual regression, journey test
 
-1. **Fail any e2e on a console error** (~10 lines, one shared fixture). Free crash detection
-   across all 115 existing tests.
-2. **Golden-file snapshots of generated output** — each print profile and the Markdown exporter.
-   Would have caught D-02 and D-11 the day they appeared.
-3. **Visual regression** via Playwright's own `toHaveScreenshot`, ~8 baselines at two widths.
-   The only thing that catches layout defects like D-07/D-08 without a human looking.
-4. **One "write a song" journey test** through the whole loop, typed with a delay.
+---
 
-Then, when there is room: `@axe-core/playwright` gated at "no new violations", a concurrency
-harness for races, and `fast-check` property tests over the document transforms.
+## Item detail
 
-- Acceptance: each of the four lands with CI running it; the golden files and screenshot
-  baselines are committed; the journey test exercises section → speaker → lyrics → prosody →
-  rhyme → collect → chord → draft switch → export, asserting the export contains the lyrics.
-
-### C-33 · A suppressed duplicate speaker label leaves a blank row — Lane S · Size S · ⬜
-
-C-20 hides the repeated label on consecutive lines by the same character and shows a colour
-gutter tick instead (correct, script-style). But the hidden label still occupies its line
-height, so the continuation reads as an accidental blank line with a tick beside it rather than
-a tight continuation.
-
-- Acceptance: consecutive same-character lines sit at normal line spacing; the gutter tick
-  aligns with the continuation text; no empty row appears where the label was.
-
-For the look-and-feel pass.
+Only items that needed more than a table row. Everything else is specified in the linked
+`docs/product/DESIGN_PROPOSAL.md` section.
 
 ### C-32 · The lint config and the coverage script are not in version control — Lane X · Size S · ⬜
 
@@ -133,43 +139,39 @@ was a scheduling workaround and should not be the permanent shape.
 - Acceptance: a fresh clone of `main` runs all four gates with no missing-file errors; the
   config and script are tracked deliberately in one commit; `printProfile` lives in `types.ts`.
 
-### C-31 · Stop `FEATURE_COVERAGE.md` conflicting on every merge — Lane X · Size S · ✅
 
-The generated ledger is regenerated by every agent as part of its gates, so it conflicts on
-**every** merge and cherry-pick between branches. It has done so four times in one day. The only
-correct resolution is to regenerate it from the merged tree — never to pick a side — which is
-easy to get wrong under time pressure.
+### C-33 · A suppressed duplicate speaker label leaves a blank row — Lane S · Size S · ⬜
 
-**Decided 2026-08-29:** the first option below. Keep it tracked, make CI the enforcement.
+C-20 hides the repeated label on consecutive lines by the same character and shows a colour
+gutter tick instead (correct, script-style). But the hidden label still occupies its line
+height, so the continuation reads as an accidental blank line with a tick beside it rather than
+a tight continuation.
 
-Two viable fixes, needs a call:
-- **Keep it tracked** (you can read the ledger on GitHub without running anything) and make CI
-  the real enforcement — fail the build when any criterion is `failing` or `no test` — so the
-  committed copy is a convenience, not the gate. Add `linguist-generated=true` in
-  `.gitattributes` so PR diffs collapse it.
-- **Untrack it** and publish it as a CI artifact instead. Cleaner history, but the ledger stops
-  being readable from the repo, which was part of the point.
+- Acceptance: consecutive same-character lines sit at normal line spacing; the gutter tick
+  aligns with the continuation text; no empty row appears where the label was.
 
-Recommend the first. Either way `npm run coverage:features` stays the local check.
+For the look-and-feel pass.
 
-- Acceptance: a merge between two branches that both touched tests does not conflict on the
-  ledger, or the conflict is resolved automatically; CI fails when a criterion regresses.
 
-### C-29 · No way to re-grant a lost file permission — Lane P · Size S · ⬜
+### C-28 · Burn down the edge-case register — Lane X · Size ongoing · 🔵 §8 (persistence) done
 
-C-02 made `tryReopenLastProject` correctly *keep* the file handle when the failure is
-`NotAllowedError` (permission lost) rather than clearing it — but nothing in the UI lets the
-writer act on that. Their only route back to their own file is `Open` and the picker again,
-which is exactly the friction the handle was preserved to avoid.
+`docs/engineering/EDGE_CASES.md` is an adversarial-QA list of ~70 hazards, prioritised
+🔴/🟠/🟡. It is not a task in itself: **when you build any item above, cover that item's
+neighbouring hazards as part of it.** Building chords (C-17, C-25) means covering §1 in full.
+Building persistence (C-01…C-07) means §8. Building the context menu (C-26) means §12.
 
-Needs a shape decision before building: an inline banner above the editor, a modal on init, or a
-control in the top bar next to the save indicator. Recommend the banner — it is non-blocking and
-sits near the work.
+An item is not done while its adjacent 🔴 hazards are untested.
 
-- Acceptance: with a stored handle in `prompt`/`denied` state, the app surfaces a re-grant
-  affordance; activating it calls `requestPermission` from the user gesture and, on success,
-  resumes normal saving without re-picking the file; declining leaves the project usable and the
-  save status honest.
+**§8 (persistence) is done — and it earned its keep.** Working through it found two real bugs
+that the feature tests had missed: `saveProject` had no serialization, so a slow autosave could
+land after — and silently overwrite — a newer manual save while the UI reported "Saved"; and
+`IndexedDBToolCacheStore` rejected instead of degrading, so a word lookup crashed in private
+browsing. Both fixed with tests confirmed to fail against the old code (`T-1.32`, `T-1.35`).
+Remaining slices: §1 chords, §2 alternates, §3 line types, §4 concurrent blocks, §5 undo/redo,
+§6 paste/input, §7 prosody, §10 tools, §11 export, §12 UI/a11y.
+
+---
+
 
 ### C-08 · Deal with the uncommitted word-data pile — Lane X · Size S · ✅
 
@@ -197,29 +199,6 @@ scripts. Do **not** wire the indexes into the app here — that is C-23.
 
 ---
 
-## P1 — The "feels unfinished" list
-
-These are the things a lyricist notices in the first two minutes. Each was observed in the
-running app on 2026-08-28 (screenshots and findings in `docs/design/DESIGN_REVIEW.md` §"Live
-app audit"). They are small, independent, and they are most of the distance between "a capable
-prototype" and "built by professionals".
-
-| # | Item | Lane | Status | Size | Depends on | Spec |
-|---|---|---|:--:|:--:|---|---|
-| C-09 | `[[NAME]]` / `((text))` must accept the closing brackets | E | ✅ | S | — | below |
-| C-10 | Remove the `delivery` feature | E | ✅ | M | — | DESIGN_PROPOSAL §3.4 |
-| C-11 | Inventory: real collected-words surface, not a raw `<textarea>` | S | ✅ | M | — | DESIGN_REVIEW §9 |
-| C-12 | Give the editor a real page: measure, edges, elevation | S | ✅ | M | — | below |
-| C-13 | Rebuild the editor toolbar as grouped icon+label controls | E | ✅ | M | C-10 | below |
-| C-14 | Tools pane: filter chips, honest empty/offline states | S | ✅ | M | — | DESIGN_PROPOSAL §6 |
-| C-15 | Group View toggles under Structure / Sound sub-labels | S | ✅ | S | — | DESIGN_REVIEW §6 |
-| C-16 | Stop showing the song title twice (top bar + left nav) | S | ✅ | S | — | below |
-| C-17 | ~~Chords left-align to their anchor letter~~ | E | ✅ | S | — | already fixed on `main` in `8e82639` |
-| C-18 | CI: make lint blocking, fix job name + browser scope | X | ✅ |
-
-> **C-17 was already done.** It landed on `main` in `8e82639` ("left-align chord pills to the
-> first letter of the word") before this backlog was written. The audit missed it because a
-> `translateX(-50%)` survives in `editor.css` — but on `.cyril-stress-mark`, not the chord marker. S | — | below |
 
 ### C-09 · The speaker/stage-direction gesture is a trap — Lane E · Size S
 
@@ -235,6 +214,7 @@ line reading **`MARIA]]`** — observed live. `((text))` has the identical flaw.
   never left in the text. Undo of the auto-conversion restores the literal characters.
 - Note: also covers `docs/engineering/EDGE_CASES.md` §3 (input rules mid-line vs. line start).
 
+
 ### C-12 · The paper doesn't read as paper — Lane S · Size M
 
 The centre pane is the hero surface and the one place the product's taste shows. Live, it is a
@@ -249,6 +229,7 @@ token pass was building toward.
   toolbar rather than flush; the existing grain overlay survives. Follows
   `docs/design/DESIGN_SYSTEM.md` and uses only `docs/design/UI_TOKENS.md` tokens.
 
+
 ### C-13 · The toolbar is a row of undifferentiated words — Lane S · Size M
 
 Currently: `B  I  § Section  Speaker  Stage Dir  Delivery  ⇉ Concurrent`, with undo/redo
@@ -260,6 +241,7 @@ paper, and one control (`Delivery`) that C-10 deletes outright.
   visibly indicated; the toolbar is visually distinct from the page surface; nothing wraps at the
   narrowest supported pane width.
 
+
 ### C-16 · Identity is still duplicated — Lane S · Size S
 
 The QoL pass (C-14 era) removed the duplicated *draft* header, but the **song title** still
@@ -268,6 +250,7 @@ argument applies — the top bar is the home for identity.
 
 - Acceptance: the song title appears exactly once in the chrome; the left nav leads with its
   own content (Project / Drafts / View); no vertical space is wasted by the removal.
+
 
 ### C-18 · CI is weaker than the project thinks — Lane X · Size S
 
@@ -286,68 +269,69 @@ the claim came from reading only the first 60 lines of a 73-line file. E2E *was*
 
 ---
 
-## P2 — Finish the product
 
-The feature spec is `docs/product/DESIGN_PROPOSAL.md`; its §11 build sequence is preserved below
-with the ordering the audit suggests. Each of these is a stage of work in its own right — take
-one, don't take three.
+### C-29 · No way to re-grant a lost file permission — Lane P · Size S · ⬜
 
-| # | Item | Lane | Status | Size | Depends on | Spec |
-|---|---|---|:--:|:--:|---|---|
-| C-19 | Finish the token sweep (danger + selection tints) | E | ✅ | S | — | DESIGN_PROPOSAL §2 |
-| C-20 | **Characters registry** — colour identity + autocomplete | S | ✅ | L | C-09 | DESIGN_PROPOSAL §3.1 |
-| C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | DESIGN_PROPOSAL §3.2–3.3 |
-| C-22 | **Print profiles** — lyric / chord / libretto / annotated | S | ✅ | L | C-21 | DESIGN_PROPOSAL §7 |
-| C-23 | Reference tools: offline indexes, tabs, filters, collect loop | D | ⬜ | L | C-08, C-14 | DESIGN_PROPOSAL §6, §6.1 |
-| C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | DESIGN_PROPOSAL §5 |
-| C-35 | Speaker picker on the character colour dot | E | ⬜ | S | C-20 | DESIGN_PROPOSAL §12.1 |
-| C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | ⬜ | M | C-35 | DESIGN_PROPOSAL §12.2 |
-| C-37 | Structure outline with drag-reorder and jump-to | S | ⬜ | M | C-21 | DESIGN_PROPOSAL §12.3 |
-| C-38 | Bulk line-type conversion on a multi-line selection | E | ⬜ | S | C-26 | DESIGN_PROPOSAL §12.4 |
-| C-39 | Smart paste — detect `NAME:` prefixes into speaker lines | E | ⬜ | M | C-20 | DESIGN_PROPOSAL §12.5 |
-| C-40 | Make `Cmd+K` selection-aware | S | ⬜ | S | C-38 | DESIGN_PROPOSAL §12.5 |
-| C-25 | Chords: transpose, trailing runs, instrumental lines | E | ⬜ | L | C-17 | DESIGN_PROPOSAL §4.4–4.5 |
-| C-26 | Unified right-click context menu | E | ⬜ | L | C-20, C-25 | DESIGN_PROPOSAL §10 |
-| C-27 | Hook Lab as a structured workspace | X | ⬜ | L | — | DESIGN_PROPOSAL §9 |
+C-02 made `tryReopenLastProject` correctly *keep* the file handle when the failure is
+`NotAllowedError` (permission lost) rather than clearing it — but nothing in the UI lets the
+writer act on that. Their only route back to their own file is `Open` and the picker again,
+which is exactly the friction the handle was preserved to avoid.
 
-**The editing-after-the-fact block (C-35 … C-40)** comes from a design review on 2026-08-29:
-Cyril has excellent entry and almost no editing. Take them in order — C-35 is small and uses the
-registry that already exists; C-36 is the differentiator. **Every one of them must be a single
-undo step** (see §12.6); that constraint is not optional and is the most likely source of
-data-loss-feeling bugs.
+Needs a shape decision before building: an inline banner above the editor, a modal on init, or a
+control in the top bar next to the save indicator. Recommend the banner — it is non-blocking and
+sits near the work.
 
-**Priority read:** C-20 (characters) is the headline differentiator — it is the reason a musical-
-theatre writer picks Cyril over MasterWriter, and it is currently only a CSS token with nothing
-behind it. C-22 (print) is the highest-value item this audience actually pays for. C-23 turns the
-abandoned word-data pipeline (C-08) into the thing that makes the right rail worth having.
+- Acceptance: with a stored handle in `prompt`/`denied` state, the app surfaces a re-grant
+  affordance; activating it calls `requestPermission` from the user gesture and, on success,
+  resumes normal saving without re-picking the file; declining leaves the project usable and the
+  save status honest.
 
-**Scope warnings:** C-27 expands v1 scope and requires `docs/product/SCOPE.md`,
-`docs/product/FEATURES.md`, and `docs/engineering/DATA_MODEL.md` to be updated in the same
-change. C-25 changes `ChordMarker.position` and needs a deliberate `docs/engineering/DATA_MODEL.md` edit. Do not
-start either without confirming with the maintainer.
 
----
+### C-31 · Stop `FEATURE_COVERAGE.md` conflicting on every merge — Lane X · Size S · ✅
 
-## P3 — Standing work
+The generated ledger is regenerated by every agent as part of its gates, so it conflicts on
+**every** merge and cherry-pick between branches. It has done so four times in one day. The only
+correct resolution is to regenerate it from the merged tree — never to pick a side — which is
+easy to get wrong under time pressure.
 
-### C-28 · Burn down the edge-case register — Lane X · Size ongoing · 🔵 §8 (persistence) done
+**Decided 2026-08-29:** the first option below. Keep it tracked, make CI the enforcement.
 
-`docs/engineering/EDGE_CASES.md` is an adversarial-QA list of ~70 hazards, prioritised
-🔴/🟠/🟡. It is not a task in itself: **when you build any item above, cover that item's
-neighbouring hazards as part of it.** Building chords (C-17, C-25) means covering §1 in full.
-Building persistence (C-01…C-07) means §8. Building the context menu (C-26) means §12.
+Two viable fixes, needs a call:
+- **Keep it tracked** (you can read the ledger on GitHub without running anything) and make CI
+  the real enforcement — fail the build when any criterion is `failing` or `no test` — so the
+  committed copy is a convenience, not the gate. Add `linguist-generated=true` in
+  `.gitattributes` so PR diffs collapse it.
+- **Untrack it** and publish it as a CI artifact instead. Cleaner history, but the ledger stops
+  being readable from the repo, which was part of the point.
 
-An item is not done while its adjacent 🔴 hazards are untested.
+Recommend the first. Either way `npm run coverage:features` stays the local check.
 
-**§8 (persistence) is done — and it earned its keep.** Working through it found two real bugs
-that the feature tests had missed: `saveProject` had no serialization, so a slow autosave could
-land after — and silently overwrite — a newer manual save while the UI reported "Saved"; and
-`IndexedDBToolCacheStore` rejected instead of degrading, so a word lookup crashed in private
-browsing. Both fixed with tests confirmed to fail against the old code (`T-1.32`, `T-1.35`).
-Remaining slices: §1 chords, §2 alternates, §3 line types, §4 concurrent blocks, §5 undo/redo,
-§6 paste/input, §7 prosody, §10 tools, §11 export, §12 UI/a11y.
+- Acceptance: a merge between two branches that both touched tests does not conflict on the
+  ledger, or the conflict is resolved automatically; CI fails when a criterion regresses.
 
----
+
+### C-34 · Close the three gaps that let a green suite ship broken features — Lane X · Size M · ⬜
+
+115 passing Playwright tests coexisted with an export that produced an empty document for an
+ordinary song. `docs/testing/TESTING.md` §"Catching the bugs this suite keeps missing" has the
+analysis and seven concrete harnesses. Do at least the first four, in order — they are cheap and
+they cover the classes that actually bit us:
+
+1. **Fail any e2e on a console error** (~10 lines, one shared fixture). Free crash detection
+   across all 115 existing tests.
+2. **Golden-file snapshots of generated output** — each print profile and the Markdown exporter.
+   Would have caught D-02 and D-11 the day they appeared.
+3. **Visual regression** via Playwright's own `toHaveScreenshot`, ~8 baselines at two widths.
+   The only thing that catches layout defects like D-07/D-08 without a human looking.
+4. **One "write a song" journey test** through the whole loop, typed with a delay.
+
+Then, when there is room: `@axe-core/playwright` gated at "no new violations", a concurrency
+harness for races, and `fast-check` property tests over the document transforms.
+
+- Acceptance: each of the four lands with CI running it; the golden files and screenshot
+  baselines are committed; the journey test exercises section → speaker → lyrics → prosody →
+  rhyme → collect → chord → draft switch → export, asserting the export contains the lyrics.
+
 
 ## Deliberately not doing
 

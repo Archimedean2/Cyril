@@ -117,26 +117,37 @@ const aheadBehind = gitLine('git rev-list --left-right --count @{u}...HEAD 2>/de
 
 // ---- Backlog ---------------------------------------------------------------
 let backlogSummary = '_BACKLOG.md not found_';
+let backlogNext = '—';
 const backlogPath = path.join(ROOT, 'BACKLOG.md');
 if (fs.existsSync(backlogPath)) {
   const bl = fs.readFileSync(backlogPath, 'utf8');
-  // Items appear either as table rows (`| C-01 | … |`) or as prose headings (`### C-08 · …`).
-  const all = new Set([
-    ...[...bl.matchAll(/^\|\s*(C-\d+)\s*\|/gm)].map((m) => m[1]),
-    ...[...bl.matchAll(/^#{2,4}\s*(C-\d+)\s*·/gm)].map((m) => m[1]),
-  ]);
-  const done = new Set([
-    ...[...bl.matchAll(/^\|\s*(C-\d+)\s*\|[^|]*\|[^|]*\|\s*✅/gm)].map((m) => m[1]),
-    ...[...bl.matchAll(/^#{2,4}\s*(C-\d+)\s*·.*✅/gm)].map((m) => m[1]),
-  ]);
-  const claimed = new Set([
-    ...[...bl.matchAll(/^\|\s*(C-\d+)\s*\|[^|]*\|[^|]*\|\s*🚧/gm)].map((m) => m[1]),
-    ...[...bl.matchAll(/^#{2,4}\s*(C-\d+)\s*·.*🚧/gm)].map((m) => m[1]),
-  ]);
+
+  // The queue is a table ordered by an explicit Pri column:
+  //   | 20 | C-41 | Item | Lane | ⬜ | Size | Deps | Spec |
+  // Priorities are spaced by ten so an item can be slid between two others without
+  // renumbering. This ordering — not the row order — is what "next up" means.
+  const queue = [...bl.matchAll(/^\|\s*(\d+)\s*\|\s*(C-\d+)\s*\|\s*(.+?)\s*\|[^|]*\|\s*(⬜|✅|🚧[^|]*)\s*\|/gm)]
+    .map((m) => ({ pri: Number(m[1]), id: m[2], title: m[3], status: m[4].trim() }))
+    .sort((a, b) => a.pri - b.pri);
+
+  const doneList = [...bl.matchAll(/^-\s+\*\*(C-\d+)\*\*/gm)].map((m) => m[1]);
+  const blocked = [...bl.matchAll(/^\|\s*(C-\d+)\s*\|[^|]*\|[^|]*\|[^|]*\|\s*(?:changes|expands)/gm)].map((m) => m[1]);
+
+  const claimed = queue.filter((q) => q.status.startsWith('🚧'));
+  const open = queue.filter((q) => q.status === '⬜');
+  const total = queue.length + doneList.length;
+
+  // Strip markdown emphasis so the table cell reads cleanly.
+  const plain = (s) => s.replace(/\*\*/g, '').replace(/`/g, '');
+  const nextUp = open.slice(0, 3).map((q) => `${q.id} (${q.pri}) ${plain(q.title)}`);
+
   backlogSummary =
-    `**${done.size} of ${all.size}** done` +
-    (claimed.size ? ` · ${claimed.size} in flight (${[...claimed].join(', ')})` : '') +
-    ` · next up **${[...all].sort().find((id) => !done.has(id) && !claimed.has(id)) ?? '—'}**`;
+    `**${doneList.length} of ${total}** done` +
+    (claimed.length ? ` · ${claimed.length} in flight (${claimed.map((c) => c.id).join(', ')})` : '') +
+    (blocked.length ? ` · ${blocked.length} blocked on you (${blocked.join(', ')})` : '');
+  backlogNext = nextUp.length
+    ? nextUp.map((n, i) => (i === 0 ? `**${n}**` : n)).join('<br>')
+    : '_queue empty_';
 }
 
 // ---- Compose ---------------------------------------------------------------
@@ -161,6 +172,7 @@ ${gates.map((g) => `| \`${g.cmd}\` | ${g.ok === null ? '⚪️' : mark(g.ok)} | 
 | Committed | ${lastCommitDate} |
 | Uncommitted files | ${dirtyCount === 0 ? 'none — clean tree' : `**${dirtyCount}** (\`git status\`)`} |
 | Backlog | ${backlogSummary} |
+| Next up | ${backlogNext} |
 ${END}`;
 
 if (checkOnly) {

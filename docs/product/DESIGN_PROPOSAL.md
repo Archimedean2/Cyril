@@ -556,3 +556,112 @@ one undo step.
 pressing `Cmd+Z` eight times to get back is what makes an editor feel untrustworthy.
 `docs/engineering/EDGE_CASES.md` §5 already flags structural atomicity and it is the most likely
 source of "it ate my work" feelings. No modals — these are inline operations on the page.
+
+
+---
+
+## 13. The lookup-and-collect loop
+
+_Added 2026-08-29. The right rail is built around "collect while you write", and today that loop
+is **broken at both ends**: the only way in is retyping a word into the search box (the ⌖
+"populate from selection" control is a stub that returns `null` — defect D-24), and there is no
+way out at all, because nothing in the Inventory can put a word back into the lyric._
+
+### 13.1 Getting in — double-click a word
+
+Double-click already means "select this word" in every text editor. Don't invent a gesture;
+react to that one. Double-clicking a word in the lyric queries the active tool with it.
+
+This is deliberately narrower than the auto-follow-selection sketched in §6.1. Following *any*
+selection hijacks the rail while the writer is merely editing — drag across three words to delete
+them and the rail lurches. A double-click is unambiguously intentional.
+
+Three details decide whether it feels good:
+
+- **Never steal focus.** The caret stays in the lyric; the rail updates beside it. This is the
+  difference between an instrument and a mode switch.
+- **Name what was looked up.** The rail header reads *rhymes for "left"*, so a changing list is
+  never mysterious.
+- **Give it a keyboard twin.** Caret inside a word plus a shortcut does the same thing. A
+  mouse-only feature breaks the writing flow it exists to serve.
+
+Acceptance criteria:
+- Double-clicking a word in the editor queries the active tool for that word and shows results;
+  the editor keeps focus and the caret does not move.
+- The rail states which word the results are for.
+- A keyboard shortcut performs the same lookup for the word under the caret.
+- A setting disables the behaviour; with it off, double-click only selects.
+- Double-clicking whitespace, punctuation, or a multi-word selection does not fire a lookup.
+- This replaces the inert ⌖ control (D-24), which is removed.
+
+### 13.2 Getting out — a chip puts the word in the lyric
+
+The missing half. Today words go into the Inventory and can only come back by retyping.
+
+- **Click a chip → insert it at the caret.**
+- **Drag a result or a chip into a line** for the "use it right now" path.
+- **Keyboard:** arrow through results, `Enter` collects, `Cmd/Ctrl+Enter` inserts at the caret.
+
+Acceptance criteria:
+- Clicking an Inventory chip inserts its text at the caret in the active draft and leaves the
+  caret after the inserted word; with no caret in a draft, the click is a no-op, not an error.
+- The insertion is a single undo step.
+
+### 13.3 Clicking a result should collect it, not copy it
+
+Today single-click copies to the clipboard and a separate `+ collect` adds to the Inventory.
+That is backwards. The clipboard holds **one** thing; a writer browsing forty rhymes wants to
+keep five. Clicking five words should leave five words in the list.
+
+Make **collect** the primary click. Copy becomes the secondary action — a hover icon or the
+context menu — because it is the rarer intent.
+
+Acceptance criteria: a single click adds the word to the active draft's Inventory with distinct
+feedback; copy remains reachable and still reports honestly when the clipboard refuses (D-22).
+
+### 13.4 The shopping-list mechanic — dim what you have used
+
+A collected word that appears in the draft is quietly dimmed or ticked. You gather ten
+candidates and watch them tick off as you spend them. It costs almost nothing and turns a flat
+list into something with a sense of progress.
+
+The same idea helps the results list: dim rhymes already in the draft or already collected, so
+the writer is scanning what is *new* rather than re-reading what they have handled.
+
+Acceptance criteria: an Inventory chip whose text appears in the active draft renders in a
+used state, and returns to normal if the word is removed from the draft; the state is derived,
+never stored.
+
+### 13.5 Emphasis by score — an absolute threshold, not a relative one
+
+`RhymeResultsList` currently bolds the top 30% *of whatever came back*. That is a relative
+threshold, so a weak result set still bolds a third of itself — including junk like *klepht* or
+*tefft*. Emphasis then means "best of a bad lot" rather than "good".
+
+Use an **absolute** score threshold: a word is emphasised because it is genuinely a strong
+match, not because of the company it keeps. A weak set correctly shows nothing bold.
+
+**Deliberately not filtering.** Low-scoring and obscure words stay in the list — a lyricist may
+want exactly the strange word. Prominence is the tool, not exclusion.
+
+Acceptance criteria: emphasis depends only on a result's own score against a fixed threshold;
+a result set where nothing clears the threshold renders with nothing emphasised; no result is
+hidden or removed on the basis of score.
+
+### 13.6 One word bank, three surfaces
+
+Cyril has three word-collection surfaces: **Inventory** (per draft), **Vocabulary World** (per
+project), and **Hook Lab** (per project, wants structure — §9). Inventory is chips; the other
+two are bare rich-text boxes.
+
+Build one word-bank component — chips, add field, click-to-insert, dim-when-used — and use it
+for Inventory and Vocabulary World, differing only in scope. Less code, and the app stops
+feeling like three unrelated panes.
+
+### 13.7 Teach the gesture in the empty state
+
+The Tools pane currently says *"Search for a word to see rhymes, synonyms, definitions, and
+related words"* — a description of a search box the writer can already see. Make it teach the
+thing they cannot see: *"Double-click any word in your lyric to look it up."*
+
+Empty states are the only documentation anyone reads.

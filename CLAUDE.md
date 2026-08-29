@@ -45,8 +45,10 @@ are in `DEFINITION_OF_DONE.md`.
 
 1. **`npm run status`** — confirm the tree is green before you touch anything.
 2. Read `STATUS.md` *Current focus* and the top of the session log.
-3. Take the lowest unclaimed item from `BACKLOG.md`. Claim it (`🚧 <you>`) and commit that
-   one-line change first, so a parallel agent doesn't duplicate your work.
+3. Take the **lowest-`Pri`** unclaimed item from the queue in `BACKLOG.md` — `npm run status`
+   prints the next three. Claim it (`🚧 <you>`) and commit that one-line change first, so a
+   parallel agent doesn't duplicate your work. Priorities are spaced by ten: to reorder, change
+   one number; to insert, use a gap. Never renumber the whole table.
 4. Read the item's linked spec. Find or write its `T-` acceptance criteria.
 5. Implement narrowly. Don't build future-item features early. Don't add schema fields unless
    `docs/engineering/DATA_MODEL.md` is updated intentionally.

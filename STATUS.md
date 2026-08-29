@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 15:23 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 15:45 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -22,17 +22,18 @@ _Last stamped: **2026-08-29 15:23 UTC** · regenerate with `npm run status`_
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
 | `npm test` | 🟢 | 479/479 tests, 82 files |
 | `npm run coverage:features` | 🟢 | 100.0% — 198 passing, 0 failing, 0 untested, 39 e2e-only |
-| `npm run test:e2e` | 🟢 | 124 passed |
+| `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 4 ahead) |
-| Last commit | Merge T3: journey test and visual regression suite (C-34) |
-| Committed | 2026-08-29 16:17:53 +0100 |
-| Uncommitted files | **8** (`git status`) |
-| Backlog | **24 of 34** done · next up **C-21** |
+| Branch | `feat/title-screen` |
+| Last commit | docs(D-24): log the inert 'populate from selection' control |
+| Committed | 2026-08-29 16:26:52 +0100 |
+| Uncommitted files | **3** (`git status`) |
+| Backlog | **25 of 45** done · 2 blocked on you (C-25, C-27) |
+| Next up | **C-32 (10) Track the lint config and the coverage script (main cannot run its own gates)**<br>C-41 (20) Double-click a word in the lyric to look it up<br>C-42 (30) Click an Inventory chip to insert it at the caret |
 <!-- END GENERATED -->
 
 ---
