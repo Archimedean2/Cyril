@@ -37,4 +37,5 @@ DESIGN_PROPOSAL §7): Lyric sheet, Chord sheet, Script / libretto, Annotated.
 | T-11.18 | Printing is independent of the editor's view toggles (`draftSettings`) — only `ExportSettings` governs output | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | EDGE_CASES §11 |
 
 ## Regression Requirements
-- Stages 0–10 must remain passing
+- Stages 0–10 must remain passing| T-11.19 | Lyrics written outside any section block still export (print, preview and markdown) | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | A new draft starts as bare `lyricLine` nodes, so this was the common case, not an edge case — such a draft previously exported as an empty document |
+| T-11.20 | An unheaded section invents no section heading in print or markdown | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | Previously printed a label reading "None" |

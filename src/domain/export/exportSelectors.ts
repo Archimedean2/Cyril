@@ -24,23 +24,48 @@ export function buildExportableDraft(
 ): ExportableDraft {
   const sections: ExportableSection[] = [];
 
-  // Process draft document content (should be section blocks)
   const content = draft.doc.content || [];
+
+  // Lines written outside any section block. A new draft starts as bare
+  // `lyricLine` nodes and a writer need never add a section header, so this
+  // is the *common* case — not an edge case. Before this was handled, such a
+  // draft exported and printed as an empty document.
+  let looseLines: ExportableLine[] = [];
+  const flushLooseLines = () => {
+    if (looseLines.length === 0) return;
+    sections.push({
+      id: `loose-${sections.length}`,
+      // No section header was written, so there is no type and no label to
+      // print — the renderer omits both and prints the lines on their own.
+      sectionType: 'none',
+      lines: looseLines,
+    });
+    looseLines = [];
+  };
 
   for (const node of content) {
     if (node.type === 'sectionBlock') {
+      // Anything written above this heading belongs before it, in order.
+      flushLooseLines();
       const section = processSectionBlock(node, options);
       if (section) {
         sections.push(section);
       }
     } else if (node.type === 'concurrentBlock') {
       // Top-level concurrent block — wrap as a synthetic section
+      flushLooseLines();
       const concLines = processConcurrentBlockNode(node, options);
       if (concLines.lines.length > 0 || concLines.concurrent) {
         sections.push(concLines);
       }
+    } else {
+      const line = processNode(node, options);
+      if (line) {
+        looseLines.push(line);
+      }
     }
   }
+  flushLooseLines();
 
   return {
     draftName: draft.name,
