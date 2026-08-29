@@ -45,6 +45,77 @@ function defaultConfirmOverwrite(fileName: string): boolean {
   );
 }
 
+// Per HARDENING_PERSISTENCE.md §H4 / BACKLOG C-05: Firefox and Safari (as of this writing)
+// don't implement the File System Access API at all — `showOpenFilePicker`/
+// `showSaveFilePicker` are simply undefined. Rather than throwing there, Open falls back to
+// a hidden `<input type="file">` and Save falls back to a Blob download. Neither fallback
+// path ever yields a `FileSystemFileHandle`, so `hasFileHandle()` stays permanently false in
+// this mode: autosave-to-disk is genuinely impossible here, which is exactly what the C-04
+// recovery snapshot and the C-06 'local-only' status are for.
+
+/** Whether this browser supports the File System Access API pickers Cyril otherwise uses. */
+export function isFileSystemAccessSupported(): boolean {
+  return 'showOpenFilePicker' in window && 'showSaveFilePicker' in window;
+}
+
+function suggestedFileName(title: string): string {
+  return `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'untitled'}.cyril`;
+}
+
+/**
+ * Fallback for `openProject` when `showOpenFilePicker` doesn't exist: a hidden
+ * `input[type=file]`. Resolves the picked `File`, or `null` if the user cancelled (best
+ * effort — not every browser fires a `cancel` event on this element, so a dismissed picker
+ * with no such event will simply never resolve, matching the "no throw, ever" contract
+ * rather than hanging the caller in an error state).
+ */
+function pickFileFallback(): Promise<File | null> {
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.cyril';
+    input.style.display = 'none';
+
+    const cleanup = () => {
+      input.removeEventListener('change', onChange);
+      input.removeEventListener('cancel', onCancel);
+      document.body.removeChild(input);
+    };
+    const onChange = () => {
+      const file = input.files?.[0] ?? null;
+      cleanup();
+      resolve(file);
+    };
+    const onCancel = () => {
+      cleanup();
+      resolve(null);
+    };
+
+    input.addEventListener('change', onChange);
+    input.addEventListener('cancel', onCancel);
+    document.body.appendChild(input);
+    input.click();
+  });
+}
+
+/**
+ * Fallback for `saveProject` when `showSaveFilePicker` doesn't exist: downloads `content` as
+ * a `.cyril` file via a throwaway `<a download>` link. There is no way to detect whether the
+ * user actually kept the download, and no handle results from it — Cyril treats the download
+ * itself as "handled" and leans on the recovery snapshot for real durability in this mode.
+ */
+function downloadCyrilFile(content: string, fileName: string): void {
+  const blob = new Blob([content], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = fileName;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
+
 const LAST_PROJECT_KEY = 'cyril-last-project-name';
 const HANDLE_DB_NAME = 'cyril-file-handles';
 const HANDLE_STORE_NAME = 'handles';
@@ -223,7 +294,14 @@ export async function regrantFilePermission(): Promise<CyrilFile | null> {
 export async function openProject(): Promise<CyrilFile | null> {
   try {
     if (!('showOpenFilePicker' in window)) {
-      throw new Error('File System Access API not supported in this browser.');
+      // HARDENING §H4 / C-05: no File System Access API — fall back to a hidden file
+      // input. There's no handle to keep here, so `hasFileHandle()` stays false and
+      // future saves fall back too (downloads); the caller's normal "corrupt/wrong file"
+      // handling below still applies to whatever comes back.
+      const file = await pickFileFallback();
+      if (!file) return null;
+      const contents = await file.text();
+      return deserializeProject(contents);
     }
 
     const [handle] = await window.showOpenFilePicker({
@@ -293,11 +371,19 @@ export async function saveProject(
     const isNewHandle = isSaveAs || !fileHandle;
     if (isNewHandle) {
       if (!('showSaveFilePicker' in window)) {
-        throw new Error('File System Access API not supported.');
+        // HARDENING §H4 / C-05: no File System Access API and no existing handle to reuse
+        // (a genuinely new save, or an explicit Save As) — fall back to downloading a
+        // fresh copy instead of throwing. There's no in-place file to overwrite and no
+        // handle results from this, so auto-save-to-disk stays impossible in this mode,
+        // which the C-04 recovery snapshot and C-06 'local-only' status already account
+        // for. (An *existing* handle, reached only via the API in the first place, never
+        // needs the picker itself to still exist just to keep writing through it.)
+        downloadCyrilFile(serializedData, suggestedFileName(fileContent.project.title));
+        return true;
       }
 
       fileHandle = await window.showSaveFilePicker({
-        suggestedName: `${fileContent.project.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'untitled'}.cyril`,
+        suggestedName: suggestedFileName(fileContent.project.title),
         types: [
           {
             description: 'Cyril Project File',

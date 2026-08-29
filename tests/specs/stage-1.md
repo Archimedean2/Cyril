@@ -39,6 +39,7 @@ Project CRUD and local persistence.
 | T-1.29 | No file handle + edits pending → status never reads 'saved'/clean 'idle'; reports honest 'local-only' | integration | `tests/integration/persistence/save-status-honesty.test.tsx` | [x] | [x] | HARDENING §H7 (C-06) |
 | T-1.28 | A changed lastModified triggers the overwrite warning; autosave never clobbers, it fails | unit, integration | `tests/unit/persistence/fileManager.test.ts`, `tests/integration/persistence/external-change-guard.test.ts`, `tests/integration/persistence/save-cancel-vs-error.test.ts` | [x] | [x] | HARDENING §H6 (C-07) |
 | T-1.31 | A stored handle that lost permission surfaces an inline re-grant banner; reconnecting resumes saving with no re-pick; declining leaves the project usable | unit, integration | `tests/unit/persistence/permission-regrant.test.ts`, `tests/integration/persistence/permission-regrant-store.test.ts`, `tests/integration/persistence/permission-banner.test.tsx` | [x] | [x] | BACKLOG C-29 (no HARDENING §, ID minted here — none was assigned) |
+| T-1.25 | With pickers undefined, Save produces a download Blob and Open reads a File; no throw | unit | `tests/unit/persistence/file-system-fallback.test.ts` | [x] | [x] | HARDENING §H4 (C-05) |
 
 ## Regression Requirements
 - Stage 0 tests must remain passing
