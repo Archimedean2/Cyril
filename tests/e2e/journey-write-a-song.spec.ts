@@ -95,7 +95,7 @@ test('T-15.10: write a song — section, speaker, lyrics, display toggles, tools
   await expect(toolsResults).toHaveCount(3);
 
   // ── 9. Collect a result -> it appears as an Inventory chip ────────────────────────
-  await page.getByTestId('tools-collect-button').first().click();
+  await page.getByTestId('tools-result-item').first().click();
   const inventoryChip = page.getByTestId('inventory-chip');
   await expect(inventoryChip).toHaveCount(1);
   await expect(inventoryChip.first()).toContainText('night');

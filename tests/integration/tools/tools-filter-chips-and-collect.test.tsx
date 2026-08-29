@@ -169,7 +169,7 @@ describe('Tools pane — filter chips, honest states, and collect (C-14)', () =>
     });
   });
 
-  it('T-14.17: clicking "+ collect" adds the word to the active draft Inventory and persists it', async () => {
+  it('T-14.17: clicking a result (primary click) adds the word to the active draft Inventory and persists it', async () => {
     const draftId = setUpProject(['Existing item']);
 
     const mockLookup = vi.fn().mockResolvedValue({
@@ -186,7 +186,7 @@ describe('Tools pane — filter chips, honest states, and collect (C-14)', () =>
 
     await waitFor(() => expect(screen.getByText('sparkle')).toBeInTheDocument());
 
-    fireEvent.click(screen.getByTestId('tools-collect-button'));
+    fireEvent.click(screen.getByTestId('tools-result-item'));
 
     const draft = useProjectStore.getState()
       .currentProject!.project.drafts.find((d) => d.id === draftId)!;
@@ -194,7 +194,7 @@ describe('Tools pane — filter chips, honest states, and collect (C-14)', () =>
     expect(texts).toEqual(['Existing item', 'sparkle']);
   });
 
-  it('T-14.17: collecting gives feedback distinguishable from the copy feedback', async () => {
+  it('T-14.20: collecting (primary click) gives feedback distinguishable from the secondary copy feedback (C-43)', async () => {
     setUpProject([]);
 
     const mockLookup = vi.fn().mockResolvedValue({
@@ -216,18 +216,46 @@ describe('Tools pane — filter chips, honest states, and collect (C-14)', () =>
     fireEvent.click(screen.getByTestId('tools-search-button'));
     await waitFor(() => expect(screen.getByText('sparkle')).toBeInTheDocument());
 
-    // Single click -> copy feedback. The clipboard write is genuinely async, and the
-    // feedback now waits for it so it can tell the truth (D-22), hence waitFor.
+    // Single click on the result -> primary action: "Collected" feedback, synchronous.
     fireEvent.click(screen.getByTestId('tools-result-item'));
-    await waitFor(() =>
-      expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/^copied$/i),
-    );
-
-    // + collect button -> distinct "collected" feedback
-    fireEvent.click(screen.getByTestId('tools-collect-button'));
     await waitFor(() =>
       expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/collected/i),
     );
+
+    // Secondary copy control -> distinct "Copied" feedback. The clipboard write is
+    // genuinely async, and the feedback waits for it so it can tell the truth (D-22).
+    fireEvent.click(screen.getByTestId('tools-copy-button'));
+    await waitFor(() =>
+      expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/^copied$/i),
+    );
+  });
+
+  it('T-14.20: a single click never touches the clipboard — copy only fires from the secondary control (C-43)', async () => {
+    setUpProject([]);
+
+    const mockLookup = vi.fn().mockResolvedValue({
+      term: 'star', mode: 'thesaurus', results: [{ word: 'sparkle', score: 700 }], loading: false, source: 'live',
+    });
+    (cachedToolLookupService.lookup as any) = mockLookup;
+
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+      writable: true,
+    });
+
+    render(<ToolsPane />);
+    fireEvent.click(screen.getByTestId('tools-tab-thesaurus'));
+    fireEvent.change(screen.getByTestId('tools-search-input'), { target: { value: 'star' } });
+    fireEvent.click(screen.getByTestId('tools-search-button'));
+    await waitFor(() => expect(screen.getByText('sparkle')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByTestId('tools-result-item'));
+    await waitFor(() =>
+      expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/collected/i),
+    );
+    expect(writeText).not.toHaveBeenCalled();
   });
 
   it('T-14.18: a refused clipboard says so instead of claiming "Copied" (D-22)', async () => {
@@ -254,7 +282,8 @@ describe('Tools pane — filter chips, honest states, and collect (C-14)', () =>
     fireEvent.click(screen.getByTestId('tools-search-button'));
     await waitFor(() => expect(screen.getByText('sparkle')).toBeInTheDocument());
 
-    fireEvent.click(screen.getByTestId('tools-result-item'));
+    // Copy is now the secondary control (C-43 made click-to-collect primary).
+    fireEvent.click(screen.getByTestId('tools-copy-button'));
 
     await waitFor(() =>
       expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/couldn't copy/i),

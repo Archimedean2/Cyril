@@ -477,6 +477,18 @@ button {
   white-space: nowrap;
 }
 
+/* C-44 / DESIGN_PROPOSAL.md §13.4: "used" is derived (never stored) from whether the
+ * chip's word currently appears in the active draft — quietly dimmed, not hidden. */
+.inventory-chip-used {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.inventory-chip-used .inventory-chip-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-faint);
+}
+
 .inventory-chip-remove {
   display: inline-flex;
   align-items: center;
@@ -607,6 +619,16 @@ button {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+/* C-44 / DESIGN_PROPOSAL.md §13.4: dim results already in the draft or already
+ * collected, so the writer scans what is new. Derived, never stored. */
+.tools-result-item-used {
+  opacity: 0.5;
+}
+
+.rhyme-word-used {
+  opacity: 0.45;
+}
+
 .tools-result-row {
   display: flex;
   align-items: baseline;
@@ -614,7 +636,7 @@ button {
   gap: var(--space-2);
 }
 
-.tools-collect-button {
+.tools-copy-button {
   flex-shrink: 0;
   height: 20px;
   padding: 0 var(--space-1);
@@ -628,18 +650,18 @@ button {
   transition: opacity 0.1s ease;
 }
 
-.tools-result-item:hover .tools-collect-button,
-.tools-collect-button:focus-visible {
+.tools-result-item:hover .tools-copy-button,
+.tools-copy-button:focus-visible {
   opacity: 1;
 }
 
-.tools-collect-button:hover {
+.tools-copy-button:hover {
   border-color: var(--border-default);
   background: var(--bg-hover);
   color: var(--accent-strong);
 }
 
-.tools-collect-button:focus-visible {
+.tools-copy-button:focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 1px;
 }
@@ -650,33 +672,32 @@ button {
   position: relative;
 }
 
-.rhyme-collect-btn {
-  width: 14px;
+.rhyme-copy-btn {
   height: 14px;
-  margin-left: 1px;
-  padding: 0;
+  margin-left: 2px;
+  padding: 0 3px;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--text-faint);
-  font-size: 11px;
-  line-height: 1;
+  font-size: 9px;
+  line-height: 14px;
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.1s ease;
 }
 
-.rhyme-word-wrap:hover .rhyme-collect-btn,
-.rhyme-collect-btn:focus-visible {
+.rhyme-word-wrap:hover .rhyme-copy-btn,
+.rhyme-copy-btn:focus-visible {
   opacity: 1;
 }
 
-.rhyme-collect-btn:hover {
+.rhyme-copy-btn:hover {
   color: var(--accent-strong);
   background: var(--bg-hover);
 }
 
-.rhyme-collect-btn:focus-visible {
+.rhyme-copy-btn:focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 1px;
 }

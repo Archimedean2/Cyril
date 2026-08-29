@@ -4,6 +4,7 @@ import { cachedToolLookupService } from '../../domain/tools/tool-service';
 import { RhymeFilter, rhymeFilterToMode, applyRhymeFilter } from '../../domain/tools/rhymeFilter';
 import { useProjectStore } from '../../app/state/projectStore';
 import { inventoryDocToItems, itemsToInventoryDoc } from '../inventory/inventoryDoc';
+import { extractDraftPlainText, tokenizeWords, isPhraseUsedInDraft } from '../../domain/tools/draftWordUsage';
 import { ToolsModeTabs } from './ToolsModeTabs';
 import { ToolsFilterChips } from './ToolsFilterChips';
 import { ToolsSearchInput } from './ToolsSearchInput';
@@ -136,6 +137,27 @@ export function ToolsPane({ getSelectedText }: ToolsPaneProps) {
     updateDraftInventory(activeView.draftId, itemsToInventoryDoc([...items, word]));
   }, [currentProject, activeView, updateDraftInventory]);
 
+  // C-44 / DESIGN_PROPOSAL.md §13.4: dim rhymes/results already in the draft or
+  // already collected, so the writer scans what is new. DERIVED from the store on
+  // every render — never stored — so it stays correct as the writer edits or collects.
+  const draftWords = useMemo(() => {
+    if (!currentProject || activeView.type !== 'draft') return [];
+    const draft = currentProject.project.drafts.find((d) => d.id === activeView.draftId);
+    return draft ? tokenizeWords(extractDraftPlainText(draft.doc)) : [];
+  }, [currentProject, activeView]);
+
+  const collectedItems = useMemo(() => {
+    if (!currentProject || activeView.type !== 'draft') return [];
+    const draft = currentProject.project.drafts.find((d) => d.id === activeView.draftId);
+    return draft ? inventoryDocToItems(draft.inventory.doc) : [];
+  }, [currentProject, activeView]);
+
+  const isResultUsed = useCallback((word: string): boolean => {
+    if (isPhraseUsedInDraft(word, draftWords)) return true;
+    const normalized = word.trim().toLowerCase();
+    return collectedItems.some((item) => item.trim().toLowerCase() === normalized);
+  }, [draftWords, collectedItems]);
+
   // Handle populate from selection
   const handlePopulateFromSelection = useCallback(() => {
     if (getSelectedText) {
@@ -185,6 +207,7 @@ export function ToolsPane({ getSelectedText }: ToolsPaneProps) {
         response={filteredResponse}
         onCopyResult={handleCopyResult}
         onCollectResult={handleCollectResult}
+        isResultUsed={isResultUsed}
       />
     </div>
   );

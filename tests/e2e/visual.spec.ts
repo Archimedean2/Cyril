@@ -130,7 +130,7 @@ test.describe('Visual regression (C-34)', () => {
     await page.getByTestId('tools-search-input').fill('night');
     await page.getByTestId('tools-search-button').click();
     await expect(page.getByTestId('tools-result-item').first()).toBeVisible();
-    await page.getByTestId('tools-collect-button').first().click();
+    await page.getByTestId('tools-result-item').first().click();
     await expect(page.getByTestId('inventory-chip').first()).toBeVisible();
     await blurEditor(page);
     await settle(page);
