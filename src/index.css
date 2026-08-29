@@ -558,6 +558,150 @@ button {
   outline-offset: 1px;
 }
 
+/* Tools pane — filter chips, honest states, collect affordance (C-14) */
+.tools-filter-chips {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-2) 0;
+}
+
+.tools-filter-chip {
+  height: 22px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tools-filter-chip:hover {
+  background: var(--bg-hover);
+}
+
+.tools-filter-chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent-primary);
+  color: var(--accent-strong);
+}
+
+.tools-filter-chip:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+.tools-results-offline {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.tools-results-cache-note {
+  padding: var(--space-1) var(--space-3);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tools-result-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.tools-collect-button {
+  flex-shrink: 0;
+  height: 20px;
+  padding: 0 var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.tools-result-item:hover .tools-collect-button,
+.tools-collect-button:focus-visible {
+  opacity: 1;
+}
+
+.tools-collect-button:hover {
+  border-color: var(--border-default);
+  background: var(--bg-hover);
+  color: var(--accent-strong);
+}
+
+.tools-collect-button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+.rhyme-word-wrap {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.rhyme-collect-btn {
+  width: 14px;
+  height: 14px;
+  margin-left: 1px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.rhyme-word-wrap:hover .rhyme-collect-btn,
+.rhyme-collect-btn:focus-visible {
+  opacity: 1;
+}
+
+.rhyme-collect-btn:hover {
+  color: var(--accent-strong);
+  background: var(--bg-hover);
+}
+
+.rhyme-collect-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+.tools-result-feedback {
+  position: absolute;
+  top: -18px;
+  right: 0;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tools-result-item .tools-result-feedback {
+  position: static;
+  display: inline-block;
+  margin-top: 2px;
+}
+
 /* Navigation */
 .nav-list {
   display: flex;

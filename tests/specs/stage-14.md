@@ -17,6 +17,7 @@ click-to-edit identity in the top bar.
 - `tests/integration/ui/qol-editor-page.test.tsx`
 - `tests/integration/ui/qol-view-toggles-grouped.test.tsx`
 - `tests/integration/inventory/inventory-chips.test.tsx`
+- `tests/integration/tools/tools-filter-chips-and-collect.test.tsx`
 
 ## Checklist
 
@@ -35,3 +36,7 @@ click-to-edit identity in the top bar.
 | T-14.11 | Removing an Inventory chip persists the removal to the draft inventory | integration | `tests/integration/inventory/inventory-chips.test.tsx` | [ ] | [ ] | C-11 |
 | T-14.12 | An empty Inventory shows an inviting, sentence-case, verb-first empty state | integration | `tests/integration/inventory/inventory-chips.test.tsx` | [ ] | [ ] | C-11 |
 | T-14.13 | Existing multi-line legacy Inventory text loads with its content intact as chips | integration | `tests/integration/inventory/inventory-chips.test.tsx` | [ ] | [ ] | C-11 |
+| T-14.14 | Rhyme filter chips (Perfect/Close/Wide) are wired to the existing rhyme-exact/rhyme-near modes (no new mode/provider); switching a chip changes the queried mode and, for Close, narrows the near-rhyme result set | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
+| T-14.15 | A failed or hung provider lookup shows an honest offline state instead of an endless spinner | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
+| T-14.16 | Results sourced from the tool cache surface a cache/offline note | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
+| T-14.17 | A visible "+ collect" affordance adds a result to the active draft's Inventory and persists it, with feedback distinguishable from the existing click-to-copy gesture | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
