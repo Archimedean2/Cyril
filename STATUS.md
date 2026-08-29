@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 15:47 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 16:00 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -22,18 +22,18 @@ _Last stamped: **2026-08-29 15:47 UTC** · regenerate with `npm run status`_
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
 | `npm test` | 🟢 | 479/479 tests, 82 files |
 | `npm run coverage:features` | 🟢 | 100.0% — 198 passing, 0 failing, 0 untested, 39 e2e-only |
-| `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
+| `npm run test:e2e` | 🟢 | 124 passed |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` |
-| Last commit | docs: priority-ordered queue, and spec the lookup-and-collect loop (§13) |
-| Committed | 2026-08-29 16:46:02 +0100 |
+| Branch | `feat/title-screen` (0 behind / 2 ahead) |
+| Last commit | Merge F1: fold printProfile into ExportSettings (C-32) |
+| Committed | 2026-08-29 16:58:32 +0100 |
 | Uncommitted files | none — clean tree |
-| Backlog | **25 of 45** done · 2 blocked on you (C-25, C-27) |
-| Next up | **C-32 (10) Track the lint config and the coverage script (main cannot run its own gates)**<br>C-41 (20) Double-click a word in the lyric to look it up<br>C-42 (30) Click an Inventory chip to insert it at the caret |
+| Backlog | **25 of 46** done · 7 in flight (C-32, C-48, C-45, C-35, C-36, C-43, C-44) · 2 blocked on you (C-25, C-27) |
+| Next up | **C-41 (20) Double-click a word in the lyric to look it up**<br>C-42 (30) Click an Inventory chip to insert it at the caret<br>C-47 (90) Empty states teach the double-click gesture |
 <!-- END GENERATED -->
 
 ---
