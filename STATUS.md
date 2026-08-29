@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 09:20 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 09:42 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,19 +20,19 @@ _Last stamped: **2026-08-29 09:20 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 397/397 tests, 73 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 168 passing, 0 failing, 0 untested, 36 e2e-only |
+| `npm test` | 🟢 | 405/405 tests, 74 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 172 passing, 0 failing, 0 untested, 36 e2e-only |
 | `npm run test:e2e` | 🟢 | 113 passed |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 12 ahead) |
-| Last commit | chore: regenerate ledger from the merged tree |
-| Committed | 2026-08-29 10:20:06 +0100 |
+| Branch | `feat/title-screen` (0 behind / 3 ahead) |
+| Last commit | Merge lane X: ledger CI enforcement (C-31) and persistence hazard coverage (C-28 §8) |
+| Committed | 2026-08-29 10:40:28 +0100 |
 | Uncommitted files | none — clean tree |
-| Backlog | **13 of 30** done · 7 in flight (C-05, C-29, C-06, C-07, C-10, C-13, C-19) · next up **C-20** |
+| Backlog | **21 of 31** done · 4 in flight (C-20, C-22, C-31, C-28) · next up **C-21** |
 <!-- END GENERATED -->
 
 ---
