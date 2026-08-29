@@ -5,6 +5,7 @@ export type RhymeColorMode = 'off' | 'manual';
 export type ExportFontPreset = 'default';
 export type PageDensity = 'normal' | 'compact';
 export type PreferredExportMode = 'lyricsOnly' | 'lyricsWithChords';
+export type PrintProfileId = 'lyricSheet' | 'chordSheet' | 'libretto' | 'annotated';
 export type ChordAnchorType = 'char';
 export type ChordBias = 'before' | 'on' | 'after';
 
@@ -207,6 +208,7 @@ export interface ExportSettings {
   fontPreset: ExportFontPreset;
   pageDensity: PageDensity;
   concurrentLayout: ConcurrentLayout;
+  printProfile?: PrintProfileId;
 }
 
 export interface ProjectSettings {

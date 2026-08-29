@@ -2,19 +2,11 @@
  * Export domain types and constants
  */
 
-import type { ExportSettings } from '../project/types';
+import type { ExportSettings, PrintProfileId } from '../project/types';
 
 export type ExportTarget = 'markdown' | 'print';
-
-/**
- * Named print profiles (C-22 / DESIGN_PROPOSAL §7). Each profile is a
- * distinct, named print layout the user picks from the Export/Print dialog.
- * The profile determines the *fixed* inclusion rules that make each output
- * visibly different from the others; `includeSectionLabels` is the one knob
- * every profile still lets the user adjust (see `resolvePrintOptions` in
- * `printProfiles.ts`).
- */
-export type PrintProfileId = 'lyricSheet' | 'chordSheet' | 'libretto' | 'annotated';
+// Re-export PrintProfileId so callers don't need to know it lives in types.ts
+export type { PrintProfileId };
 
 export interface PrintProfileDefinition {
   id: PrintProfileId;
@@ -46,18 +38,6 @@ export const PRINT_PROFILES: PrintProfileDefinition[] = [
 ];
 
 export const DEFAULT_PRINT_PROFILE: PrintProfileId = 'lyricSheet';
-
-/**
- * Extend the project's persisted ExportSettings with the chosen print
- * profile. `ExportSettingsSchema` in `src/domain/project/validation.ts` is
- * declared with `.passthrough()`, so this field round-trips through
- * save/load without needing changes there. See DATA_MODEL.md § ExportSettings.
- */
-declare module '../project/types' {
-  interface ExportSettings {
-    printProfile?: PrintProfileId;
-  }
-}
 
 /**
  * Resolve the project's stored print profile, falling back to the default
