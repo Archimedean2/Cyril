@@ -11,6 +11,7 @@ Focus mode, empty draft placeholder, error boundary coverage, draft-switching ke
 - `tests/integration/ui/error-boundary-coverage.test.tsx`
 - `tests/integration/ui/draft-switching-shortcuts.test.tsx`
 - `tests/integration/ui/command-menu.test.tsx`
+- `tests/e2e/journey-write-a-song.spec.ts`
 
 ## Checklist
 
@@ -25,6 +26,7 @@ Focus mode, empty draft placeholder, error boundary coverage, draft-switching ke
 | T-15.07 | Cmd+] switches to the next draft | integration | `tests/integration/ui/draft-switching-shortcuts.test.tsx` | [x] | [x] | |
 | T-15.08 | Cmd+K opens the command menu | integration | `tests/integration/ui/command-menu.test.tsx` | [x] | [x] | |
 | T-15.09 | Command menu lists available keyboard shortcuts and closes on Escape | integration | `tests/integration/ui/command-menu.test.tsx` | [x] | [x] | |
+| T-15.10 | End-to-end "write a song" journey: section → speaker → lyric lines → syllables → stress marks → tools search (mocked) → collect → chords → draft switch (no bleed) → print preview contains the lyrics | e2e | `tests/e2e/journey-write-a-song.spec.ts` | [x] | [x] | Exercises the transitions between features per docs/testing/TESTING.md §"Catching the bugs this suite keeps missing" |
 
 ## Regression Requirements
 - Stages 0–14 must remain passing
