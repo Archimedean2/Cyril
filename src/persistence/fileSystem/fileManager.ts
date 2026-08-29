@@ -7,6 +7,38 @@ import { serializeProject, deserializeProject } from '../serializers/projectSeri
 
 let fileHandle: FileSystemFileHandle | null = null;
 
+// Per HARDENING_PERSISTENCE.md §H6 / C-07: the `lastModified` of `fileHandle`'s underlying
+// file as of the last time Cyril read or wrote it. `null` means "no baseline to compare
+// against" (no handle yet, or a handle just picked via Open/Save As). Used by `saveProject`
+// to detect a file that changed on disk outside Cyril since it was last read, so a manual
+// overwrite can warn instead of silently clobbering it.
+let lastKnownModified: number | null = null;
+
+/**
+ * Thrown when `saveProject` detects the target file changed on disk since Cyril last read
+ * or wrote it, and — given a user gesture to ask with — the user declined to overwrite it
+ * anyway. Callers should treat this like a cancelled save (no error to surface), not a
+ * genuine failure.
+ */
+export class ExternalChangeCancelledError extends Error {
+  constructor() {
+    super('Save cancelled: the file changed outside Cyril and the user chose not to overwrite it.');
+    this.name = 'ExternalChangeCancelledError';
+  }
+}
+
+/**
+ * Default `confirmOverwrite` for `SaveProjectOptions`: a plain `window.confirm`. Exposed as
+ * an option so tests (and, if needed, a nicer in-app dialog later) can override it without
+ * stubbing the global.
+ */
+function defaultConfirmOverwrite(fileName: string): boolean {
+  if (typeof window === 'undefined' || typeof window.confirm !== 'function') return false;
+  return window.confirm(
+    `"${fileName}" changed outside Cyril since it was last opened here. Overwrite it with what's in Cyril now?`
+  );
+}
+
 const LAST_PROJECT_KEY = 'cyril-last-project-name';
 const HANDLE_DB_NAME = 'cyril-file-handles';
 const HANDLE_STORE_NAME = 'handles';
@@ -113,6 +145,7 @@ export async function tryReopenLastProject(): Promise<CyrilFile | null> {
     const contents = await file.text();
     const project = deserializeProject(contents);
     fileHandle = storedHandle;
+    lastKnownModified = file.lastModified ?? null;
     return project;
   } catch {
     // Content is corrupt/truncated/wrong-schema (or a newer, unsupported schema) — the
@@ -147,6 +180,7 @@ export async function openProject(): Promise<CyrilFile | null> {
     localStorage.setItem(LAST_PROJECT_KEY, handle.name);
     await storeFileHandle(handle);
     const file = await handle.getFile();
+    lastKnownModified = file.lastModified ?? null;
     const contents = await file.text();
     return deserializeProject(contents);
   } catch (error) {
@@ -167,23 +201,35 @@ export function getLastProjectName(): string | null {
   return localStorage.getItem(LAST_PROJECT_KEY);
 }
 
+/**
+ * Saves `fileContent` to disk.
+ *
+ * Resolves `true` if the write actually happened, `false` if the save was cancelled
+ * without error (the user dismissed the Save/Save As picker, or — per HARDENING §H6 / C-07
+ * — declined to overwrite a file that changed outside Cyril). Rejects for genuine failures
+ * (permission denied, an autosave that detected an external change with no gesture to ask
+ * with, disk errors, etc.) so callers can tell "nothing happened, on purpose" apart from
+ * "this failed".
+ */
 export async function saveProject(
   fileContent: CyrilFile,
   isSaveAs: boolean = false,
   options?: SaveProjectOptions
-): Promise<void> {
+): Promise<boolean> {
   const allowPermissionPrompt = options?.allowPermissionPrompt ?? true;
+  const confirmOverwrite = options?.confirmOverwrite ?? defaultConfirmOverwrite;
   try {
     // Refresh updated timestamp
     fileContent.project.updatedAt = new Date().toISOString();
 
     const serializedData = serializeProject(fileContent);
 
-    if (isSaveAs || !fileHandle) {
+    const isNewHandle = isSaveAs || !fileHandle;
+    if (isNewHandle) {
       if (!('showSaveFilePicker' in window)) {
         throw new Error('File System Access API not supported.');
       }
-      
+
       fileHandle = await window.showSaveFilePicker({
         suggestedName: `${fileContent.project.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'untitled'}.cyril`,
         types: [
@@ -195,18 +241,52 @@ export async function saveProject(
       });
       localStorage.setItem(LAST_PROJECT_KEY, fileHandle.name);
       await storeFileHandle(fileHandle);
+      // A freshly picked handle has no baseline to compare against yet.
+      lastKnownModified = null;
     }
 
     await ensureWritePermission(fileHandle!, allowPermissionPrompt);
 
+    // HARDENING §H6 / C-07: if we have a baseline `lastModified` for this file (i.e. it
+    // wasn't just picked above) and the file on disk has changed since, something outside
+    // Cyril touched it — writing now would silently clobber that change.
+    if (!isNewHandle && lastKnownModified !== null) {
+      const currentFile = await fileHandle!.getFile();
+      if (currentFile.lastModified !== lastKnownModified) {
+        if (!allowPermissionPrompt) {
+          // Autosave: no user gesture available to ask with. Never silently overwrite —
+          // fail loudly so the caller (autosave.ts) surfaces status 'error'.
+          throw new Error(
+            `"${fileHandle!.name}" changed outside Cyril since it was last read. Autosave will not overwrite it.`
+          );
+        }
+        const proceed = await confirmOverwrite(fileHandle!.name);
+        if (!proceed) {
+          throw new ExternalChangeCancelledError();
+        }
+      }
+    }
+
     const writable = await fileHandle!.createWritable();
     await writable.write(serializedData);
     await writable.close();
+
+    // Refresh the baseline to the file we just wrote, so the *next* save compares against
+    // what Cyril itself just put on disk, not the pre-write state.
+    const writtenFile = await fileHandle!.getFile();
+    lastKnownModified = writtenFile.lastModified ?? null;
+    return true;
   } catch (error) {
-    if (!(error instanceof DOMException) || error.name !== 'AbortError') {
-      const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to save project: ${message}`);
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      // User cancelled the Save/Save As picker.
+      return false;
     }
+    if (error instanceof ExternalChangeCancelledError) {
+      // User declined to overwrite a file that changed outside Cyril.
+      return false;
+    }
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to save project: ${message}`);
   }
 }
 
@@ -238,6 +318,14 @@ export interface SaveProjectOptions {
    * user gesture). Defaults to `true` for manual Save/Save As. Autosave must pass `false`.
    */
   allowPermissionPrompt?: boolean;
+  /**
+   * Invoked when `saveProject` detects the target file changed on disk outside Cyril since
+   * it was last read (HARDENING §H6 / C-07). Return (or resolve) `true` to overwrite it
+   * anyway, `false` to cancel. Only ever called when a user gesture is available (manual
+   * Save/Save As — `allowPermissionPrompt: true`); autosave never calls this, it fails
+   * instead. Defaults to a plain `window.confirm`; override for tests or a nicer dialog.
+   */
+  confirmOverwrite?: (fileName: string) => boolean | Promise<boolean>;
 }
 
 export function hasFileHandle(): boolean {
@@ -247,6 +335,7 @@ export function hasFileHandle(): boolean {
 export function createNewProject(title?: string, keepHandle = false): CyrilFile {
   if (!keepHandle) {
     fileHandle = null; // Clear old handle
+    lastKnownModified = null;
     localStorage.removeItem(LAST_PROJECT_KEY);
   }
   const project = createDefaultProject(title);
@@ -255,7 +344,8 @@ export function createNewProject(title?: string, keepHandle = false): CyrilFile 
 
 export function duplicateProject(existingFile: CyrilFile, newTitle: string): CyrilFile {
   fileHandle = null; // Treat as a new unsaved file
-  
+  lastKnownModified = null;
+
   const newProject: CyrilProject = {
     ...existingFile.project,
     id: generateId('proj'),
