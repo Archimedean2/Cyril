@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 /**
  * Stage 13 — Concurrent Speakers e2e tests (T-13.15)

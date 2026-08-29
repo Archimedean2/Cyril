@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Stage 7: Tools Sidebar', () => {
   test.beforeEach(async ({ page }) => {

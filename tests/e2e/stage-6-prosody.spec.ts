@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Stage 6: Prosody and Syllable Counts', () => {
   test.beforeEach(async ({ page }) => {
