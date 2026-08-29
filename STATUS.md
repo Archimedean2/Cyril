@@ -43,15 +43,14 @@ _Last stamped: **2026-08-29 09:56 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** three agents — C-20 (character registry, the headline differentiator), C-22
-(print profiles), C-31 + C-28 (ledger conflict fix and the persistence edge-case slice).
+**Working on:** one agent left — C-20 (character registry). Everything else this round is
+merged and shipped as PRs.
 
-**Last verified state:** the whole P0 persistence block is complete (H1–H7 + C-29 + C-30).
-Integration branch green: 397 tests, 168/168 non-e2e criteria, e2e 113/113. Nine PRs open.
+**Last verified state:** integration branch green — 428 tests, 184/184 non-e2e criteria,
+e2e 114/114. Eleven PRs open (#4-#14).
 
-**Blocked on:** two items need the maintainer and were deliberately NOT started — **C-25**
-(chord transpose / trailing chords: changes `ChordMarker.position` in the file format) and
-**C-27** (Hook Lab: expands v1 scope). Both say so in `BACKLOG.md`.
+**Blocked on:** C-25 and C-27 need the maintainer (file-format change / scope expansion).
+**Read C-32 first** — the lint config and the coverage script were never committed to `main`.
 
 ## Decisions taken unsupervised (2026-08-29) — review these
 
@@ -71,7 +70,11 @@ judgement calls made in their absence, each one reversible:
 5. **CI fails if a tracked file exceeds 5 MB.** Added after a near-miss: a `git add -A` on a
    branch cut before the current `.gitignore` staged the 486 MB ConceptNet dump and GitHub's
    hook rejected the push. The smaller 9 MB and 24 MB indexes would not have been rejected.
-6. **Order of work: finished the P0 persistence block before visual polish**, on the maintainer's
+6. **Print profiles are based on PR #4, not `main`** (C-32). `main` cannot run `npm run lint`
+   or `npm run coverage:features` at all — neither `.eslintrc.cjs` nor
+   `scripts/feature-coverage.mjs` is tracked. Basing the branch on the tooling PR was the only
+   way to verify it honestly.
+7. **Order of work: finished the P0 persistence block before visual polish**, on the maintainer's
    own stated priority that data safety outranks look and feel.
 
 ---
