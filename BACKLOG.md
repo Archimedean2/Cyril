@@ -62,10 +62,10 @@ unit tests. C-05, C-06 and C-07 remain.
 | C-02 | Validate on load; handle corrupt + newer-schema files | P | ✅ | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
 | C-03 | `beforeunload` guard when dirty | P | ✅ | S | — | HARDENING §H3 | `T-1.24` |
 | C-04 | **IndexedDB recovery snapshot** — the durability win | P | ✅ | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
-| C-05 | Download/upload fallback when File System Access API is absent | P | ⬜ | M | C-04 | HARDENING §H4 | `T-1.25` |
-| C-29 | Re-grant UI when a file handle loses permission | P | ⬜ | S | C-02 | below | — |
-| C-06 | Save status never says "Saved" without a durable copy | P | ⬜ | S | C-04 | HARDENING §H7 | `T-1.29` |
-| C-07 | Warn before overwriting a file changed outside Cyril | P | ⬜ | S | C-01 | HARDENING §H6 | `T-1.28` |
+| C-05 | Download/upload fallback when File System Access API is absent | P | 🚧 lane-P | M | C-04 | HARDENING §H4 | `T-1.25` |
+| C-29 | Re-grant UI when a file handle loses permission | P | 🚧 lane-P | S | C-02 | below | — |
+| C-06 | Save status never says "Saved" without a durable copy | P | 🚧 lane-P | S | C-04 | HARDENING §H7 | `T-1.29` |
+| C-07 | Warn before overwriting a file changed outside Cyril | P | 🚧 lane-P | S | C-01 | HARDENING §H6 | `T-1.28` |
 
 > **Open decision from C-03 (2026-08-28).** The `beforeunload` guard treats only `unsaved` and
 > `error` as dirty — matching the literal §H3 wording — so a tab closed *mid-write* (status
@@ -93,7 +93,7 @@ sits near the work.
   resumes normal saving without re-picking the file; declining leaves the project usable and the
   save status honest.
 
-### C-08 · Deal with the uncommitted word-data pile — Lane X · Size S · ⬜
+### C-08 · Deal with the uncommitted word-data pile — Lane X · Size S · ✅
 
 The working tree holds ~530 MB of untracked build output and source data that no code imports:
 
@@ -129,12 +129,12 @@ prototype" and "built by professionals".
 | # | Item | Lane | Status | Size | Depends on | Spec |
 |---|---|---|:--:|:--:|---|---|
 | C-09 | `[[NAME]]` / `((text))` must accept the closing brackets | E | ✅ | S | — | below |
-| C-10 | Remove the `delivery` feature | E | ⬜ | M | — | DESIGN_PROPOSAL §3.4 |
-| C-11 | Inventory: real collected-words surface, not a raw `<textarea>` | S | ⬜ | M | — | DESIGN_REVIEW §9 |
+| C-10 | Remove the `delivery` feature | E | 🚧 lane-E | M | — | DESIGN_PROPOSAL §3.4 |
+| C-11 | Inventory: real collected-words surface, not a raw `<textarea>` | S | 🚧 lane-S | M | — | DESIGN_REVIEW §9 |
 | C-12 | Give the editor a real page: measure, edges, elevation | S | ✅ | M | — | below |
-| C-13 | Rebuild the editor toolbar as grouped icon+label controls | S | ⬜ | M | C-10 | below |
-| C-14 | Tools pane: filter chips, honest empty/offline states | S | ⬜ | M | — | DESIGN_PROPOSAL §6 |
-| C-15 | Group View toggles under Structure / Sound sub-labels | S | ⬜ | S | — | DESIGN_REVIEW §6 |
+| C-13 | Rebuild the editor toolbar as grouped icon+label controls | E | 🚧 lane-E | M | C-10 | below |
+| C-14 | Tools pane: filter chips, honest empty/offline states | S | 🚧 lane-S | M | — | DESIGN_PROPOSAL §6 |
+| C-15 | Group View toggles under Structure / Sound sub-labels | S | 🚧 lane-S | S | — | DESIGN_REVIEW §6 |
 | C-16 | Stop showing the song title twice (top bar + left nav) | S | ✅ | S | — | below |
 | C-17 | ~~Chords left-align to their anchor letter~~ | E | ✅ | S | — | already fixed on `main` in `8e82639` |
 | C-18 | CI: make lint blocking, fix job name + browser scope | X | ✅ |
@@ -216,7 +216,7 @@ one, don't take three.
 
 | # | Item | Lane | Status | Size | Depends on | Spec |
 |---|---|---|:--:|:--:|---|---|
-| C-19 | Finish the token sweep (danger + selection tints) | D | ⬜ | S | — | DESIGN_PROPOSAL §2 |
+| C-19 | Finish the token sweep (danger + selection tints) | E | 🚧 lane-E | S | — | DESIGN_PROPOSAL §2 |
 | C-20 | **Characters registry** — colour identity + autocomplete | S | ⬜ | L | C-09 | DESIGN_PROPOSAL §3.1 |
 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | DESIGN_PROPOSAL §3.2–3.3 |
 | C-22 | **Print profiles** — lyric / chord / libretto / annotated | S | ⬜ | L | C-21 | DESIGN_PROPOSAL §7 |
