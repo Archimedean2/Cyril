@@ -10,6 +10,7 @@ DESIGN_PROPOSAL §7): Lyric sheet, Chord sheet, Script / libretto, Annotated.
 - `tests/unit/export/markdown-export.test.ts`
 - `tests/unit/export/print-renderer.test.ts`
 - `tests/unit/export/print-profiles.test.ts`
+- `tests/unit/export/export-golden.test.ts`
 - `tests/integration/export/export-integration.test.ts`
 - `tests/e2e/stage-11-export.spec.ts`
 
@@ -36,6 +37,12 @@ DESIGN_PROPOSAL §7): Lyric sheet, Chord sheet, Script / libretto, Annotated.
 | T-11.17 | Only the active alternate is exported in the main line; other alternates surface only in the Annotated profile margin | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | EDGE_CASES §11 |
 | T-11.18 | Printing is independent of the editor's view toggles (`draftSettings`) — only `ExportSettings` governs output | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | EDGE_CASES §11 |
 
-## Regression Requirements
-- Stages 0–10 must remain passing| T-11.19 | Lyrics written outside any section block still export (print, preview and markdown) | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | A new draft starts as bare `lyricLine` nodes, so this was the common case, not an edge case — such a draft previously exported as an empty document |
+| T-11.19 | Lyrics written outside any section block still export (print, preview and markdown) | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | A new draft starts as bare `lyricLine` nodes, so this was the common case, not an edge case — such a draft previously exported as an empty document |
 | T-11.20 | An unheaded section invents no section heading in print or markdown | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | Previously printed a label reading "None" |
+| T-11.21 | All four print profiles render correctly for a rich test draft with sections, concurrent blocks, chords, and alternates | unit | `tests/unit/export/export-golden.test.ts` | [x] | [x] | Golden-file snapshots guard against regressive changes to export output |
+| T-11.22 | An unsectioned draft (the app default) exports as complete text without empty state, preserving D-02 fix | unit | `tests/unit/export/export-golden.test.ts` | [x] | [x] | D-02 regression guard: bare lyricLine nodes must print and export |
+| T-11.23 | An empty draft renders without crashing and displays the empty-state message | unit | `tests/unit/export/export-golden.test.ts` | [x] | [x] | EDGE_CASES §11; also prevents regression in markdown export |
+| T-11.24 | Profile-specific content filtering: chords/stage/alternates appear only in their respective profiles | unit | `tests/unit/export/export-golden.test.ts` | [x] | [x] | Verifies that printProfile choice correctly controls output content |
+
+## Regression Requirements
+- Stages 0–10 must remain passing
