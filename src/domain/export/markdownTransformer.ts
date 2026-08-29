@@ -43,10 +43,12 @@ function sectionToMarkdown(section: ExportableSection): string[] {
     return lines;
   }
 
-  // Section header
+  // Section header. A synthetic section holding lines written outside any
+  // section block has none — emitting one would invent a heading ("None")
+  // that the writer never typed.
   if (section.label) {
     lines.push(`## ${section.label}`);
-  } else {
+  } else if (section.sectionType !== 'none') {
     // Use section type as fallback
     const typeLabel = capitalizeFirst(section.sectionType);
     lines.push(`## ${typeLabel}`);

@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 09:42 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 09:56 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,19 +20,19 @@ _Last stamped: **2026-08-29 09:42 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 405/405 tests, 74 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 172 passing, 0 failing, 0 untested, 36 e2e-only |
-| `npm run test:e2e` | 🟢 | 113 passed |
+| `npm test` | 🟢 | 428/428 tests, 76 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 184 passing, 0 failing, 0 untested, 37 e2e-only |
+| `npm run test:e2e` | 🟢 | 114 passed |
 
 ### Repo
 
 | | |
 |---|---|
 | Branch | `feat/title-screen` (0 behind / 3 ahead) |
-| Last commit | Merge lane X: ledger CI enforcement (C-31) and persistence hazard coverage (C-28 §8) |
-| Committed | 2026-08-29 10:40:28 +0100 |
-| Uncommitted files | none — clean tree |
-| Backlog | **21 of 31** done · 4 in flight (C-20, C-22, C-31, C-28) · next up **C-21** |
+| Last commit | chore: regenerate ledger from the merged tree |
+| Committed | 2026-08-29 10:47:27 +0100 |
+| Uncommitted files | **7** (`git status`) |
+| Backlog | **22 of 31** done · 2 in flight (C-20, C-22) · next up **C-21** |
 <!-- END GENERATED -->
 
 ---

@@ -106,12 +106,17 @@ function renderSection(section: ExportableSection, options: ResolvedPrintOptions
     return renderConcurrentBlock(section.concurrent, options);
   }
 
+  // A synthetic section holding lines written outside any section block has no
+  // header of its own — printing a label for it (previously "None") would
+  // invent a heading the writer never typed.
+  const isUnheaded = section.sectionType === 'none' && !section.label;
   const label = section.label || capitalizeFirst(section.sectionType);
+  const labelHtml = isUnheaded ? '' : `<div class="section-label">${escapeHtml(label)}</div>`;
   const summary = section.summary ? `<div class="section-summary">${escapeHtml(section.summary)}</div>` : '';
 
   return `
     <div class="section" data-section-type="${section.sectionType}">
-      <div class="section-label">${escapeHtml(label)}</div>
+      ${labelHtml}
       ${summary}
       <div class="section-content">
         ${section.lines.map(line => renderLine(line, options)).join('')}
