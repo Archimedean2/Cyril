@@ -80,6 +80,17 @@ describe('beforeunload guard (C-03)', () => {
     expect(isBeforeUnloadGuardActive()).toBe(true);
   });
 
+  it("C-06: 'local-only' (durably snapshotted, but no file on disk) is also dirty", () => {
+    useSaveStatusStore.setState({ status: 'idle' });
+    startBeforeUnloadGuard();
+
+    useSaveStatusStore.getState().setStatus('local-only');
+    expect(isBeforeUnloadGuardActive()).toBe(true);
+
+    useSaveStatusStore.getState().setStatus('saved');
+    expect(isBeforeUnloadGuardActive()).toBe(false);
+  });
+
   it('T-1.24: stopBeforeUnloadGuard tears the listener down even while dirty', () => {
     useSaveStatusStore.setState({ status: 'unsaved' });
     startBeforeUnloadGuard();

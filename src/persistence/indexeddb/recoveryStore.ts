@@ -45,10 +45,12 @@ async function openRecoveryDB(): Promise<IDBDatabase> {
  * whether a file handle exists or the autosave setting is on.
  *
  * Degrades gracefully: if IndexedDB is unavailable or the write fails (private browsing,
- * quota exceeded, another storage failure) this resolves without throwing. The recovery
- * snapshot is a best-effort safety net, never a hard requirement for the app to function.
+ * quota exceeded, another storage failure) this resolves `false` rather than throwing. The
+ * recovery snapshot is a best-effort safety net, never a hard requirement for the app to
+ * function — but callers that use it as the durability floor for the save-status indicator
+ * (C-06 / HARDENING §H7) need to know whether it actually landed, so this reports success.
  */
-export async function writeRecoverySnapshot(file: CyrilFile): Promise<void> {
+export async function writeRecoverySnapshot(file: CyrilFile): Promise<boolean> {
   try {
     const db = await openRecoveryDB();
     const snapshot: RecoverySnapshot = { file, savedAt: new Date().toISOString() };
@@ -60,9 +62,11 @@ export async function writeRecoverySnapshot(file: CyrilFile): Promise<void> {
       request.onerror = () => reject(request.error);
     });
     db.close();
+    return true;
   } catch {
     // IndexedDB unavailable, quota exceeded, or another storage failure — the recovery
     // snapshot is a best-effort safety net, never a hard requirement.
+    return false;
   }
 }
 

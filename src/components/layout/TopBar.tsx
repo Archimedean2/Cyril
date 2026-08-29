@@ -4,11 +4,17 @@ import { useProjectStore } from '../../app/state/projectStore';
 import { useSaveStatusStore, SaveStatus } from '../../app/state/saveStatusStore';
 import { CyrilMark } from '../brand/CyrilLogo';
 
+// C-06 / HARDENING §H7: 'local-only' means the project is durably snapshotted in this
+// browser's IndexedDB (HARDENING §H2 / C-04) but no file on disk reflects it — a plain
+// dot or "Unsaved" would either look broken (no dot at all once the debounce settles) or
+// understate what actually happened (the work *is* safe here, just not on disk). Spell
+// that out so a writer without an engineering model of the app can act on it correctly.
 const STATUS_LABELS: Record<SaveStatus, string> = {
   idle: '',
   unsaved: 'Unsaved',
   saving: 'Saving…',
   saved: 'Saved',
+  'local-only': 'Saved in browser — not on disk yet',
   error: 'Save failed',
 };
 
@@ -17,6 +23,7 @@ const STATUS_COLORS: Record<SaveStatus, string> = {
   unsaved: 'var(--status-unsaved)',
   saving: 'var(--text-faint)',
   saved: 'var(--status-saved)',
+  'local-only': 'var(--status-unsaved)',
   error: 'var(--status-error)',
 };
 
