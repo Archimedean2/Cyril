@@ -1,3 +1,11 @@
+/* Editor-scoped tokens (C-19). Danger states (chord/alternate delete) live only
+   in this file, so the pair is declared here rather than in the shell's
+   :root — derived from --status-error so it tracks the shell's palette. */
+:root {
+  --bg-danger: color-mix(in srgb, var(--status-error) 10%, var(--bg-editor));
+  --border-danger: color-mix(in srgb, var(--status-error) 45%, var(--bg-editor));
+}
+
 .editor-container {
   display: flex;
   flex-direction: column;
@@ -323,7 +331,7 @@
 
 /* Consecutive section separator */
 .section-block + .section-block {
-  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-top: 1px solid var(--border-subtle);
   padding-top: 0.5em;
 }
 
@@ -351,7 +359,7 @@
 .section-block.ProseMirror-selectednode {
   outline: 2px solid var(--accent-color, var(--accent-primary));
   outline-offset: 2px;
-  background: rgba(74, 158, 255, 0.04);
+  background: var(--accent-soft);
   border-radius: 4px;
 }
 
@@ -495,7 +503,7 @@
   color: var(--accent-primary);
   text-align: center;
   padding: 2px 8px 5px;
-  border-bottom: 1px solid #dce8f5;
+  border-bottom: 1px solid var(--accent-soft);
   margin-bottom: 7px;
 }
 
@@ -932,7 +940,7 @@ input[type="text"].concurrent-speaker-name:focus {
   background: var(--bg-surface, #fff);
   border: 1px solid var(--border-color, #c8d0db);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-soft);
   padding: 4px 0;
   min-width: 180px;
 }
@@ -954,7 +962,7 @@ input[type="text"].concurrent-speaker-name:focus {
 }
 
 .section-context-menu-item--danger:hover {
-  background: #fef2f2;
+  background: var(--bg-danger);
 }
 
 .section-context-menu-separator {
@@ -970,9 +978,9 @@ input[type="text"].concurrent-speaker-name:focus {
   left: 0;
   z-index: 200;
   background: var(--bg-editor);
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-soft);
   min-width: 160px;
   padding: 4px 0;
   font-size: 0.82rem;
@@ -1055,7 +1063,7 @@ input[type="text"].concurrent-speaker-name:focus {
 .stp-custom-input {
   flex: 1;
   padding: 4px 8px;
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 3px;
   font-size: 0.82rem;
   outline: none;
@@ -1086,16 +1094,16 @@ input[type="text"].concurrent-speaker-name:focus {
   align-items: center;
   gap: 4px;
   background: var(--bg-editor);
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: var(--shadow-soft);
   padding: 5px 7px;
 }
 
 .chord-popover-input {
   width: 80px;
   padding: 3px 6px;
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -1128,11 +1136,11 @@ input[type="text"].concurrent-speaker-name:focus {
 }
 
 .chord-popover-delete {
-  background: #fee2e2;
+  background: var(--bg-danger);
   color: var(--status-error);
-  border-color: #fca5a5;
+  border-color: var(--border-danger);
 }
 
 .chord-popover-delete:hover {
-  background: #fecaca;
+  background: color-mix(in srgb, var(--bg-danger) 50%, var(--border-danger) 50%);
 }
