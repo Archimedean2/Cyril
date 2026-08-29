@@ -55,11 +55,11 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 15 | C-48 | **Editor command bridge** — let the rail read and write the caret | E | 🚧 F2 | S | — | §13.0 |
 | 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ⬜ | M | C-48 | §13.1 |
 | 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ⬜ | S | C-48 | §13.2 |
-| 40 | C-45 | Emphasise results by an absolute score, not a relative one | S | 🚧 F3 | S | — | §13.5 |
+| 40 | C-45 | Emphasise results by an absolute score, not a relative one | S | ✅ | S | — | §13.5 |
 | 50 | C-35 | Speaker picker on the character colour dot | E | 🚧 F2 | S | C-20 | §12.1 |
 | 60 | C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | 🚧 F2 | M | C-35 | §12.2 |
-| 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | 🚧 F3 | S | C-42 | §13.3 |
-| 80 | C-44 | Dim collected words once they appear in the draft | S | 🚧 F3 | S | C-42 | §13.4 |
+| 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | ✅ | S | C-42 | §13.3 |
+| 80 | C-44 | Dim collected words once they appear in the draft | S | ✅ | S | C-42 | §13.4 |
 | 90 | C-47 | Empty states teach the double-click gesture | S | ⬜ | S | C-41 | §13.7 |
 | 100 | C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | §5 |
 | 110 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | §3.2–3.3 |

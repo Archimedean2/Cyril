@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 15:47 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 16:19 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,20 +20,20 @@ _Last stamped: **2026-08-29 15:47 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 479/479 tests, 82 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 198 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm test` | 🟢 | 504/504 tests, 86 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 201 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` |
-| Last commit | docs: priority-ordered queue, and spec the lookup-and-collect loop (§13) |
-| Committed | 2026-08-29 16:46:02 +0100 |
-| Uncommitted files | none — clean tree |
-| Backlog | **25 of 45** done · 2 blocked on you (C-25, C-27) |
-| Next up | **C-32 (10) Track the lint config and the coverage script (main cannot run its own gates)**<br>C-41 (20) Double-click a word in the lyric to look it up<br>C-42 (30) Click an Inventory chip to insert it at the caret |
+| Branch | `worktree-agent-a978de7f28ff0016a` |
+| Last commit | feat(C-44): dim collected words once they appear in the draft |
+| Committed | 2026-08-29 17:17:11 +0100 |
+| Uncommitted files | **2** (`git status`) |
+| Backlog | **25 of 46** done · 4 in flight (C-32, C-48, C-35, C-36) · 2 blocked on you (C-25, C-27) |
+| Next up | **C-41 (20) Double-click a word in the lyric to look it up**<br>C-42 (30) Click an Inventory chip to insert it at the caret<br>C-47 (90) Empty states teach the double-click gesture |
 <!-- END GENERATED -->
 
 ---
@@ -113,6 +113,37 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-08-29 — F3 (lane S) — Lookup-and-collect: score emphasis, click-to-collect, dim-when-used
+
+Did:      C-45 replaced the relative "top 30%" rhyme-emphasis threshold with a fixed absolute
+          score (5000), chosen by sampling real `rel_rhy` scores from the Datamuse API — it sits
+          in the cliff between genuine dictionary rhymes and DEFECTS.md D-22's known junk
+          ("left" → bereft/cleft/deft/theft/heft above it, antitheft/klepht below). C-43 flipped
+          Tools-pane result clicks: primary click now collects into Inventory, copy moved to a
+          shared secondary `tools-copy-button` (same testid for both the rhyme and generic result
+          renderers, per coordinator note). Retired T-7.06 (stage-7.md, struck ID so the coverage
+          script skips it) rather than reword it in place, since it asserted the exact behaviour
+          C-43 inverted; T-14.20 carries the current behaviour. C-44 added a derived (never
+          stored) "used" state — `src/domain/tools/draftWordUsage.ts` tokenizes the draft's text
+          (walking every node type: sectionBlock/concurrentBlock/speakerColumn/lyricLine) and
+          does whole-word, case-insensitive, punctuation-insensitive matching, so "low" is not
+          used merely because the draft has "below". Dims Inventory chips and Tools results
+          already in the draft or already collected.
+Gates:    🟢 all four (build/lint/test/coverage) after each of the three commits; e2e green for
+          stage-7-tools.spec.ts + stage-5-inventory.spec.ts. Full `npm run test:e2e` also run:
+          115/116 pass — the one failure (journey-write-a-song.spec.ts:98, `tools-collect-button`
+          no longer exists) is expected from C-43 and was coordinated with main/the file's owner
+          ahead of time; fix is a one-line testid swap to be applied at merge.
+Next:     C-42 (click an Inventory chip to insert at the caret) is the next item in this area,
+          but needs the C-48 editor bridge, which is a different agent's lane.
+Notes:    `tests/e2e/visual.spec.ts` and `journey-write-a-song.spec.ts` both still reference the
+          removed `tools-collect-button` testid — flagged to `main`/the owning agent rather than
+          edited directly (outside this lane's file ownership). Visual baselines will need
+          regenerating for the right-rail shot after this merges (expected, not done here per
+          instructions). BACKLOG.md's "Depends: C-42" on C-43/C-44 turned out not to apply in
+          practice — both landed fully without any editor access, since collecting/dimming are
+          rail-side-only concerns; left the dependency column as-is since it wasn't asked for.
 
 ### 2026-08-28 — agent fleet (lane S) — Editor page surface and single title
 
