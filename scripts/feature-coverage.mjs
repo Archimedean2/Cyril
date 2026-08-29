@@ -24,6 +24,15 @@
  *      - e2e      : covered only by Playwright; not verified by this harness
  *
  * Usage:  node scripts/feature-coverage.mjs   (or: npm run coverage:features)
+ *
+ * Flags:
+ *   --check   After regenerating the report as usual, exit non-zero if any non-e2e
+ *             criterion is 'failing' or 'missing' (no test), printing which ones. This is
+ *             the CI enforcement gate (BACKLOG C-31): the committed FEATURE_COVERAGE.md is
+ *             a generated convenience (read it on GitHub), never hand-resolved on merge —
+ *             always regenerate from the merged tree. `--check` does not change what gets
+ *             written to FEATURE_COVERAGE.md/.feature-cov/feature-coverage.json; it only
+ *             adds a pass/fail exit code on top of the same run.
  */
 
 import { execSync } from 'node:child_process';
@@ -195,6 +204,23 @@ function main() {
   console.log(`\nFeature coverage: ${pct}%  (${counts.passing}/${counts.nonE2e} non-e2e criteria passing)`);
   console.log(`  ✅ passing ${counts.passing}   ❌ failing ${counts.failing}   ⚠️ no test ${counts.missing}   🔶 e2e ${counts.e2e}`);
   console.log(`Report: FEATURE_COVERAGE.md\n`);
+
+  // ---- --check: CI enforcement gate (BACKLOG C-31) ----
+  // Default behaviour (no flag) is unchanged above this point: the report is always
+  // written and the console summary always printed. --check only adds an exit code.
+  if (process.argv.includes('--check')) {
+    const regressed = criteria.filter((c) => c.status === 'failing' || c.status === 'missing');
+    if (regressed.length > 0) {
+      console.error(`--check: ${regressed.length} criterion/criteria are not passing:\n`);
+      for (const c of regressed) {
+        console.error(`  ${BADGE[c.status]}  ${c.id}  ${c.description}`);
+      }
+      console.error('\nRegenerate FEATURE_COVERAGE.md from the merged tree and fix the code/tests above — never resolve a merge conflict on this file by picking a side.');
+      process.exitCode = 1;
+    } else {
+      console.log('--check: all non-e2e criteria are passing or e2e-only. OK.');
+    }
+  }
 }
 
 main();
