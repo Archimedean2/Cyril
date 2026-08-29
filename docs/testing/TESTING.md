@@ -289,3 +289,145 @@ When a bug is found:
 3. confirm the test now passes
 4. record the regression in `docs/archive/PROGRESS.md` if relevant
 5. record the test ID in `docs/testing/TEST_IDS.md` if relevant
+---
+
+# Catching the bugs this suite keeps missing
+
+_Added 2026-08-29 after a day in which **115 passing Playwright tests** coexisted with: print
+exporting an empty page for an ordinary song, concurrent saves silently clobbering work, and
+Enter being swallowed in the speaker field. See `docs/engineering/DEFECTS.md`._
+
+The problem is not "we don't have Playwright" — we do, and it runs in CI. The problem is **what
+the tests assert**. Three patterns account for nearly every miss.
+
+### Pattern 1 — asserting the mechanism, not the outcome
+
+The export e2e clicked Export and asserted a dialog opened. It never asserted that the produced
+document *contained the lyrics*. So a renderer that emitted a beautifully-formatted empty page
+passed for months.
+
+> **Rule: assert the artifact, not the click.** If a feature produces output — HTML, Markdown, a
+> file, a clipboard payload — the test must read that output back and assert on its content.
+
+### Pattern 2 — fixtures that don't match what the app produces
+
+Every print test hand-built a draft with a `sectionBlock` wrapper. The app's `createDraft()`
+produces bare `lyricLine` nodes. The tests were green against a document shape that only existed
+in the tests.
+
+> **Rule: build fixtures with the app's own factories** (`createDraft`, `insertSectionBlock`),
+> never with hand-written object literals. If a literal is unavoidable, add one test that asserts
+> the literal still matches what the factory produces.
+
+### Pattern 3 — whole layers with no coverage at all
+
+jsdom runs no layout, so nothing could catch the page eating its own margin on first keystroke.
+Nothing failed a test when the console logged an error. Nothing exercised two saves at once.
+
+---
+
+## The cheap harnesses, ranked by value per unit of effort
+
+These are all automated and run in CI. None of them require a human — or a language model —
+to look at the screen.
+
+### 1. Fail any e2e test that logs a console error (about 10 lines, do this first)
+
+```ts
+// tests/e2e/fixtures.ts
+import { test as base, expect } from '@playwright/test';
+
+export const test = base.extend({
+  page: async ({ page }, use) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+    await use(page);
+    expect(errors, 'the page logged errors during this test').toEqual([]);
+  },
+});
+```
+
+Import `test` from this file instead of `@playwright/test` everywhere. Every existing test
+instantly gains crash detection for free.
+
+### 2. Golden-file assertions on generated output
+
+For each print profile and the Markdown exporter, render a seeded draft and compare against a
+committed snapshot:
+
+```ts
+expect(renderPrintDocument(exportable, options)).toMatchSnapshot('libretto.html');
+```
+
+A diff in the snapshot is either an intended change (update it deliberately) or a regression.
+This would have caught **D-02 and D-11 the moment they were introduced**, and it costs one line
+per profile.
+
+### 3. Visual regression — the direct answer to "usability bugs"
+
+Playwright compares screenshots itself; no service required:
+
+```ts
+await expect(page).toHaveScreenshot('editor-with-lyrics.png', { maxDiffPixels: 100 });
+```
+
+Take a handful — launch screen, editor with content, chords on, each print preview, the right
+rail — at 1440×900 and 1024px. This is the only thing that catches layout defects like **D-07**
+and **D-08**, and it catches them without anyone looking. Commit the baselines; CI fails on
+drift and uploads the diff image as an artifact.
+
+Keep the set small (under ~10) or it becomes noise that people learn to ignore.
+
+### 4. One "write a song" journey test
+
+Most usability bugs live in the *transitions between* features, which per-feature tests never
+touch. Write a single long test that does the real loop, asserting at each step:
+
+section → speaker → two lyric lines → toggle syllables → search a rhyme → collect it →
+add a chord → switch drafts → switch back → export → assert the output contains the lyrics.
+
+**Type with a delay** (`page.keyboard.type(s, { delay: 40 })`). Playwright's default speed types
+faster than input rules can respond and produces false failures — that cost real time today (see
+*False alarms* in `DEFECTS.md`).
+
+### 5. Automated accessibility scan
+
+```ts
+import AxeBuilder from '@axe-core/playwright';
+const results = await new AxeBuilder({ page }).analyze();
+expect(results.violations).toEqual([]);
+```
+
+One dev dependency. Catches missing labels, unreachable focus, contrast failures and bad ARIA on
+custom NodeViews — a genuine class of usability defect, fully automated. The app currently has
+23 `aria-` attributes across the whole UI, so expect a real backlog on first run; gate it at
+"no new violations" rather than zero.
+
+### 6. A concurrency harness for races
+
+**e2e is the wrong tool for races.** D-01 was caught by a unit test with a mock file handle whose
+write latency is controllable per call, asserting on final disk content. That pattern —
+inject the latency, assert the end state — belongs anywhere two code paths can interleave:
+autosave vs. manual save, autosave vs. draft switch, two tabs.
+
+### 7. Property-based tests for document transforms
+
+The editor transforms (line-type conversion, section insert, chord offset maths) are pure
+functions over a document. `fast-check` can generate hundreds of documents and assert invariants
+— chords never point past end-of-text, a round-trip through save/load is identity, undo restores
+the prior document exactly. This is where `EDGE_CASES.md` §1 and §5 stop being a manual list.
+
+---
+
+## What still needs a human
+
+Automation catches **defects**. It cannot tell you whether the rhyme results are *useful*,
+whether the page is *pleasant* to write on, or whether the product is fun. Budget a short
+human (or model) pass for taste, and keep it rare by making everything above catch the
+mechanical faults first.
+
+The economics work like this: an expensive exploratory pass is worth it **once**, provided every
+finding is immediately encoded as a cheap permanent test. That is what happened today — each of
+D-01…D-14 now has a test that fails without its fix. The pass does not need repeating; the tests
+run in seconds forever.
