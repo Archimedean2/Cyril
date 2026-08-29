@@ -1,7 +1,16 @@
 import { create } from 'zustand';
 import { CyrilFile, ExportSettings } from '../../domain/project/types';
 import { createDraft, DuplicationMode } from '../../domain/project/drafts';
-import { openProject, saveProject, createNewProject, duplicateProject, tryReopenLastProject } from '../../persistence/fileSystem/fileManager';
+import {
+  openProject,
+  saveProject,
+  createNewProject,
+  duplicateProject,
+  tryReopenLastProject,
+  hasPendingPermissionRequest,
+  getPendingPermissionFileName,
+  regrantFilePermission,
+} from '../../persistence/fileSystem/fileManager';
 import { readRecoverySnapshot, clearRecoverySnapshot } from '../../persistence/indexeddb/recoveryStore';
 import { importFromShareBlob } from '../../domain/share/shareService';
 
@@ -20,6 +29,13 @@ interface ProjectState {
   recoverySnapshot: CyrilFile | null;
   acceptRecovery: () => void;
   declineRecovery: () => void;
+
+  // BACKLOG C-29: the name of a file whose stored handle lost write permission
+  // (`NotAllowedError`), kept by fileManager rather than discarded. Non-null means the
+  // top-of-editor banner should offer to re-grant it. `regrantPermission` fires
+  // `requestPermission` from the banner's own click (a user gesture is required).
+  permissionLockedFileName: string | null;
+  regrantPermission: () => Promise<void>;
 
   // UI State
   activeView: ActiveView;
@@ -71,11 +87,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   error: null,
   isInitializing: true,
   recoverySnapshot: null,
+  permissionLockedFileName: null,
   activeView: { type: 'draft', draftId: '' }, // Will be set properly when project loads
 
   initApp: async () => {
     // Try to reopen the last project first
     const lastProject = await tryReopenLastProject();
+
+    // If that failed specifically because the stored handle lost write permission (not
+    // because the file is gone/corrupt), fileManager keeps it and flags it here — the
+    // banner (C-29) offers a one-click re-grant instead of forcing `Open` again.
+    const permissionLockedFileName = hasPendingPermissionRequest() ? getPendingPermissionFileName() : null;
 
     // Then check for a local recovery snapshot (HARDENING §H2 / C-04) — best-effort, so a
     // storage failure here just means "no snapshot", never a thrown init error.
@@ -95,6 +117,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           isInitializing: false,
           error: null,
           recoverySnapshot: snapshot.file,
+          permissionLockedFileName,
           activeView: lastProject
             ? { type: 'draft', draftId: lastProject.project.activeDraftId || lastProject.project.drafts[0]?.id || '' }
             : { type: 'draft', draftId: '' }
@@ -114,6 +137,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         isInitializing: false,
         error: null,
         recoverySnapshot: null,
+        permissionLockedFileName,
         activeView: { type: 'draft', draftId: lastProject.project.activeDraftId || lastProject.project.drafts[0]?.id || '' }
       });
       return;
@@ -127,8 +151,44 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       isInitializing: false,
       error: null,
       recoverySnapshot: null,
+      permissionLockedFileName,
       activeView: { type: 'draft', draftId: '' }
     });
+  },
+
+  regrantPermission: async () => {
+    // Must be called directly from the banner's own click handler — `requestPermission`
+    // requires an active user gesture (BACKLOG C-29).
+    const file = await regrantFilePermission();
+    const stillPending = hasPendingPermissionRequest();
+
+    if (file) {
+      const { currentProject } = get();
+      if (!currentProject) {
+        // Nothing was loaded any other way (e.g. no recovery snapshot existed) — adopt the
+        // freshly reconnected file.
+        set({
+          currentProject: file,
+          isProjectLoaded: true,
+          error: null,
+          permissionLockedFileName: null,
+          activeView: { type: 'draft', draftId: file.project.activeDraftId || file.project.drafts[0]?.id || '' }
+        });
+      } else {
+        // A project is already loaded (e.g. recovered from the local snapshot) — keep its
+        // in-memory state; the reconnected handle is already wired up for future saves.
+        set({ permissionLockedFileName: null });
+      }
+      return;
+    }
+
+    if (!stillPending) {
+      // fileManager gave up on this handle (the file turned out to be gone/corrupt) —
+      // nothing left to reconnect to; the user's normal fallback is `Open`.
+      set({ permissionLockedFileName: null });
+    }
+    // Otherwise still pending (permission declined again) — leave the banner up so the
+    // user can retry.
   },
 
   acceptRecovery: () => {

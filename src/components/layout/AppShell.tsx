@@ -9,6 +9,7 @@ import { ExportDialog } from '../../features/export-panel/ExportDialog';
 import { ShareImportDialog } from '../../features/share/ShareImportDialog';
 import { LaunchScreen } from './LaunchScreen';
 import { RecoveryPrompt } from './RecoveryPrompt';
+import { PermissionBanner } from './PermissionBanner';
 import { useProjectStore } from '../../app/state/projectStore';
 import { useResizable } from '../../hooks/useResizable';
 import { startAutosave } from '../../persistence/autosave';
@@ -114,6 +115,7 @@ export function AppShell() {
   if (!isProjectLoaded && !isInitializing) {
     return (
       <>
+        <PermissionBanner />
         <LaunchScreen onImportShare={() => setIsShareImportOpen(true)} />
         <ShareImportDialog
           isOpen={isShareImportOpen}
@@ -153,6 +155,8 @@ export function AppShell() {
           onToggleFocusMode={() => setFocusModeActive((v) => !v)}
         />
       </div>
+
+      <PermissionBanner />
 
       <div className="app-shell-body" style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
         {/* Left Navigation */}
