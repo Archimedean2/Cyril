@@ -14,6 +14,12 @@ let fileHandle: FileSystemFileHandle | null = null;
 // overwrite can warn instead of silently clobbering it.
 let lastKnownModified: number | null = null;
 
+// Per BACKLOG C-29: set when `tryReopenLastProject` finds a stored handle whose permission
+// has been lost (`NotAllowedError`) rather than cleared it, so a later user gesture can
+// still reconnect it without going through `Open` again. `null` means there's nothing
+// waiting on a re-grant.
+let pendingPermissionHandle: FileSystemFileHandle | null = null;
+
 /**
  * Thrown when `saveProject` detects the target file changed on disk since Cyril last read
  * or wrote it, and — given a user gesture to ask with — the user declined to overwrite it
@@ -132,7 +138,10 @@ export async function tryReopenLastProject(): Promise<CyrilFile | null> {
   } catch (error) {
     if (error instanceof DOMException && error.name === 'NotAllowedError') {
       // Permission was revoked, not lost/corrupt — keep the handle so a future
-      // reopen (once permission is re-granted) can still succeed.
+      // reopen (once permission is re-granted) can still succeed. Remember it so the
+      // UI can offer a re-grant affordance (C-29) without sending the user through
+      // `Open` again.
+      pendingPermissionHandle = storedHandle;
       return null;
     }
     // File moved/deleted, or another unrecoverable error opening the handle.
@@ -146,6 +155,7 @@ export async function tryReopenLastProject(): Promise<CyrilFile | null> {
     const project = deserializeProject(contents);
     fileHandle = storedHandle;
     lastKnownModified = file.lastModified ?? null;
+    pendingPermissionHandle = null;
     return project;
   } catch {
     // Content is corrupt/truncated/wrong-schema (or a newer, unsupported schema) — the
@@ -153,6 +163,59 @@ export async function tryReopenLastProject(): Promise<CyrilFile | null> {
     // the user fixes or replaces it via Open.
     await clearStoredFileHandle();
     localStorage.removeItem(LAST_PROJECT_KEY);
+    return null;
+  }
+}
+
+/** Whether a stored file handle is waiting on its permission being re-granted (C-29). */
+export function hasPendingPermissionRequest(): boolean {
+  return pendingPermissionHandle !== null;
+}
+
+/** The name of the file waiting on a permission re-grant, if any — for banner copy. */
+export function getPendingPermissionFileName(): string | null {
+  return pendingPermissionHandle?.name ?? null;
+}
+
+/**
+ * Re-requests permission on the handle `tryReopenLastProject` kept after a `NotAllowedError`
+ * (BACKLOG C-29). Must be called from a user gesture (a click handler) — `requestPermission`
+ * requires one.
+ *
+ * Resolves the reopened project if permission is granted and the file still reads/parses
+ * cleanly — the caller decides whether to use that content (a project already loaded some
+ * other way, e.g. from a recovery snapshot, should generally keep its own in-memory state
+ * and just benefit from the handle being reconnected for future saves). Resolves `null`
+ * if permission is still not granted (the pending handle is kept for another attempt) or if
+ * the file turned out to be gone/corrupt in the meantime (the pending handle is cleared,
+ * same as `tryReopenLastProject`'s own gone/corrupt handling — there's nothing left to
+ * reconnect to, so the user falls back to `Open`).
+ */
+export async function regrantFilePermission(): Promise<CyrilFile | null> {
+  const handle = pendingPermissionHandle;
+  if (!handle) return null;
+
+  const permission = await handle.requestPermission({ mode: 'readwrite' });
+  if (permission !== 'granted') {
+    // Still not granted — leave the pending handle in place so the banner can be tried
+    // again later.
+    return null;
+  }
+
+  try {
+    const file = await handle.getFile();
+    const contents = await file.text();
+    const project = deserializeProject(contents);
+    fileHandle = handle;
+    lastKnownModified = file.lastModified ?? null;
+    pendingPermissionHandle = null;
+    return project;
+  } catch {
+    // Permission came back, but the file itself is gone/corrupt in the meantime — nothing
+    // left to reconnect to.
+    await clearStoredFileHandle();
+    localStorage.removeItem(LAST_PROJECT_KEY);
+    pendingPermissionHandle = null;
     return null;
   }
 }
@@ -181,6 +244,9 @@ export async function openProject(): Promise<CyrilFile | null> {
     await storeFileHandle(handle);
     const file = await handle.getFile();
     lastKnownModified = file.lastModified ?? null;
+    // The user just explicitly picked a file via Open — any earlier permission-lock
+    // banner (C-29) was about a different file and no longer applies.
+    pendingPermissionHandle = null;
     const contents = await file.text();
     return deserializeProject(contents);
   } catch (error) {
@@ -336,6 +402,8 @@ export function createNewProject(title?: string, keepHandle = false): CyrilFile 
   if (!keepHandle) {
     fileHandle = null; // Clear old handle
     lastKnownModified = null;
+    // Starting fresh makes any pending permission re-grant (C-29) for a previous file moot.
+    pendingPermissionHandle = null;
     localStorage.removeItem(LAST_PROJECT_KEY);
   }
   const project = createDefaultProject(title);
@@ -345,6 +413,7 @@ export function createNewProject(title?: string, keepHandle = false): CyrilFile 
 export function duplicateProject(existingFile: CyrilFile, newTitle: string): CyrilFile {
   fileHandle = null; // Treat as a new unsaved file
   lastKnownModified = null;
+  pendingPermissionHandle = null;
 
   const newProject: CyrilProject = {
     ...existingFile.project,
