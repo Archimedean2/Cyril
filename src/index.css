@@ -430,6 +430,134 @@ button {
   color: var(--text-faint);
 }
 
+/* Inventory — collected-words chip surface (C-11) */
+.inventory-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  overflow: hidden;
+}
+
+.inventory-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: var(--space-2);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.inventory-empty-state {
+  margin: 0;
+  padding: var(--space-2) 0;
+  font-size: 13px;
+  line-height: var(--lh-normal, 1.4);
+  color: var(--text-muted);
+}
+
+.inventory-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: 4px 4px 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.inventory-chip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inventory-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.inventory-chip-remove:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.inventory-chip-remove:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+.inventory-add-form {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.inventory-add-input {
+  flex: 1;
+  min-width: 0;
+  height: var(--input-height, 32px);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  background: var(--bg-editor);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.inventory-add-input::placeholder {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.inventory-add-input:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+  border-color: var(--accent-primary);
+}
+
+.inventory-add-button {
+  height: var(--input-height, 32px);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.inventory-add-button:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.inventory-add-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.inventory-add-button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
 /* Navigation */
 .nav-list {
   display: flex;
