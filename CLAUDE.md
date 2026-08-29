@@ -74,6 +74,7 @@ agent) knows what happened.
 | Data model / schema | `docs/engineering/DATA_MODEL.md` |
 | Architecture & components | `docs/engineering/ARCHITECTURE.md`, `docs/engineering/COMPONENT_MAP.md` |
 | Known hazards to test against | `docs/engineering/EDGE_CASES.md` |
+| Every real bug found, and what guards it | `docs/engineering/DEFECTS.md` — **log a defect here before you fix it** |
 | The persistence hardening task | `docs/engineering/HARDENING_PERSISTENCE.md` |
 | Testing strategy & selectors | `docs/testing/TESTING.md`, `docs/testing/TEST_IDS.md` |
 | Criterion ↔ test map | `tests/specs/stage-*.md` |

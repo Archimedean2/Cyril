@@ -78,6 +78,28 @@ tests.
 > has *zero* durability — autosave no-ops when there is no file handle, silently. A snapshot on
 > the same debounce, written regardless of handle, closes that hole and softens every other one.
 
+### C-34 · Close the three gaps that let a green suite ship broken features — Lane X · Size M · ⬜
+
+115 passing Playwright tests coexisted with an export that produced an empty document for an
+ordinary song. `docs/testing/TESTING.md` §"Catching the bugs this suite keeps missing" has the
+analysis and seven concrete harnesses. Do at least the first four, in order — they are cheap and
+they cover the classes that actually bit us:
+
+1. **Fail any e2e on a console error** (~10 lines, one shared fixture). Free crash detection
+   across all 115 existing tests.
+2. **Golden-file snapshots of generated output** — each print profile and the Markdown exporter.
+   Would have caught D-02 and D-11 the day they appeared.
+3. **Visual regression** via Playwright's own `toHaveScreenshot`, ~8 baselines at two widths.
+   The only thing that catches layout defects like D-07/D-08 without a human looking.
+4. **One "write a song" journey test** through the whole loop, typed with a delay.
+
+Then, when there is room: `@axe-core/playwright` gated at "no new violations", a concurrency
+harness for races, and `fast-check` property tests over the document transforms.
+
+- Acceptance: each of the four lands with CI running it; the golden files and screenshot
+  baselines are committed; the journey test exercises section → speaker → lyrics → prosody →
+  rhyme → collect → chord → draft switch → export, asserting the export contains the lyrics.
+
 ### C-33 · A suppressed duplicate speaker label leaves a blank row — Lane S · Size S · ⬜
 
 C-20 hides the repeated label on consecutive lines by the same character and shows a colour

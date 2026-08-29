@@ -48,6 +48,10 @@ _Last stamped: **2026-08-29 10:21 UTC** · regenerate with `npm run status`_
 **Last verified state:** integration branch green — build 0, lint 0/0, **464 tests**,
 **192/192 non-e2e criteria**, **e2e 115/115**. Twelve PRs open: #4-#14 granular, #15 integration.
 
+**New:** `docs/engineering/DEFECTS.md` is the running bug list — 14 fixed, 7 open, plus the
+false alarms so nobody re-chases them. **C-34** is the plan for making the suite catch this
+class of bug itself.
+
 **Read first when you're back:** (1) *Decisions taken unsupervised* below; (2) **C-32** — the
 lint config and coverage script were never committed to `main`; (3) **C-25** and **C-27** still
 need your call and were deliberately not started.
