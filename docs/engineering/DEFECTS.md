@@ -42,6 +42,7 @@ Severity: 🔴 data loss / core flow broken · 🟠 wrong behaviour · 🟡 poli
 | D-19 | 🟡 | **Annotated print margin notes skip concurrent blocks** — they apply only to lyric lines inside a section. | From C-22. |
 | D-20 | 🟠 | **`main` cannot run two of its own four gates.** Neither `.eslintrc.cjs` nor `scripts/feature-coverage.mjs` is tracked, so a fresh clone fails `npm run lint` and `npm run coverage:features`. | Tracked as `BACKLOG.md` C-32. |
 | D-21 | 🟡 | **`printProfile` is bolted onto `ExportSettings` by TypeScript module augmentation** rather than declared in `types.ts`. A scheduling workaround, not a design choice. | Tracked in C-32. |
+| D-22 | 🟡 | **Inserting a section with `<<` leaves the draft's original empty `lyricLine` behind as a sibling**, and `insertSectionBlock` adds another empty one after the section — so a writer who types `<<` on a fresh draft ends up with an invisible blank line both above and below the section they just created (visible in the raw doc/export, not just cosmetically in the editor). Found while writing `tests/e2e/journey-write-a-song.spec.ts` (C-34); worked around there by scoping assertions to `.section-content`, not fixed. | No test asserted document shape immediately after a section insert into an otherwise-untouched draft. |
 
 ## Quality issues that are not defects
 
