@@ -44,18 +44,16 @@ _Last stamped: **2026-08-29 15:47 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** nothing — all agents finished. Everything is merged, verified and pushed.
+**Working on:** three agents — F1 (C-32 repo hygiene), F2 (C-48 editor command bridge, then
+C-35 speaker picker and C-36 the paintable speaker gutter), F3 (C-45 absolute score emphasis,
+C-43 collect-on-click, C-44 dim-when-used).
 
-**Last verified state:** integration branch green — build 0, lint 0/0, **464 tests**,
-**192/192 non-e2e criteria**, **e2e 115/115**. Twelve PRs open: #4-#14 granular, #15 integration.
+**Last verified state:** all gates green — 479 unit + integration tests, 198/198 non-e2e
+criteria, e2e 124/124, 8 visual baselines.
 
-**New:** `docs/engineering/DEFECTS.md` is the running bug list — 14 fixed, 7 open, plus the
-false alarms so nobody re-chases them. **C-34** is the plan for making the suite catch this
-class of bug itself.
-
-**Read first when you're back:** (1) *Decisions taken unsupervised* below; (2) **C-32** — the
-lint config and coverage script were never committed to `main`; (3) **C-25** and **C-27** still
-need your call and were deliberately not started.
+**Expect visual baselines to fail** after these merge: F2 and F3 both change the UI. Agents were
+told not to regenerate them; the coordinator does it once after all merges, so the PNGs don't
+conflict.
 
 ## Decisions taken unsupervised (2026-08-29) — review these
 
