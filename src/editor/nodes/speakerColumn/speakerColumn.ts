@@ -128,7 +128,7 @@ export const SpeakerColumn = Node.create<SpeakerColumnOptions>({
                 // Delete the whole concurrent block; leave an empty lyricLine in its place.
                 const emptyLine = view.state.schema.nodeFromJSON({
                   type: 'lyricLine',
-                  attrs: { id: generateId('line'), delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+                  attrs: { id: generateId('line'), rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
                   content: [],
                 });
                 if (!emptyLine) return true;
@@ -216,7 +216,7 @@ export const SpeakerColumn = Node.create<SpeakerColumnOptions>({
             const makeLine = () =>
               state.schema.nodeFromJSON({
                 type: 'lyricLine',
-                attrs: { id: generateId('line'), delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+                attrs: { id: generateId('line'), rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
                 content: [],
               });
 

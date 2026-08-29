@@ -4,7 +4,6 @@ import { createDefaultProject, SCHEMA_VERSION } from './defaults';
 // ─── Document node migration ──────────────────────────────────────────────────
 
 const DEFAULT_LYRIC_LINE_ATTRS = {
-  delivery: 'sung',
   rhymeGroup: null,
   lineType: 'lyric',
   meta: { alternates: [], prosody: null, chords: [] },
@@ -13,6 +12,15 @@ const DEFAULT_LYRIC_LINE_ATTRS = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function migrateDocNode(node: any): any {
   if (!node || typeof node !== 'object') return node;
+
+  // C-10: `delivery` was a removed cosmetic-only lyricLine attribute (sung |
+  // spoken, purely italicised spoken lines). Drop it wherever a legacy
+  // project still carries it — a silent no-op, not an error.
+  if (node.attrs && Object.prototype.hasOwnProperty.call(node.attrs, 'delivery')) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { delivery, ...restAttrs } = node.attrs;
+    node = { ...node, attrs: restAttrs };
+  }
 
   // Migrate old speakerLine node type → lyricLine with lineType: 'speaker'
   if (node.type === 'speakerLine') {
