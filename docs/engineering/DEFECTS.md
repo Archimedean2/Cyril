@@ -35,6 +35,7 @@ Severity: 🔴 data loss / core flow broken · 🟠 wrong behaviour · 🟡 poli
 
 | # | Sev | Defect | Notes |
 |---|:--:|---|---|
+| D-24 | 🟠 | **The Tools rail's "populate from selection" control is inert.** `RightSidebar.tsx` defines `getSelectedText = () => null` behind a TODO, so the ⌖ button renders (the prop is a function, hence truthy) and does nothing when clicked. A visible control that silently does nothing is worse than no control. | Nothing asserts that a rendered control has an effect. | — |
 | D-15 | 🟠 | **The file-input fallback may never resolve on cancel.** Cancel detection relies on the `cancel` event, which not every browser fires. A dismissed picker leaves the promise pending rather than throwing. | Acceptable under "never throws", but a real UX dead end. From C-05. |
 | D-16 | 🟡 | **The permission banner's "Not now" is per-mount**, not persisted — it reappears on a fresh mount while the permission is still unresolved. | From C-29. |
 | D-17 | 🟡 | **The chord toolbar group overflows** into horizontal scroll at 1024px with both sidebars open. Pre-existing; C-13 improved it but did not eliminate it. | |
