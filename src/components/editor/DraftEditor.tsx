@@ -9,6 +9,8 @@ import { LineContextMenu } from './LineContextMenu';
 import { ChordPopover, ChordPopoverTarget } from './ChordPopover';
 import { SpeakerAutocomplete, SpeakerSuggestState } from './SpeakerAutocomplete';
 import { useLineMenuStore } from '../../app/state/lineMenuStore';
+import { useActiveEditorStore } from '../../app/state/activeEditorStore';
+import { createActiveEditorCommands } from '../../editor/core/editorCommands';
 import { chordPluginKey } from '../../editor/extensions/chords';
 import { syllablePluginKey } from '../../editor/extensions/syllables';
 import { characterColorPluginKey } from '../../editor/extensions/characters';
@@ -85,6 +87,20 @@ export function DraftEditor({
       editor.commands.setContent(initialContent, { emitUpdate: false });
     }
   }, [editor, initialContent]);
+
+  // C-48: the editor command bridge (§13.0). Expose a narrow, non-reactive
+  // command surface on `activeEditorStore` — never the `Editor` object
+  // itself — so code outside this component (the right rail's
+  // lookup-and-collect loop) can read/write the caret without forcing this
+  // component (or anything else) to re-render on every keystroke. Only the
+  // draft editor registers; `RichTextEditor` (the workspace editor) never
+  // imports this store. Re-registers whenever `editor` changes so a fresh
+  // editor instance is never left stranded on a stale registration.
+  useEffect(() => {
+    if (!editor) return;
+    const unregister = useActiveEditorStore.getState().register(createActiveEditorCommands(editor));
+    return unregister;
+  }, [editor]);
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;

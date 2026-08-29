@@ -20,6 +20,9 @@ Structured sections, metadata tags, and metadata display toggles.
 - `tests/unit/editor/character-decorations.test.ts` (C-20)
 - `tests/unit/editor/speaker-autocomplete.test.tsx` (C-20)
 - `tests/integration/editor/character-registry-integration.test.tsx` (C-20)
+- `tests/unit/editor/active-editor-store.test.ts` (C-48)
+- `tests/unit/editor/active-editor-bridge.test.ts` (C-48)
+- `tests/integration/editor/active-editor-bridge-integration.test.tsx` (C-48)
 
 ## Checklist
 
@@ -63,6 +66,16 @@ Structured sections, metadata tags, and metadata display toggles.
 | T-4.36 | A concurrent-block column inherits its linked character's colour, in the editor and in export (squash + side-by-side) | unit | `tests/unit/editor/character-decorations.test.ts`, `tests/unit/domain/characters.test.ts` | [x] | [x] | C-20 |
 | T-4.37 | Finalizing a new speaker name (leaving the line via Enter, or on blur) that matches no registry entry creates exactly one new character and links the line to it | unit | `tests/unit/editor/character-link.test.ts` | [x] | [x] | C-20: `reconcileSpeakerCharacters` / `onFinalizeSpeakerName` |
 | T-4.38 | Pressing Enter after re-typing an already-registered character's exact name still exits the speaker line (the `[[` autocomplete must not swallow Enter just because the typed text is an exact suggestion match) | e2e | `tests/e2e/speaker-stage-direction.spec.ts` | [x] | [x] | C-20: regression found during manual visual verification — fixed in `DraftEditor.tsx`'s autocomplete keydown handler (no longer calls `preventDefault`/`stopPropagation` on Enter) |
+| T-4.39 | With no draft open, every `activeEditorStore` command is a safe no-op returning `false`/`null`, including after the editor that once held it is destroyed | unit | `tests/unit/editor/active-editor-store.test.ts`, `tests/unit/editor/active-editor-bridge.test.ts` | [x] | [x] | C-48 |
+| T-4.40 | `insertAtCaret` inserts at the caret (or replaces a selection) as one undo step | unit | `tests/unit/editor/active-editor-bridge.test.ts` | [x] | [x] | C-48 |
+| T-4.41 | Unregistering clears the registration; a later call is a safe no-op | unit | `tests/unit/editor/active-editor-store.test.ts` | [x] | [x] | C-48 |
+| T-4.42 | Switching drafts re-registers; an insert lands in the newly-active draft, never the old one | unit, integration | `tests/unit/editor/active-editor-store.test.ts`, `tests/integration/editor/active-editor-bridge-integration.test.tsx` | [x] | [x] | C-48 |
+| T-4.43 | Subscribing to `activeEditorStore` does not cause a re-render on every keystroke — only register/unregister transitions change its reactive `hasActiveDraft` slice | unit | `tests/unit/editor/active-editor-store.test.ts` | [x] | [x] | C-48: the command surface itself lives outside zustand state entirely |
+| T-4.44 | Mounting `DraftEditor` registers a draft, and `insertAtCaret` reaches the live rendered document | integration | `tests/integration/editor/active-editor-bridge-integration.test.tsx` | [x] | [x] | C-48 |
+| T-4.45 | Unmounting `DraftEditor` clears the registration | integration | `tests/integration/editor/active-editor-bridge-integration.test.tsx` | [x] | [x] | C-48 |
+| T-4.46 | The workspace `RichTextEditor` never registers with `activeEditorStore` | integration | `tests/integration/editor/active-editor-bridge-integration.test.tsx` | [x] | [x] | C-48: a chip click must never land in the Brief |
+| T-4.47 | `getFocusedWord` returns the word under the caret or a single-word selection; `null` for whitespace/punctuation or a multi-word selection | unit | `tests/unit/editor/active-editor-bridge.test.ts` | [x] | [x] | C-48 |
+| T-4.48 | `insertAtCaret` replaces a non-empty selection, still as one undo step | unit | `tests/unit/editor/active-editor-bridge.test.ts` | [x] | [x] | C-48 |
 
 ## Retired criteria
 - **T-4.06** ("Spoken/sung state persists on lyric line") — retired 2026-08-29 (C-10). The
