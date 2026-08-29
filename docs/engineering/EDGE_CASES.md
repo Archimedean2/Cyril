@@ -42,6 +42,21 @@ Written 2026-07-05. This is a living register — add to it as new interactions 
 - 🟠 Sticky stage-direction mode (planned) × paste of multiple lines × Enter × Escape exit.
 - 🟠 Empty section (no lines), deleting a section header, two sections with the same label, reordering.
 - 🟡 A concurrent block nested in a section; a section with only a concurrent block.
+- 🔴 (C-20) Recolouring/renaming a character must update every line linked to it by `characterId`
+  even when the line's own typed text no longer matches the registry name (e.g. after a rename) —
+  colour resolution must prefer the stable id link over a live text match. Covered:
+  `tests/unit/domain/characters.test.ts` ("resolveCharacterColor prefers characterId over a name
+  match"), `tests/unit/domain/migration.test.ts` T-4.31.
+- 🟠 (C-20) A typo'd new speaker name with no registry match auto-creates a character on finalize
+  (Enter/blur); picking a registry suggestion from the `[[` autocomplete instead must never create
+  a duplicate. Covered: `tests/unit/editor/character-link.test.ts` T-4.32/T-4.37.
+- 🟠 (C-20) Toggling a speaker line back to `lyric` (toolbar, Backspace-at-start, or Enter-exit)
+  must clear a stale `characterId` rather than silently keeping a link to a character no longer
+  displayed on that line. Covered: `tests/unit/editor/character-link.test.ts` ("setLineType away
+  from 'speaker' clears a stale characterId").
+- 🟡 (C-20) Two speaker occurrences differing only by case/whitespace (`"WOODY"` vs `" woody "`)
+  must collapse into one derived character on migration, not two. Covered:
+  `tests/unit/domain/migration.test.ts` T-4.35.
 
 ## 4. Concurrent blocks (the most interaction-dense feature)
 
