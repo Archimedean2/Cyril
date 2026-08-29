@@ -1,9 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { X, FileText, Printer, Share2 } from 'lucide-react';
 import { useProjectStore } from '../../app/state/projectStore';
 import { ExportSettings } from '../../domain/project/types';
-import { exportToMarkdown, exportToPrint } from '../../domain/export/exportService';
+import { exportToMarkdown, exportToPrint, getPrintPreviewHtml } from '../../domain/export/exportService';
 import { copyShareLink } from '../../domain/share/shareService';
+import { PRINT_PROFILES, PrintProfileId, DEFAULT_PRINT_PROFILE, getStoredPrintProfile } from '../../domain/export/exportTypes';
 
 interface ExportDialogProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
   const exportSettings = useProjectStore((state) => state.currentProject?.project.exportSettings);
   const updateExportSetting = useProjectStore((state) => state.updateExportSetting);
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [printPanelOpen, setPrintPanelOpen] = useState(false);
 
   // Default export settings when no project is loaded
   const defaultExportSettings: ExportSettings = {
@@ -26,25 +28,52 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
     fontPreset: 'default',
     pageDensity: 'normal',
     concurrentLayout: 'squash',
+    printProfile: DEFAULT_PRINT_PROFILE,
   };
 
   const currentExportSettings = exportSettings || defaultExportSettings;
+  const selectedProfile = getStoredPrintProfile(currentExportSettings);
+  const activeDraftId = activeView.type === 'draft' ? activeView.draftId : null;
+
+  // Close the print panel whenever the dialog itself closes, so reopening
+  // it starts from the format picker rather than a stale preview.
+  useEffect(() => {
+    if (!isOpen) setPrintPanelOpen(false);
+  }, [isOpen]);
+
+  // Each print profile produces visibly different output from the same
+  // draft (C-22) — recompute the preview whenever the profile changes, or
+  // any project state changes (e.g. the section-labels/density toggles,
+  // which live on `currentProject.project.exportSettings`).
+  const previewHtml = useMemo(() => {
+    if (!printPanelOpen || !currentProject) return null;
+    return getPrintPreviewHtml(currentProject, activeDraftId, selectedProfile);
+  }, [printPanelOpen, currentProject, activeDraftId, selectedProfile]);
 
   const handleExportMarkdown = useCallback(() => {
     if (!currentProject) return;
-    const success = exportToMarkdown(currentProject, activeView.type === 'draft' ? activeView.draftId : null);
+    const success = exportToMarkdown(currentProject, activeDraftId);
     if (success) {
       onClose();
     }
-  }, [currentProject, activeView, onClose]);
+  }, [currentProject, activeDraftId, onClose]);
 
-  const handleExportPrint = useCallback(() => {
+  const handleTogglePrintPanel = useCallback(() => {
+    setPrintPanelOpen((open) => !open);
+  }, []);
+
+  const handleSelectProfile = useCallback((profile: PrintProfileId) => {
+    updateExportSetting('printProfile', profile);
+  }, [updateExportSetting]);
+
+  const handleConfirmPrint = useCallback(() => {
     if (!currentProject) return;
-    const success = exportToPrint(currentProject, activeView.type === 'draft' ? activeView.draftId : null);
+    const success = exportToPrint(currentProject, activeDraftId, selectedProfile);
     if (success) {
+      setPrintPanelOpen(false);
       onClose();
     }
-  }, [currentProject, activeView, onClose]);
+  }, [currentProject, activeDraftId, selectedProfile, onClose]);
 
   const handleShareCopy = useCallback(async () => {
     if (!currentProject) {
@@ -98,6 +127,8 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
           border: '1px solid var(--border-default, #c8d0db)',
           width: '420px',
           maxWidth: '90vw',
+          maxHeight: '90vh',
+          overflowY: 'auto',
           padding: '16px',
           boxShadow: '0 1px 2px rgba(31, 36, 48, 0.06)',
         }}
@@ -192,7 +223,7 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
               </span>
             </button>
             <button
-              onClick={handleExportPrint}
+              onClick={handleTogglePrintPanel}
               style={{
                 flex: 1,
                 display: 'flex',
@@ -201,18 +232,19 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                 gap: '8px',
                 padding: '16px',
                 borderRadius: '6px',
-                border: '1px solid var(--border-default, #c8d0db)',
-                backgroundColor: 'var(--bg-panel, #f8f9fb)',
+                border: `1px solid ${printPanelOpen ? 'var(--accent-primary, #4f7db8)' : 'var(--border-default, #c8d0db)'}`,
+                backgroundColor: printPanelOpen ? 'var(--accent-soft, #d7e6f7)' : 'var(--bg-panel, #f8f9fb)',
                 cursor: 'pointer',
                 transition: 'background-color 0.1s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--bg-hover, #e8edf3)';
+                if (!printPanelOpen) e.currentTarget.style.backgroundColor = 'var(--bg-hover, #e8edf3)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--bg-panel, #f8f9fb)';
+                if (!printPanelOpen) e.currentTarget.style.backgroundColor = 'var(--bg-panel, #f8f9fb)';
               }}
               data-testid="export-print-button"
+              aria-expanded={printPanelOpen}
             >
               <Printer size={24} color="var(--text-secondary, #4a5565)" />
               <span
@@ -335,6 +367,145 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
             />
           </div>
         </div>
+
+        {/* Print profile panel — opened by the "Print / PDF" format button. */}
+        {printPanelOpen && (
+          <div
+            data-testid="print-profile-panel"
+            style={{
+              marginTop: '4px',
+              marginBottom: '4px',
+              paddingTop: '16px',
+              borderTop: '1px solid var(--border-default, #c8d0db)',
+            }}
+          >
+            <label
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--text-secondary, #4a5565)',
+                marginBottom: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              Print profile
+            </label>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '8px',
+                marginBottom: '16px',
+              }}
+            >
+              {PRINT_PROFILES.map((profile) => (
+                <button
+                  key={profile.id}
+                  onClick={() => handleSelectProfile(profile.id)}
+                  data-testid={`print-profile-${profile.id}`}
+                  aria-pressed={selectedProfile === profile.id}
+                  style={{
+                    textAlign: 'left',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: `1px solid ${
+                      selectedProfile === profile.id
+                        ? 'var(--accent-primary, #4f7db8)'
+                        : 'var(--border-default, #c8d0db)'
+                    }`,
+                    backgroundColor:
+                      selectedProfile === profile.id
+                        ? 'var(--accent-soft, #d7e6f7)'
+                        : 'var(--bg-panel, #f8f9fb)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: 'var(--text-primary, #1f2430)',
+                    }}
+                  >
+                    {profile.label}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: 'var(--text-secondary, #4a5565)',
+                      marginTop: '2px',
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {profile.description}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                color: 'var(--text-secondary, #4a5565)',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              Preview
+            </div>
+            <div
+              style={{
+                border: '1px solid var(--border-default, #c8d0db)',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                height: '240px',
+                backgroundColor: '#fff',
+                marginBottom: '16px',
+              }}
+            >
+              {previewHtml ? (
+                <iframe
+                  title="Print preview"
+                  data-testid="print-preview-frame"
+                  srcDoc={previewHtml}
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                />
+              ) : (
+                <div
+                  style={{
+                    padding: '16px',
+                    fontSize: '12px',
+                    color: 'var(--text-muted, #738093)',
+                  }}
+                >
+                  Nothing to preview yet.
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleConfirmPrint}
+              data-testid="print-confirm-button"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: 'var(--accent-primary, #4f7db8)',
+                color: '#fff',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Print / Save PDF
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

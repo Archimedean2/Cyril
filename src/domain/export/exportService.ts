@@ -6,10 +6,13 @@ import { CyrilFile, ExportSettings } from '../project/types';
 import { selectActiveDraft, buildExportableDraft } from './exportSelectors';
 import { draftToMarkdown, exportDraftToMarkdown } from './markdownTransformer';
 import { renderPrintDocument, openPrintView } from './printRenderer';
-import { ResolvedExportOptions } from './exportTypes';
+import { ResolvedExportOptions, PrintProfileId, getStoredPrintProfile } from './exportTypes';
+import { resolvePrintOptions } from './printProfiles';
 
 /**
- * Resolve export settings to runtime options
+ * Resolve export settings to runtime options for Markdown export.
+ * Markdown is not profile-driven (DESIGN_PROPOSAL §7 scopes print profiles
+ * to the Print/PDF output) — it honours the raw include* toggles as before.
  */
 function resolveExportOptions(exportSettings: ExportSettings): ResolvedExportOptions {
   return {
@@ -17,8 +20,10 @@ function resolveExportOptions(exportSettings: ExportSettings): ResolvedExportOpt
     includeSpeakerLabels: exportSettings.includeSpeakerLabels,
     includeStageDirections: exportSettings.includeStageDirections,
     includeChords: exportSettings.includeChords,
+    includeAlternates: false,
     pageDensity: exportSettings.pageDensity,
     concurrentLayout: exportSettings.concurrentLayout ?? 'squash',
+    printProfile: getStoredPrintProfile(exportSettings),
   };
 }
 
@@ -44,11 +49,13 @@ export function exportToMarkdown(
 }
 
 /**
- * Export current active draft to Print/PDF
+ * Export current active draft to Print/PDF, using the given print profile
+ * (falls back to the project's persisted profile, then the default).
  */
 export function exportToPrint(
   projectFile: CyrilFile,
-  activeDraftId: string | null
+  activeDraftId: string | null,
+  profile?: PrintProfileId
 ): boolean {
   const draft = selectActiveDraft(projectFile, activeDraftId);
   if (!draft) {
@@ -56,12 +63,30 @@ export function exportToPrint(
     return false;
   }
 
-  const options = resolveExportOptions(projectFile.project.exportSettings);
+  const options = resolvePrintOptions(projectFile.project.exportSettings, profile);
   const exportable = buildExportableDraft(projectFile, draft, options);
-  const html = renderPrintDocument(exportable, options.pageDensity);
+  const html = renderPrintDocument(exportable, options);
 
   openPrintView(html);
   return true;
+}
+
+/**
+ * Build the print-ready HTML for a given profile without opening the print
+ * window — used by the Export dialog's live preview so each profile can be
+ * previewed before print/PDF.
+ */
+export function getPrintPreviewHtml(
+  projectFile: CyrilFile,
+  activeDraftId: string | null,
+  profile?: PrintProfileId
+): string | null {
+  const draft = selectActiveDraft(projectFile, activeDraftId);
+  if (!draft) return null;
+
+  const options = resolvePrintOptions(projectFile.project.exportSettings, profile);
+  const exportable = buildExportableDraft(projectFile, draft, options);
+  return renderPrintDocument(exportable, options);
 }
 
 /**
@@ -75,6 +100,22 @@ export function getExportableDraft(
   if (!draft) return null;
 
   const options = resolveExportOptions(projectFile.project.exportSettings);
+  return buildExportableDraft(projectFile, draft, options);
+}
+
+/**
+ * Get the exportable draft as it would be built for a given print profile
+ * (for testing/preview — does not open a print window).
+ */
+export function getExportableDraftForProfile(
+  projectFile: CyrilFile,
+  activeDraftId: string | null,
+  profile?: PrintProfileId
+) {
+  const draft = selectActiveDraft(projectFile, activeDraftId);
+  if (!draft) return null;
+
+  const options = resolvePrintOptions(projectFile.project.exportSettings, profile);
   return buildExportableDraft(projectFile, draft, options);
 }
 
