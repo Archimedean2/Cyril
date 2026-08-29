@@ -37,6 +37,7 @@ Project CRUD and local persistence.
 | T-1.27 | A newer schemaVersion is handled (warned, not blindly loaded) | unit, integration | `tests/unit/persistence/load-validation.test.ts`, `tests/integration/persistence/load-validation.test.ts` | [x] | [x] | HARDENING §H5 (C-02) |
 | T-1.30 | A tab closed mid-write ('saving') is warned like any other dirty state | unit | `tests/unit/persistence/beforeUnloadGuard.test.ts` | [x] | [x] | C-30 |
 | T-1.29 | No file handle + edits pending → status never reads 'saved'/clean 'idle'; reports honest 'local-only' | integration | `tests/integration/persistence/save-status-honesty.test.tsx` | [x] | [x] | HARDENING §H7 (C-06) |
+| T-1.28 | A changed lastModified triggers the overwrite warning; autosave never clobbers, it fails | unit, integration | `tests/unit/persistence/fileManager.test.ts`, `tests/integration/persistence/external-change-guard.test.ts`, `tests/integration/persistence/save-cancel-vs-error.test.ts` | [x] | [x] | HARDENING §H6 (C-07) |
 
 ## Regression Requirements
 - Stage 0 tests must remain passing

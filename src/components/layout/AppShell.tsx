@@ -54,13 +54,21 @@ export function AppShell() {
     if (!store.currentProject) return;
     useSaveStatusStore.getState().setStatus('saving');
     try {
-      await store.saveProject();
-      useSaveStatusStore.getState().setStatus('saved');
-      setTimeout(() => {
-        if (useSaveStatusStore.getState().status === 'saved') {
-          useSaveStatusStore.getState().setStatus('idle');
-        }
-      }, 2000);
+      // HARDENING §H6 / C-07: saveProject() now resolves `false` (no throw) when the save
+      // was cancelled without error — the picker was dismissed, or the user declined to
+      // overwrite a file that changed outside Cyril. Nothing was written in that case, so
+      // the status must not claim 'saved'.
+      const wrote = await store.saveProject();
+      if (wrote) {
+        useSaveStatusStore.getState().setStatus('saved');
+        setTimeout(() => {
+          if (useSaveStatusStore.getState().status === 'saved') {
+            useSaveStatusStore.getState().setStatus('idle');
+          }
+        }, 2000);
+      } else {
+        useSaveStatusStore.getState().setStatus('unsaved');
+      }
     } catch {
       useSaveStatusStore.getState().setStatus('error');
     }

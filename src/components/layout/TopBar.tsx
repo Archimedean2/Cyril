@@ -257,7 +257,14 @@ export function TopBar({ onExportClick, onSaveClick, onImportShare, focusModeAct
                 <button
                   className="topbar-overflow-item"
                   role="menuitem"
-                  onClick={() => { saveProjectAs(); setOverflowOpen(false); }}
+                  onClick={() => {
+                    // saveProjectAs() can now reject (HARDENING §H6 / C-07 propagates real
+                    // save failures) — the project store already records `error` state, so
+                    // this fire-and-forget call just needs to not become an unhandled
+                    // rejection.
+                    saveProjectAs().catch(() => {});
+                    setOverflowOpen(false);
+                  }}
                   data-testid="topbar-save-as-btn"
                 >
                   <SaveAll size={13} />

@@ -28,8 +28,12 @@ interface ProjectState {
   initApp: () => Promise<void>;
   createProject: (title?: string) => void;
   openProject: () => Promise<void>;
-  saveProject: () => Promise<void>;
-  saveProjectAs: () => Promise<void>;
+  // Resolve `true` if the save actually wrote to disk, `false` if it was cancelled
+  // without error (picker dismissed, or the user declined to overwrite a file that
+  // changed outside Cyril — HARDENING §H6 / C-07). Rethrows genuine failures after
+  // recording `error`, so callers (the save-status indicator) can react honestly.
+  saveProject: () => Promise<boolean>;
+  saveProjectAs: () => Promise<boolean>;
   renameProject: (newTitle: string) => void;
   duplicateProject: (newTitle: string) => void;
   closeProject: () => void;
@@ -177,26 +181,34 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   saveProject: async () => {
     const { currentProject } = get();
-    if (!currentProject) return;
-    
+    if (!currentProject) return false;
+
     try {
-      await saveProject(currentProject, false);
-      // Re-set to trigger re-renders if updatedAt changed
-      set({ currentProject: { ...currentProject } });
+      const wrote = await saveProject(currentProject, false);
+      if (wrote) {
+        // Re-set to trigger re-renders if updatedAt changed
+        set({ currentProject: { ...currentProject } });
+      }
+      return wrote;
     } catch (err: unknown) {
       set({ error: err instanceof Error ? err.message : String(err) });
+      throw err;
     }
   },
 
   saveProjectAs: async () => {
     const { currentProject } = get();
-    if (!currentProject) return;
-    
+    if (!currentProject) return false;
+
     try {
-      await saveProject(currentProject, true);
-      set({ currentProject: { ...currentProject } });
+      const wrote = await saveProject(currentProject, true);
+      if (wrote) {
+        set({ currentProject: { ...currentProject } });
+      }
+      return wrote;
     } catch (err: unknown) {
       set({ error: err instanceof Error ? err.message : String(err) });
+      throw err;
     }
   },
 
