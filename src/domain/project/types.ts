@@ -8,11 +8,29 @@ export type PreferredExportMode = 'lyricsOnly' | 'lyricsWithChords';
 export type ChordAnchorType = 'char';
 export type ChordBias = 'before' | 'on' | 'after';
 
+/**
+ * The section-accent family a character's identity colour is drawn from
+ * (`--section-blue`, `-green`, `-gold`, `-rose`, `-violet` — see
+ * `docs/design/UI_TOKENS.md`). Colours are auto-assigned in this order and
+ * cycle if there are more than five characters (C-20).
+ */
+export type CharacterColor = 'blue' | 'green' | 'gold' | 'rose' | 'violet';
+
 export interface Writer {
   id: string;
   name: string;
   role?: string;
   email?: string;
+}
+
+/**
+ * A first-class character/speaker identity (C-20). Lives at project level in
+ * `CyrilProject.characters` — see `docs/engineering/DATA_MODEL.md`.
+ */
+export interface Character {
+  id: string;
+  name: string;
+  color: CharacterColor;
 }
 
 export interface RichTextNode {
@@ -79,6 +97,13 @@ export interface LyricLineAttrs {
   id: string;
   rhymeGroup: string | null;
   lineType: 'lyric' | 'speaker' | 'stageDirection';
+  /**
+   * C-20: links a `lineType: 'speaker'` line to a `Character` in
+   * `CyrilProject.characters`. Null/absent means the line isn't linked to a
+   * registered character yet (e.g. not yet finalized, or a legacy project
+   * that hasn't been reconciled). Meaningless on non-speaker lines.
+   */
+  characterId?: string | null;
 }
 
 export interface LyricLineNode extends RichTextNode {
@@ -113,6 +138,8 @@ export interface SectionBlockNode extends RichTextNode {
 export interface SpeakerColumnAttrs {
   id: string;
   speakerName: string;
+  /** C-20: links this column to a `Character`, same semantics as `LyricLineAttrs.characterId`. */
+  characterId?: string | null;
 }
 
 export interface SpeakerColumnNode extends RichTextNode {
@@ -200,6 +227,15 @@ export interface CyrilProject {
   displaySettings: DisplaySettings;
   exportSettings: ExportSettings;
   projectSettings: ProjectSettings;
+  /**
+   * C-20: the project's character/speaker registry. Project-level (not
+   * per-draft) — see `docs/engineering/DATA_MODEL.md`. Optional in the type
+   * (like `writers`) so existing hand-built `CyrilProject` fixtures outside
+   * this feature's scope don't need updating; `createDefaultProject` and
+   * `migrateProject` always populate it in practice, and every reader in
+   * this codebase treats it as `characters ?? []`.
+   */
+  characters?: Character[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any; // Allow unknown fields (read directly by consumers/tests)
 }

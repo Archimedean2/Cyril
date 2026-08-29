@@ -92,6 +92,15 @@ export interface ExportableLine {
   type: 'lyric' | 'speaker' | 'stageDirection' | 'paragraph';
   content: string;
   speaker?: string;
+  /**
+   * C-20: the speaker's resolved character colour, as a section-accent
+   * token (`'blue' | 'green' | 'gold' | 'rose' | 'violet'`) — present only
+   * on `type: 'speaker'` lines whose character resolves to one. Consumers
+   * (print) render it via `var(--section-<token>)`, same as
+   * `SectionBlockAttrs.color` / `Character.color` — see
+   * `docs/engineering/DATA_MODEL.md`.
+   */
+  speakerColor?: string;
   stageDirection?: string;
   chords?: ExportableChord[];
   // Annotated profile only: other (non-active) alternates for this line
@@ -107,6 +116,8 @@ export interface ExportableChord {
 
 export interface ConcurrentColumnExport {
   speakerName: string;
+  /** C-20: see `ExportableLine.speakerColor`. */
+  speakerColor?: string;
   lines: ExportableLine[];
 }
 

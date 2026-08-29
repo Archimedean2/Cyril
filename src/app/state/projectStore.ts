@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { CyrilFile, ExportSettings } from '../../domain/project/types';
+import { Character, CharacterColor, CyrilFile, ExportSettings } from '../../domain/project/types';
 import { createDraft, DuplicationMode } from '../../domain/project/drafts';
 import {
   openProject,
@@ -76,6 +76,11 @@ interface ProjectState {
   // Export Settings Actions
   updateExportSetting: (settingKey: keyof ExportSettings, value: boolean | string) => void;
   updateExportSettings: (settings: Partial<ExportSettings>) => void;
+
+  // Character registry Actions (C-20)
+  addCharacter: (character: Character) => void;
+  renameCharacter: (characterId: string, name: string) => void;
+  recolorCharacter: (characterId: string, color: CharacterColor) => void;
 
   // Share Actions
   importShare: (shareBlob: string) => void;
@@ -540,6 +545,68 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           updatedAt: new Date().toISOString(),
         }
       }
+    });
+  },
+
+  addCharacter: (character: Character) => {
+    const { currentProject } = get();
+    if (!currentProject) return;
+
+    // Guard against a duplicate id sneaking in twice (e.g. a callback fired
+    // twice for the same finalize event) rather than trusting every caller.
+    const existing = currentProject.project.characters ?? [];
+    if (existing.some(c => c.id === character.id)) return;
+
+    set({
+      currentProject: {
+        ...currentProject,
+        project: {
+          ...currentProject.project,
+          characters: [...existing, character],
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    });
+  },
+
+  renameCharacter: (characterId: string, name: string) => {
+    const { currentProject } = get();
+    if (!currentProject) return;
+
+    // Deliberately not trimmed/rejected-if-empty here: this is called on
+    // every keystroke from a controlled rename input, and normalizing
+    // mid-edit would fight the input while the writer is still typing.
+    // An empty/whitespace name is the writer's prerogative while editing;
+    // nothing downstream treats it as invalid.
+    set({
+      currentProject: {
+        ...currentProject,
+        project: {
+          ...currentProject.project,
+          characters: (currentProject.project.characters ?? []).map(c =>
+            c.id === characterId ? { ...c, name } : c
+          ),
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    });
+  },
+
+  recolorCharacter: (characterId: string, color: CharacterColor) => {
+    const { currentProject } = get();
+    if (!currentProject) return;
+
+    set({
+      currentProject: {
+        ...currentProject,
+        project: {
+          ...currentProject.project,
+          characters: (currentProject.project.characters ?? []).map(c =>
+            c.id === characterId ? { ...c, color } : c
+          ),
+          updatedAt: new Date().toISOString(),
+        },
+      },
     });
   },
 

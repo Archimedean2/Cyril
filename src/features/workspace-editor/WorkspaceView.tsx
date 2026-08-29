@@ -1,6 +1,7 @@
 import { useProjectStore } from '../../app/state/projectStore';
 import { RichTextEditor } from '../../components/editor/RichTextEditor';
 import { RichTextDocument } from '../../domain/project/types';
+import { CharacterRegistry } from './CharacterRegistry';
 
 export function WorkspaceView() {
   const currentProject = useProjectStore((s) => s.currentProject);
@@ -31,7 +32,9 @@ export function WorkspaceView() {
       <header style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600 }}>{titles[workspaceKey]}</h2>
       </header>
-      
+
+      {workspaceKey === 'structure' && <CharacterRegistry />}
+
       <div className="editor-container" style={{ maxWidth: '760px' }}>
         <RichTextEditor 
           initialContent={workspaceDoc}

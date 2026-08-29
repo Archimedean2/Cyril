@@ -7,27 +7,22 @@ import { SpeakerColumn } from '../nodes/speakerColumn/speakerColumn';
 import { ConcurrentBlock } from '../nodes/concurrentBlock/concurrentBlock';
 import { ChordExtension } from '../extensions/chords';
 import { SyllableExtension } from '../extensions/syllables';
+import { CharacterColorExtension } from '../extensions/characters';
 import { DraftPlaceholder } from '../extensions/placeholder';
+import { Character } from '../../domain/project/types';
 
-export const draftExtensions = [
-  StarterKit.configure({
-    heading: false,
-    bulletList: false,
-    orderedList: false,
-    listItem: false,
-    blockquote: false,
-    code: false,
-    codeBlock: false,
-    horizontalRule: false,
-    strike: false,
-    paragraph: false,
-  }),
-  Indent,
-  LyricLine,
-  SectionBlock,
-  SpeakerColumn,
-  ConcurrentBlock,
-];
+const STARTER_KIT = StarterKit.configure({
+  heading: false,
+  bulletList: false,
+  orderedList: false,
+  listItem: false,
+  blockquote: false,
+  code: false,
+  codeBlock: false,
+  horizontalRule: false,
+  strike: false,
+  paragraph: false,
+});
 
 export interface DraftEditorConfigOptions {
   content?: Content;
@@ -35,14 +30,31 @@ export interface DraftEditorConfigOptions {
   draftMode?: 'lyrics' | 'lyricsWithChords';
   showSyllableCounts?: boolean;
   showStressMarks?: boolean;
+  /** C-20: the project's character registry, for colour decoration. */
+  characters?: Character[];
+  /** C-20: see `LyricLineOptions.onFinalizeSpeakerName`. */
+  onFinalizeSpeakerName?: (name: string) => string | null;
 }
 
 export const getDraftEditorConfig = (options: DraftEditorConfigOptions = {}): Partial<EditorOptions> => {
-  const { content, showChords = true, draftMode = 'lyrics', showSyllableCounts = false, showStressMarks = false } = options;
+  const {
+    content,
+    showChords = true,
+    draftMode = 'lyrics',
+    showSyllableCounts = false,
+    showStressMarks = false,
+    characters = [],
+    onFinalizeSpeakerName,
+  } = options;
 
   return {
     extensions: [
-      ...draftExtensions,
+      STARTER_KIT,
+      Indent,
+      LyricLine.configure({ onFinalizeSpeakerName }),
+      SectionBlock,
+      SpeakerColumn,
+      ConcurrentBlock,
       ChordExtension.configure({
         showChords,
         draftMode,
@@ -51,6 +63,7 @@ export const getDraftEditorConfig = (options: DraftEditorConfigOptions = {}): Pa
         showSyllableCounts,
         showStressMarks,
       }),
+      CharacterColorExtension.configure({ characters }),
       DraftPlaceholder,
     ],
     content,
