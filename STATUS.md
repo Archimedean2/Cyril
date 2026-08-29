@@ -43,16 +43,35 @@ _Last stamped: **2026-08-28 15:29 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** one agent on C-04 (IndexedDB recovery snapshot) then C-02 (load validation).
-Both are lane P and share `fileManager.ts`, so they run sequentially in one worktree, not as two
-concurrent agents.
+**Working on:** three agents in parallel worktrees — lane P (C-30, C-06, C-07, C-29, C-05),
+lane E (C-10, C-19, C-13), lane S (C-15, C-11, C-14).
 
-**Last verified state:** the first parallel run is pushed as five PRs against `main` — #4 docs,
-#5 persistence (C-01/C-03), #6 editor (C-09), #7 visual (C-12/C-16), #8 CI (C-18). Each branch
-builds and tests green independently off `origin/main`.
+**Last verified state:** six PRs open against `main`; #4–#8 all pass CI. Integration branch green:
+341 tests, 150/150 non-e2e criteria, e2e 113/113.
 
-**Blocked on:** one open decision — whether the `beforeunload` guard should treat `saving` as
-dirty (note in the P0 block of `BACKLOG.md`).
+**Blocked on:** nothing. Everything below was decided without the maintainer, who is away —
+see *Decisions taken unsupervised*, which is the first thing to review.
+
+## Decisions taken unsupervised (2026-08-29) — review these
+
+The maintainer stepped away and asked for the backlog to be worked autonomously. These are the
+judgement calls made in their absence, each one reversible:
+
+1. **`beforeunload` treats `saving` as dirty** (was an open question from C-03, now C-30). A tab
+   closed mid-write got no warning. Cost of a false positive is a spurious dialog in a sub-second
+   window; cost of a false negative is lost work. Chose the dialog.
+2. **The re-grant affordance (C-29) is an inline banner, not a modal.** Non-blocking, sits near
+   the work. A modal on init would block a writer who just wants to keep typing.
+3. **The Inventory (C-11) keeps its existing storage.** Chips are a rendering change over the
+   same document, not a schema change — one line per collected item. Changing `.cyril` for a
+   visual improvement would have been the wrong trade, and `TASKING.md` forbids casual schema
+   drift. The agent was told to stop and report if that proved impossible.
+4. **CI now runs on pull requests to any base branch.** Stacked PR #9 was getting no CI at all.
+5. **CI fails if a tracked file exceeds 5 MB.** Added after a near-miss: a `git add -A` on a
+   branch cut before the current `.gitignore` staged the 486 MB ConceptNet dump and GitHub's
+   hook rejected the push. The smaller 9 MB and 24 MB indexes would not have been rejected.
+6. **Order of work: finished the P0 persistence block before visual polish**, on the maintainer's
+   own stated priority that data safety outranks look and feel.
 
 ---
 
