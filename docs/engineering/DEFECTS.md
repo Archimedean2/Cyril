@@ -29,6 +29,7 @@ Severity: 🔴 data loss / core flow broken · 🟠 wrong behaviour · 🟡 poli
 | D-12 | 🟡 | **A tooltip advertised a shortcut that did not exist** (`Ctrl+Shift+K` on Concurrent). | Nothing checks tooltip claims against real keybindings. | Removed in C-13 |
 | D-13 | 🟠 | **A tab closed mid-write got no unsaved warning** — the guard treated only `unsaved`/`error` as dirty, not `saving`. | The spec was written that way; the test encoded the spec. | `T-1.30` |
 | D-22 | 🟠 | **A denied clipboard logged a console error and flashed "Copied" over a failure.** Clicking a tool result called `navigator.clipboard.writeText` and, on denial (insecure context, gated permission, automated session), logged `console.error` and ran a no-op "fallback" that cleared the selection. The user was told "Copied" regardless. | Nothing failed a test on a console error until the guard landed — this was its very first catch. | `T-7.08` + the console guard |
+| D-21 | 🟡 | **`printProfile` was bolted onto `ExportSettings` by TypeScript module augmentation** rather than declared in `types.ts` — a scheduling workaround from when that file was owned by a concurrent change. | Types compile either way; nothing asserts where a field is declared. | C-32 moved it to `types.ts`; `declare module '../project/types'` is gone |
 | D-14 | 🟠 | **`T-5.04` was a hollow test** — it claimed to verify per-draft inventory without ever switching drafts. | It passed, which is the whole problem. | Rewritten to switch drafts |
 
 ## Open
@@ -41,8 +42,8 @@ Severity: 🔴 data loss / core flow broken · 🟠 wrong behaviour · 🟡 poli
 | D-17 | 🟡 | **The chord toolbar group overflows** into horizontal scroll at 1024px with both sidebars open. Pre-existing; C-13 improved it but did not eliminate it. | |
 | D-18 | 🟡 | **A suppressed duplicate speaker label leaves a blank row.** The hidden label still occupies its line height, so the continuation reads as an accidental empty line. | Tracked as `BACKLOG.md` C-33. |
 | D-19 | 🟡 | **Annotated print margin notes skip concurrent blocks** — they apply only to lyric lines inside a section. | From C-22. |
-| D-20 | 🟠 | **`main` cannot run two of its own four gates.** Neither `.eslintrc.cjs` nor `scripts/feature-coverage.mjs` is tracked, so a fresh clone fails `npm run lint` and `npm run coverage:features`. | Tracked as `BACKLOG.md` C-32. |
-| D-21 | 🟡 | **`printProfile` is bolted onto `ExportSettings` by TypeScript module augmentation** rather than declared in `types.ts`. A scheduling workaround, not a design choice. | Tracked in C-32. |
+| D-20 | 🟠 | **`main` cannot run two of its own four gates.** *Status:* every open PR branch adds both files, so it resolves on the first merge — verified with `git diff --diff-filter=A main..<branch>`. It lands by accident (a `git add -A` swept them in) rather than by intent, which is worth knowing but does not need separate work. Neither `.eslintrc.cjs` nor `scripts/feature-coverage.mjs` is tracked, so a fresh clone fails `npm run lint` and `npm run coverage:features`. | Tracked as `BACKLOG.md` C-32. |
+
 | D-23 | 🟡 | **Inserting a section with `<<` leaves stray empty `lyricLine` siblings** around the new section, so a fresh draft ends up with an invisible blank line above and below it. *Corrected on review:* these do **not** reach the export — `processNode` drops content-less lines, verified by running it rather than reading it. It is a document-hygiene issue, not an export fault. A separate, real finding did come out of checking: a **whitespace-only** line (`"   "`) *was* exported as a blank line, which is now fixed. | No test asserted document shape immediately after a section insert into an otherwise-untouched draft. | whitespace case: `T-11.25` |
 
 ## Quality issues that are not defects

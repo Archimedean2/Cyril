@@ -51,7 +51,7 @@ this table and tells you what is next, so this ordering is the one that counts.
 
 | Pri | # | Item | Lane | Status | Size | Depends | Spec |
 |--:|---|---|:--:|:--:|:--:|---|---|
-| 10 | C-32 | Track the lint config and the coverage script (main cannot run its own gates) | X | 🚧 F1 | S | — | below |
+| 10 | C-32 | Track the lint config and the coverage script (main cannot run its own gates) | X | ✅ | S | — | below |
 | 15 | C-48 | **Editor command bridge** — let the rail read and write the caret | E | 🚧 F2 | S | — | §13.0 |
 | 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ⬜ | M | C-48 | §13.1 |
 | 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ⬜ | S | C-48 | §13.2 |
