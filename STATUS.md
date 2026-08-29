@@ -43,14 +43,15 @@ _Last stamped: **2026-08-29 09:20 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** three agents in parallel worktrees — lane P (C-30, C-06, C-07, C-29, C-05),
-lane E (C-10, C-19, C-13), lane S (C-15, C-11, C-14).
+**Working on:** three agents — C-20 (character registry, the headline differentiator), C-22
+(print profiles), C-31 + C-28 (ledger conflict fix and the persistence edge-case slice).
 
-**Last verified state:** six PRs open against `main`; #4–#8 all pass CI. Integration branch green:
-341 tests, 150/150 non-e2e criteria, e2e 113/113.
+**Last verified state:** the whole P0 persistence block is complete (H1–H7 + C-29 + C-30).
+Integration branch green: 397 tests, 168/168 non-e2e criteria, e2e 113/113. Nine PRs open.
 
-**Blocked on:** nothing. Everything below was decided without the maintainer, who is away —
-see *Decisions taken unsupervised*, which is the first thing to review.
+**Blocked on:** two items need the maintainer and were deliberately NOT started — **C-25**
+(chord transpose / trailing chords: changes `ChordMarker.position` in the file format) and
+**C-27** (Hook Lab: expands v1 scope). Both say so in `BACKLOG.md`.
 
 ## Decisions taken unsupervised (2026-08-29) — review these
 
