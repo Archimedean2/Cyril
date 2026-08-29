@@ -52,7 +52,7 @@ describe('Round-trip serialization', () => {
               {
                 type: 'lyricLine',
                 attrs: {
-                  id: 'line_1', delivery: 'sung', lineType: 'lyric',
+                  id: 'line_1', lineType: 'lyric',
                   rhymeGroup: null,
                   meta: { alternates: [], prosody: null, chords: [] },
                 },
@@ -62,7 +62,7 @@ describe('Round-trip serialization', () => {
               {
                 type: 'lyricLine',
                 attrs: {
-                  id: 'line_2', delivery: 'spoken', lineType: 'speaker',
+                  id: 'line_2', lineType: 'speaker',
                   rhymeGroup: null,
                   meta: { alternates: [], prosody: null, chords: [] },
                 },
@@ -72,7 +72,7 @@ describe('Round-trip serialization', () => {
               {
                 type: 'lyricLine',
                 attrs: {
-                  id: 'line_3', delivery: 'spoken', lineType: 'stageDirection',
+                  id: 'line_3', lineType: 'stageDirection',
                   rhymeGroup: null,
                   meta: { alternates: [], prosody: null, chords: [] },
                 },
@@ -84,7 +84,7 @@ describe('Round-trip serialization', () => {
           {
             type: 'lyricLine',
             attrs: {
-              id: 'line_4', delivery: 'sung', lineType: 'lyric',
+              id: 'line_4', lineType: 'lyric',
               rhymeGroup: 'A',
               meta: { alternates: [], prosody: { syllableCount: 3, stressPattern: ['1', '0', '1'] }, chords: [] },
             },
@@ -121,9 +121,7 @@ describe('Round-trip serialization', () => {
     // Line types preserved
     const sectionContent = (doc.content[0] as any).content;
     expect(sectionContent[0].attrs.lineType).toBe('lyric');
-    expect(sectionContent[0].attrs.delivery).toBe('sung');
     expect(sectionContent[1].attrs.lineType).toBe('speaker');
-    expect(sectionContent[1].attrs.delivery).toBe('spoken');
     expect(sectionContent[2].attrs.lineType).toBe('stageDirection');
 
     // Marks preserved

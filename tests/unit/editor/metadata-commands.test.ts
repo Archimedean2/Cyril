@@ -19,7 +19,7 @@ describe('Metadata Commands', () => {
       content: [
         {
           type: 'lyricLine',
-          attrs: { id: 'line-s', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+          attrs: { id: 'line-s', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
           content: [{ type: 'text', text: 'WOODY' }]
         }
       ]
@@ -40,7 +40,7 @@ describe('Metadata Commands', () => {
       content: [
         {
           type: 'lyricLine',
-          attrs: { id: 'line-d', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+          attrs: { id: 'line-d', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
           content: [{ type: 'text', text: 'Sighs heavily' }]
         }
       ]
@@ -55,27 +55,9 @@ describe('Metadata Commands', () => {
     expect((json.content?.[0].content?.[0] as any)?.text).toBe('Sighs heavily');
   });
 
-  test('T-4.06: Spoken/sung state persists on lyric line', () => {
-    editor.commands.setContent({
-      type: 'doc',
-      content: [
-        {
-          type: 'lyricLine',
-          attrs: { id: 'line-1', delivery: 'sung', rhymeGroup: null, meta: JSON.stringify({ alternates: [], prosody: null, chords: [] }) },
-          content: [{ type: 'text', text: 'Hello' }]
-        }
-      ]
-    });
-
-    // Select the lyric line
-    editor.commands.selectAll();
-    
-    // Toggle delivery
-    const result = editor.commands.toggleDelivery();
-    expect(result).toBe(true);
-
-    const json = editor.getJSON();
-    expect(json.content?.[0].type).toBe('lyricLine');
-    expect(json.content?.[0].attrs?.delivery).toBe('spoken');
-  });
+  // T-4.06 ("Spoken/sung state persists on lyric line") covered the now-removed
+  // `delivery` feature (C-10: cut per DESIGN_PROPOSAL.md §3.4) and no longer
+  // applies — the `toggleDelivery` command and `delivery` attribute are gone.
+  // See tests/unit/editor/delivery-removed.test.ts (T-4.26) and
+  // tests/unit/domain/migration.test.ts (T-4.27).
 });

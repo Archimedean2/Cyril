@@ -39,7 +39,6 @@ describe('T-9.06: Editing lyric text does not corrupt chord marker data', () => 
             type: 'lyricLine',
             attrs: {
               id: 'line_001',
-              delivery: 'sung',
               rhymeGroup: null,
               meta: {
                 alternates: [],

@@ -1,3 +1,11 @@
+/* Editor-scoped tokens (C-19). Danger states (chord/alternate delete) live only
+   in this file, so the pair is declared here rather than in the shell's
+   :root — derived from --status-error so it tracks the shell's palette. */
+:root {
+  --bg-danger: color-mix(in srgb, var(--status-error) 10%, var(--bg-editor));
+  --border-danger: color-mix(in srgb, var(--status-error) 45%, var(--bg-editor));
+}
+
 .editor-container {
   display: flex;
   flex-direction: column;
@@ -151,20 +159,32 @@
   width: 100%;
 }
 
+/* Toolbar (C-13): grouped controls, separated from the page below it by both
+   a border and a soft shadow (the same --shadow-soft the page itself and
+   editor popovers use) so it reads as an infrastructural strip sitting above
+   the paper, not a continuation of it. Sizing follows UI_TOKENS.md §22. */
 .editor-toolbar {
   display: flex;
-  gap: 0.25rem;
-  padding: 0.375rem 0.75rem;
+  align-items: center;
+  height: 32px;
+  flex: 0 0 32px;
+  padding: 0 var(--space-1);
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   border-bottom: 1px solid var(--border-default);
   background-color: var(--bg-panel);
-  align-items: center;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
 }
 
 .toolbar-group {
   display: flex;
-  gap: 2px;
+  gap: var(--space-1);
   align-items: center;
+  flex-shrink: 0;
 }
 
 .toolbar-group + .toolbar-group {
@@ -173,21 +193,45 @@
   border-left: 1px solid var(--border-subtle);
 }
 
+/* Pushes the history group (undo/redo) to the far right without breaking the
+   left-to-right group/separator order. */
+.toolbar-group--end {
+  margin-left: auto;
+}
+
+/* Positioning context for a toolbar button's own popover (SectionTypePicker,
+   InsertConcurrentBlockDialog), scoped tighter than the group so a popover
+   anchors under its own button rather than the left edge of a merged group. */
+.toolbar-anchor {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .editor-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  min-width: 28px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 4px;
-  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  padding: 0 6px;
   font-size: 0.8rem;
   cursor: pointer;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 0.1s ease, color 0.1s ease;
 }
 
 .editor-toolbar button:hover:not(:disabled) {
   background-color: var(--bg-hover);
 }
 
+/* Active line type / active tool is visibly indicated: filled accent
+   background + accent text, matching the shell's own nav-item-active
+   treatment exactly (background: --accent-soft, color: --accent-strong). */
 .editor-toolbar button.is-active,
 .editor-toolbar button.active {
   background-color: var(--accent-soft);
@@ -323,7 +367,7 @@
 
 /* Consecutive section separator */
 .section-block + .section-block {
-  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-top: 1px solid var(--border-subtle);
   padding-top: 0.5em;
 }
 
@@ -345,17 +389,13 @@
 /* Stage directions are NEVER indented — no sibling rule needed */
 /* Their italic + parentheses styling is sufficient distinction */
 
-[data-type="lyricLine"][data-delivery="spoken"] {
-  font-style: italic;
-}
-
 /* ======================
    Selected section
    ====================== */
 .section-block.ProseMirror-selectednode {
   outline: 2px solid var(--accent-color, var(--accent-primary));
   outline-offset: 2px;
-  background: rgba(74, 158, 255, 0.04);
+  background: var(--accent-soft);
   border-radius: 4px;
 }
 
@@ -499,7 +539,7 @@
   color: var(--accent-primary);
   text-align: center;
   padding: 2px 8px 5px;
-  border-bottom: 1px solid #dce8f5;
+  border-bottom: 1px solid var(--accent-soft);
   margin-bottom: 7px;
 }
 
@@ -936,7 +976,7 @@ input[type="text"].concurrent-speaker-name:focus {
   background: var(--bg-surface, #fff);
   border: 1px solid var(--border-color, #c8d0db);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-soft);
   padding: 4px 0;
   min-width: 180px;
 }
@@ -958,7 +998,7 @@ input[type="text"].concurrent-speaker-name:focus {
 }
 
 .section-context-menu-item--danger:hover {
-  background: #fef2f2;
+  background: var(--bg-danger);
 }
 
 .section-context-menu-separator {
@@ -974,9 +1014,9 @@ input[type="text"].concurrent-speaker-name:focus {
   left: 0;
   z-index: 200;
   background: var(--bg-editor);
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-soft);
   min-width: 160px;
   padding: 4px 0;
   font-size: 0.82rem;
@@ -1059,7 +1099,7 @@ input[type="text"].concurrent-speaker-name:focus {
 .stp-custom-input {
   flex: 1;
   padding: 4px 8px;
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 3px;
   font-size: 0.82rem;
   outline: none;
@@ -1090,16 +1130,16 @@ input[type="text"].concurrent-speaker-name:focus {
   align-items: center;
   gap: 4px;
   background: var(--bg-editor);
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: var(--shadow-soft);
   padding: 5px 7px;
 }
 
 .chord-popover-input {
   width: 80px;
   padding: 3px 6px;
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -1132,11 +1172,11 @@ input[type="text"].concurrent-speaker-name:focus {
 }
 
 .chord-popover-delete {
-  background: #fee2e2;
+  background: var(--bg-danger);
   color: var(--status-error);
-  border-color: #fca5a5;
+  border-color: var(--border-danger);
 }
 
 .chord-popover-delete:hover {
-  background: #fecaca;
+  background: color-mix(in srgb, var(--bg-danger) 50%, var(--border-danger) 50%);
 }

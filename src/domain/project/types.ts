@@ -1,4 +1,3 @@
-export type DeliveryMode = 'sung' | 'spoken';
 export type ConcurrentLayout = 'squash' | 'sideBySide';
 export type SectionType = 'verse' | 'chorus' | 'bridge' | 'intro' | 'outro' | 'spoken' | 'reprise' | 'custom';
 export type DraftMode = 'lyrics' | 'lyricsWithChords';
@@ -19,8 +18,8 @@ export interface Writer {
 export interface RichTextNode {
   type: string;
   text?: string;
-  // Open ProseMirror attribute bag: node-specific attrs (id, delivery, meta,
-  // chords, …) are read structurally across the editor and export layers, so a
+  // Open ProseMirror attribute bag: node-specific attrs (id, meta, chords, …)
+  // are read structurally across the editor and export layers, so a
   // narrower type here would not be assignable at every call site.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attrs?: Record<string, any>;
@@ -78,7 +77,6 @@ export interface LyricLineMeta {
 
 export interface LyricLineAttrs {
   id: string;
-  delivery: DeliveryMode;
   rhymeGroup: string | null;
   lineType: 'lyric' | 'speaker' | 'stageDirection';
 }
