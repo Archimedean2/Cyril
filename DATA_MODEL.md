@@ -393,7 +393,6 @@ This is the core lyric-bearing line model.
   "type": "lyricLine",
   "attrs": {
     "id": "line_001",
-    "delivery": "sung",
     "rhymeGroup": null
   },
   "content": [
@@ -412,8 +411,13 @@ This is the core lyric-bearing line model.
 | Field | Type | Required | Description |
 |------|------|----------|-------------|
 | `id` | string | yes | Unique line identifier |
-| `delivery` | string enum | yes | `"sung"` or `"spoken"` |
 | `rhymeGroup` | string or null | no | Optional manual rhyme color/group identifier |
+
+> **Removed (C-10, 2026-07-05):** the `delivery` attribute (`"sung" | "spoken"`) was cut
+> entirely — see `docs/product/DESIGN_PROPOSAL.md` §3.4. It only ever italicised
+> "spoken" lines, a distinction stage directions already cover. Loading a project file
+> that still carries `delivery` on a line drops the attribute silently on migration;
+> it is not an error and has no effect beyond the removed italic.
 
 ### LyricLine content
 - Contains the active text of the line
@@ -832,7 +836,7 @@ A valid `.cyril` file in schema v1 must satisfy:
 6. if `project.activeDraftId` is non-null, it matches a draft ID
 7. each draft has `id`, `name`, `mode`, `doc`, `inventory`, `draftSettings`
 8. each section block has `id` and `sectionType`
-9. each lyric line has `id`, `delivery`, `content`
+9. each lyric line has `id`, `content`
 10. each chord marker has `id`, `symbol`, and valid `position`
 11. each alternate has `id`, `doc`, `isActive`
 
@@ -1029,7 +1033,6 @@ If the app supports multiple schema versions:
                   "type": "lyricLine",
                   "attrs": {
                     "id": "line_001",
-                    "delivery": "sung",
                     "rhymeGroup": "A"
                   },
                   "content": [
@@ -1092,7 +1095,6 @@ If the app supports multiple schema versions:
                   "type": "lyricLine",
                   "attrs": {
                     "id": "line_002",
-                    "delivery": "sung",
                     "rhymeGroup": null
                   },
                   "content": [

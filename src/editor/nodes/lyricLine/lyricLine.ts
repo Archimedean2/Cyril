@@ -8,10 +8,6 @@ declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     lyricLine: {
       /**
-       * Toggle sung/spoken delivery for the current lyric line
-       */
-      toggleDelivery: () => ReturnType;
-      /**
        * Set the lineType of the current lyric line
        */
       setLineType: (lineType: string) => ReturnType;
@@ -50,15 +46,6 @@ export const LyricLine = Node.create<LyricLineOptions>({
           }
           return {
             'data-id': attributes.id,
-          };
-        },
-      },
-      delivery: {
-        default: 'sung', // 'sung' or 'spoken'
-        parseHTML: element => element.getAttribute('data-delivery'),
-        renderHTML: attributes => {
-          return {
-            'data-delivery': attributes.delivery,
           };
         },
       },
@@ -155,7 +142,6 @@ export const LyricLine = Node.create<LyricLineOptions>({
         class: `lyric-line line-type-${node.attrs.lineType}`,
         'data-type': 'lyricLine',
         'data-line-type': node.attrs.lineType,
-        'data-delivery': node.attrs.delivery,
         'data-id': node.attrs.id,
       }),
       0,
@@ -164,26 +150,6 @@ export const LyricLine = Node.create<LyricLineOptions>({
 
   addCommands() {
     return {
-      toggleDelivery: () => ({ tr, state, dispatch }) => {
-        const { selection } = state;
-        const { $from, $to } = selection;
-
-        let toggled = false;
-        
-        state.doc.nodesBetween($from.pos, $to.pos, (node, pos) => {
-          if (node.type.name === this.name) {
-            if (dispatch) {
-              const currentDelivery = node.attrs.delivery;
-              const newDelivery = currentDelivery === 'sung' ? 'spoken' : 'sung';
-              tr.setNodeMarkup(pos, undefined, { ...node.attrs, delivery: newDelivery });
-            }
-            toggled = true;
-          }
-        });
-
-        return toggled;
-      },
-
       setLineType: (lineType: string) => ({ tr, state, dispatch }) => {
         const { $from } = state.selection;
         const pos = $from.before($from.depth);

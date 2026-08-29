@@ -108,7 +108,7 @@ describe('T-13.13: concurrentBlock save/load round-trip', () => {
                     content: [
                       {
                         type: 'lyricLine',
-                        attrs: { id: 'line_001', delivery: 'sung', rhymeGroup: null, lineType: 'lyric',
+                        attrs: { id: 'line_001', rhymeGroup: null, lineType: 'lyric',
                           meta: { alternates: [], prosody: null, chords: [] } },
                         content: [{ type: 'text', text: 'You got a friend in me' }],
                       },
@@ -120,7 +120,7 @@ describe('T-13.13: concurrentBlock save/load round-trip', () => {
                     content: [
                       {
                         type: 'lyricLine',
-                        attrs: { id: 'line_002', delivery: 'sung', rhymeGroup: null, lineType: 'lyric',
+                        attrs: { id: 'line_002', rhymeGroup: null, lineType: 'lyric',
                           meta: { alternates: [], prosody: null, chords: [] } },
                         content: [{ type: 'text', text: 'To infinity and beyond' }],
                       },
@@ -220,7 +220,7 @@ describe('T-13.14: chords on lyricLines inside speakerColumn are preserved', () 
                         {
                           type: 'lyricLine',
                           attrs: {
-                            id: 'line_001', delivery: 'sung', rhymeGroup: null, lineType: 'lyric',
+                            id: 'line_001', rhymeGroup: null, lineType: 'lyric',
                             meta: {
                               alternates: [],
                               prosody: null,
@@ -239,7 +239,7 @@ describe('T-13.14: chords on lyricLines inside speakerColumn are preserved', () 
                       content: [
                         {
                           type: 'lyricLine',
-                          attrs: { id: 'line_002', delivery: 'sung', rhymeGroup: null, lineType: 'lyric',
+                          attrs: { id: 'line_002', rhymeGroup: null, lineType: 'lyric',
                             meta: { alternates: [], prosody: null, chords: [] } },
                           content: [{ type: 'text', text: 'Away' }],
                         },
@@ -292,14 +292,14 @@ describe('T-13.14: chords on lyricLines inside speakerColumn are preserved', () 
 function makeEmptyLine(id: string) {
   return {
     type: 'lyricLine',
-    attrs: { id, delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+    attrs: { id, rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
     content: [],
   };
 }
 function makeTextLine(id: string, text: string) {
   return {
     type: 'lyricLine',
-    attrs: { id, delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+    attrs: { id, rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
     content: [{ type: 'text', text }],
   };
 }
@@ -492,7 +492,7 @@ describe('T-13.21: deleteConcurrentBlock command removes the block', () => {
 function makeTwoColumnDoc() {
   const line = (id: string, text: string) => ({
     type: 'lyricLine',
-    attrs: { id, delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+    attrs: { id, rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
     content: text ? [{ type: 'text', text }] : [],
   });
   return {
@@ -579,7 +579,7 @@ describe('T-13.16b: row guides disappear when caret leaves the concurrent block'
     // Doc with a concurrent block followed by a standalone lyricLine
     const standaloneLine = {
       type: 'lyricLine',
-      attrs: { id: 'outside_line', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+      attrs: { id: 'outside_line', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
       content: [{ type: 'text', text: 'Outside the block' }],
     };
     const docWithTrailing = {
@@ -652,7 +652,7 @@ describe('T-13.17: stress marks in one column do not break row alignment', () =>
             attrs: { id: 'col_a', speakerName: 'A' },
             content: [{
               type: 'lyricLine',
-              attrs: { id: 'la1', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+              attrs: { id: 'la1', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
               content: [{ type: 'text', text: 'Amazing grace' }],
             }],
           },
@@ -661,7 +661,7 @@ describe('T-13.17: stress marks in one column do not break row alignment', () =>
             attrs: { id: 'col_b', speakerName: 'B' },
             content: [{
               type: 'lyricLine',
-              attrs: { id: 'lb1', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+              attrs: { id: 'lb1', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
               content: [],
             }],
           },

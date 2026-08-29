@@ -18,7 +18,7 @@ describe('Editor Foundation Integration', () => {
       mode: 'lyrics',
       doc: {
         type: 'doc',
-        content: [{ type: 'lyricLine', attrs: { id: 'line_1', delivery: 'sung', lineType: 'lyric', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] as any
+        content: [{ type: 'lyricLine', attrs: { id: 'line_1', lineType: 'lyric', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] as any
       },
       inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
       draftSettings: {
@@ -46,7 +46,7 @@ describe('Editor Foundation Integration', () => {
       mode: 'lyrics',
       doc: {
         type: 'doc',
-        content: [{ type: 'lyricLine', attrs: { id: 'line_2', delivery: 'sung', lineType: 'lyric', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } }, content: [{ type: 'text', text: 'Loaded content' }] }] as any
+        content: [{ type: 'lyricLine', attrs: { id: 'line_2', lineType: 'lyric', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } }, content: [{ type: 'text', text: 'Loaded content' }] }] as any
       },
       inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
       draftSettings: {

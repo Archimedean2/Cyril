@@ -29,7 +29,6 @@ describe('I-9: Chord Persistence and Visibility', () => {
                 type: 'lyricLine',
                 attrs: {
                   id: 'line_001',
-                  delivery: 'sung',
                   rhymeGroup: null,
                   meta: {
                     alternates: [],

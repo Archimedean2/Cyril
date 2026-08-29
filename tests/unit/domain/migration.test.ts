@@ -36,9 +36,63 @@ describe('migrateProject', () => {
     expect(migratedNode.type).toBe('lyricLine');
     expect(migratedNode.attrs.lineType).toBe('speaker');
     expect(migratedNode.attrs.id).toBe('sl_1');
-    expect(migratedNode.attrs.delivery).toBe('sung');
     expect(migratedNode.attrs.meta).toEqual({ alternates: [], prosody: null, chords: [] });
     expect(migratedNode.content).toEqual([{ type: 'text', text: 'Hello' }]);
+  });
+
+  it('T-4.27: drops the removed `delivery` attribute from legacy lyricLine nodes as a silent no-op', () => {
+    const legacy = {
+      project: {
+        id: 'proj_legacy_delivery',
+        title: 'Legacy Delivery Song',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        drafts: [{
+          id: 'draft_1',
+          name: 'D1',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+          mode: 'lyrics',
+          doc: {
+            type: 'doc',
+            content: [
+              {
+                type: 'lyricLine',
+                attrs: { id: 'line_1', delivery: 'spoken', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+                content: [{ type: 'text', text: 'Spoken once' }],
+              },
+              {
+                type: 'sectionBlock',
+                attrs: { id: 'sec_1', sectionType: 'verse' },
+                content: [
+                  {
+                    type: 'lyricLine',
+                    attrs: { id: 'line_2', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+                    content: [{ type: 'text', text: 'Sung nested' }],
+                  },
+                ],
+              },
+            ],
+          },
+          inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
+          draftSettings: {},
+        }],
+      },
+    };
+
+    // Loading a legacy project that still carries `delivery` must not throw.
+    expect(() => migrateProject(legacy)).not.toThrow();
+
+    const result = migrateProject(legacy);
+    const [topLevelLine, section] = result.project.drafts[0].doc.content as any[];
+
+    expect(topLevelLine.type).toBe('lyricLine');
+    expect(topLevelLine.attrs).not.toHaveProperty('delivery');
+    expect(topLevelLine.content).toEqual([{ type: 'text', text: 'Spoken once' }]);
+
+    const nestedLine = section.content[0];
+    expect(nestedLine.attrs).not.toHaveProperty('delivery');
+    expect(nestedLine.content).toEqual([{ type: 'text', text: 'Sung nested' }]);
   });
 
   it('migrates legacy speakerLine without content but with speaker attr to lyricLine carrying speaker text', () => {

@@ -19,7 +19,6 @@ function makeLyricLineNode(text: string, chords?: any[]): RichTextNode {
     type: 'lyricLine',
     attrs: {
       id: `line_${text.replace(/\s/g, '_')}`,
-      delivery: 'sung',
       rhymeGroup: null,
       lineType: 'lyric',
       meta: { alternates: [], prosody: null, chords: chords || [] },
