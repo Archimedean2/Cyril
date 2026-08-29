@@ -49,6 +49,10 @@
   overflow-y: auto;
   scrollbar-gutter: stable;
   cursor: default;
+  /* C-36: the containing block the speaker gutter's absolutely-positioned
+     cells anchor to — it's a DOM child of this same scrolling element (see
+     SpeakerGutter.tsx), so it scrolls together with the page automatically. */
+  position: relative;
 }
 
 /* The page. A defined sheet with its own edge and elevation, sitting on the desk
@@ -381,6 +385,45 @@
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+/* C-36 (§12.2): the speaker gutter — a permanent thin column left of the
+   lyrics, one cell per line. Positioned absolutely within `.editor-surface`
+   (a DOM child of it, not a sibling — see SpeakerGutter.tsx) so it scrolls
+   with the page. Purely a decoration: no document content lives here. */
+.speaker-gutter {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  touch-action: none; /* dragging paints; it never pans/scrolls */
+  z-index: 1;
+}
+
+.speaker-gutter-cell {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 2px;
+  background: var(--dot-color, var(--border-subtle));
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.speaker-gutter-cell:hover {
+  opacity: 1;
+}
+
+.speaker-gutter-cell--inert {
+  background: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.speaker-gutter-cell--dragging {
+  opacity: 1;
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -1px;
 }
 
 /* ======================

@@ -8,6 +8,7 @@ import { SectionContextMenu } from './SectionContextMenu';
 import { LineContextMenu } from './LineContextMenu';
 import { ChordPopover, ChordPopoverTarget } from './ChordPopover';
 import { CharacterDotPicker, CharacterDotPickerTarget } from './CharacterDotPicker';
+import { SpeakerGutter } from './SpeakerGutter';
 import { SpeakerAutocomplete, SpeakerSuggestState } from './SpeakerAutocomplete';
 import { useLineMenuStore } from '../../app/state/lineMenuStore';
 import { useActiveEditorStore } from '../../app/state/activeEditorStore';
@@ -328,7 +329,9 @@ export function DraftEditor({
       onClick={handleContainerClick}
     >
       <DraftToolbar editor={editor} draftMode={draftMode} settings={settings} />
-      <EditorContent ref={editorSurfaceRef} editor={editor} className={editorClasses} data-testid="editor-surface" />
+      <EditorContent ref={editorSurfaceRef} editor={editor} className={editorClasses} data-testid="editor-surface">
+        <SpeakerGutter editor={editor} characters={characters} containerRef={editorSurfaceRef} />
+      </EditorContent>
       <SectionContextMenu editor={editor} />
       <LineContextMenu editor={editor} />
       {chordPopover && createPortal(

@@ -44,6 +44,17 @@ declare module '@tiptap/core' {
        * option isn't provided, or nothing needed linking.
        */
       reconcileSpeakerCharacters: () => ReturnType;
+      /**
+       * C-36 (§12.2): the speaker gutter's paint operation. Sets `characterId`
+       * (attribute-only — never touches line text, unlike
+       * `setSpeakerLineNameAndCharacter`) on every position in `positions`
+       * that is still a `lyricLine`, in a **single** transaction — painting
+       * eight lines undoes in one `Cmd+Z`. Any position that has since
+       * stopped being a `lyricLine`, or is a `stageDirection` line (never
+       * paintable), is silently skipped rather than erroring. `characterId`
+       * may be `null` to clear the assignment.
+       */
+      paintCharacterRange: (positions: number[], characterId: string | null) => ReturnType;
     }
   }
 }
@@ -282,6 +293,32 @@ export const LyricLine = Node.create<LyricLineOptions>({
           }
         });
 
+        if (changed && dispatch) dispatch(tr);
+        return changed;
+      },
+
+      paintCharacterRange: (positions: number[], characterId: string | null) => ({ tr, state, dispatch }) => {
+        let changed = false;
+        for (const pos of positions) {
+          // `nodeAt` throws (rather than returning null) for a position
+          // outside the document — guard so a stale/garbage position never
+          // takes the whole paint transaction down with it.
+          let node;
+          try {
+            node = state.doc.nodeAt(pos);
+          } catch {
+            continue;
+          }
+          if (!node || node.type.name !== 'lyricLine') continue; // e.g. a section header — never paintable
+          if (node.attrs.lineType === 'stageDirection') continue; // never paintable
+          if (node.attrs.characterId === characterId) continue; // already correct — no-op for this line
+          // Attribute-only: `setNodeMarkup` never changes node size, so every
+          // position in `positions` (computed once, up front, by the caller)
+          // stays valid across every iteration of this same transaction —
+          // no `tr.mapping` remapping needed.
+          tr.setNodeMarkup(pos, undefined, { ...node.attrs, characterId });
+          changed = true;
+        }
         if (changed && dispatch) dispatch(tr);
         return changed;
       },

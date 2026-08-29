@@ -24,6 +24,10 @@ Structured sections, metadata tags, and metadata display toggles.
 - `tests/unit/editor/active-editor-bridge.test.ts` (C-48)
 - `tests/integration/editor/active-editor-bridge-integration.test.tsx` (C-48)
 - `tests/integration/editor/character-dot-picker-integration.test.tsx` (C-35)
+- `tests/unit/editor/paint-character-range.test.ts` (C-36)
+- `tests/unit/editor/gutter-geometry.test.ts` (C-36)
+- `tests/unit/editor/gutter-paint-selection.test.ts` (C-36)
+- `tests/integration/editor/speaker-gutter-integration.test.tsx` (C-36)
 
 ## Checklist
 
@@ -79,6 +83,15 @@ Structured sections, metadata tags, and metadata display toggles.
 | T-4.48 | `insertAtCaret` replaces a non-empty selection, still as one undo step | unit | `tests/unit/editor/active-editor-bridge.test.ts` | [x] | [x] | C-48 |
 | T-4.49 | A speaker line gets a clickable colour-dot widget decoration carrying the resolved colour | unit | `tests/unit/editor/character-decorations.test.ts` | [x] | [x] | C-35 |
 | T-4.50 | Clicking a speaker line's colour dot then choosing a character reassigns that line only (text + `characterId`), in one undo step, leaves every other line untouched, and never creates a new character (the picker only ever lists the registry it was given) | integration | `tests/integration/editor/character-dot-picker-integration.test.tsx` | [x] | [x] | C-35: reassignment is local; renaming stays in the registry (out of scope here) |
+| T-4.51 | `paintCharacterRange` paints every qualifying line across a range in one transaction — 8 lines undo in a single `Cmd+Z` | unit | `tests/unit/editor/paint-character-range.test.ts` | [x] | [x] | C-36: EDGE_CASES.md §5 structural atomicity |
+| T-4.52 | A stage-direction line inside a painted range is skipped rather than erroring or converting | unit | `tests/unit/editor/paint-character-range.test.ts` | [x] | [x] | C-36 |
+| T-4.53 | A position that is no longer a `lyricLine` (e.g. a section header) is skipped without erroring | unit | `tests/unit/editor/paint-character-range.test.ts` | [x] | [x] | C-36 |
+| T-4.54 | Painting never touches line text — a speaker line's displayed name is unchanged; only `characterId` changes | unit | `tests/unit/editor/paint-character-range.test.ts` | [x] | [x] | C-36: rename is the colour-dot's job (C-35), not the gutter's |
+| T-4.55 | Every line shows a gutter cell; a line linked to a character shows that character's colour; a stage-direction line gets a non-interactive cell | integration | `tests/integration/editor/speaker-gutter-integration.test.tsx` | [x] | [x] | C-36 |
+| T-4.56 | Click a cell for a picker (single line); click-and-drag down the gutter paints every qualifying line across the range, as one undo step | integration | `tests/integration/editor/speaker-gutter-integration.test.tsx` | [x] | [x] | C-36 |
+| T-4.57 | The gutter has a keyboard equivalent (`Mod-Shift-A`, scanning the current selection's lines) — it is never the only path to assign a speaker | unit, integration | `tests/unit/editor/gutter-paint-selection.test.ts`, `tests/integration/editor/speaker-gutter-integration.test.tsx` | [x] | [x] | C-36 |
+| T-4.58 | Painting across a section header is skipped (the header contributes no gutter row/position at all) rather than erroring or converting | unit | `tests/unit/editor/gutter-paint-selection.test.ts` | [x] | [x] | C-36 |
+| T-4.59 | The gutter is a decoration, not document content — it renders outside the ProseMirror tree entirely and never appears in export | integration | `tests/integration/editor/speaker-gutter-integration.test.tsx` | [x] | [x] | C-36 |
 
 ## Retired criteria
 - **T-4.06** ("Spoken/sung state persists on lyric line") — retired 2026-08-29 (C-10). The
