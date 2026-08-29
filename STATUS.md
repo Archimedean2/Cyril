@@ -51,9 +51,21 @@ C-43 collect-on-click, C-44 dim-when-used).
 **Last verified state:** all gates green — 479 unit + integration tests, 198/198 non-e2e
 criteria, e2e 124/124, 8 visual baselines.
 
-**Expect visual baselines to fail** after these merge: F2 and F3 both change the UI. Agents were
-told not to regenerate them; the coordinator does it once after all merges, so the PNGs don't
-conflict.
+**Expect visual baselines to fail** after these merge: F2 and F3 both change the UI. Agents
+were told not to regenerate them; the coordinator does it once after all merges, so the PNGs
+don't conflict.
+
+**Pending action at F3's merge — do not do this early.** C-43 removes the `tools-collect-button`
+testid (the result item itself becomes the collect action). Two files outside F3's ownership
+reference it and must be updated *in the same merge commit*:
+
+- `tests/e2e/journey-write-a-song.spec.ts:98`
+- `tests/e2e/visual.spec.ts:133`
+
+Both: `getByTestId('tools-collect-button').first().click()` → `getByTestId('tools-result-item').first().click()`.
+
+Applying it before C-43 lands would break the suite — on the current tree a result click copies
+rather than collects, so no Inventory chip appears and the assertion fails.
 
 ## Decisions taken unsupervised (2026-08-29) — review these
 
