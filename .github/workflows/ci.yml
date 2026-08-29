@@ -3,8 +3,9 @@ name: CI
 on:
   push:
     branches: [main]
+  # Every pull request, whatever its base. Restricting this to `branches: [main]`
+  # meant a stacked PR (one whose base is another feature branch) got no CI at all.
   pull_request:
-    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,7 +13,7 @@ concurrency:
 
 jobs:
   test:
-    name: Build, test, coverage, e2e
+    name: Build, lint, test, coverage, e2e
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -29,14 +30,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Cheap insurance against committing a build artefact or a raw corpus.
+      # The generated word indexes are ~9 MB and ~24 MB and the ConceptNet dump is
+      # ~500 MB; a stray `git add -A` on a branch without the current .gitignore
+      # will otherwise push them. GitHub hard-rejects >100 MB, but smaller ones
+      # would sail through and bloat the repo permanently.
+      - name: Reject oversized files
+        run: |
+          # 5 MB: the largest legitimate tracked file is stress-dict.json at ~1.8 MB,
+          # and the artefacts we want to catch start at ~9 MB.
+          big=$(git ls-files -z | xargs -0 -r du -k 2>/dev/null | awk '$1 > 5120 {print $1"K\t"$2}')
+          if [ -n "$big" ]; then
+            echo "Files over 5 MB are tracked:"; echo "$big"
+            echo "If one is legitimate, raise the threshold in this step deliberately."
+            exit 1
+          fi
+          echo "No tracked file exceeds 5 MB."
+
       - name: Build
         run: npm run build
 
-      # Lint runs but does not block yet (~50 warnings to burn down).
-      # Flip continue-on-error to false once the warning backlog is cleared.
       - name: Lint
         run: npm run lint
-        continue-on-error: true
 
       - name: Unit & integration tests
         run: npm run test
@@ -59,7 +74,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       - name: E2E tests
         run: npm run test:e2e
