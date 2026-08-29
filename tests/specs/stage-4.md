@@ -9,6 +9,7 @@ Structured sections, metadata tags, and metadata display toggles.
 - `tests/unit/editor/section-commands.test.ts`
 - `tests/unit/editor/metadata-commands.test.ts`
 - `tests/unit/editor/delivery-removed.test.ts`
+- `tests/unit/editor/editor-css-tokens.test.ts`
 - `tests/unit/domain/migration.test.ts`
 - `tests/integration/editor/sections-metadata-integration.test.ts`
 - `tests/e2e/stage-4-sections-metadata.spec.ts`
@@ -45,6 +46,7 @@ Structured sections, metadata tags, and metadata display toggles.
 | T-4.25 | Undo of the auto-conversion restores the literal typed characters | unit | `tests/unit/editor/lyric-line-brackets.test.ts` | [x] | [x] | C-09: verified via `undoInputRule` for both the opening and closing gestures |
 | T-4.26 | No `delivery`/`DeliveryMode` remains anywhere in `src/` (grep-clean) and the Delivery control is gone from the toolbar | unit | `tests/unit/editor/delivery-removed.test.ts` | [x] | [x] | C-10: removed per `docs/product/DESIGN_PROPOSAL.md` §3.4 |
 | T-4.27 | Opening a legacy project that had `delivery` on its lines loads cleanly, with no error and no visible change beyond the removed italic | unit | `tests/unit/domain/migration.test.ts` | [x] | [x] | C-10: `migrateProject` strips the attribute as a silent no-op |
+| T-4.28 | No hardcoded hex or rgba colour remains in `editor.css` (grep-clean; `var(--x, fallback)` may stay) | unit | `tests/unit/editor/editor-css-tokens.test.ts` | [x] | [x] | C-19: cross-referenced from `docs/product/DESIGN_PROPOSAL.md` §2 (visual foundation), tracked here as this is the only spec file this lane owns |
 
 ## Retired criteria
 - **T-4.06** ("Spoken/sung state persists on lyric line") — retired 2026-08-29 (C-10). The
