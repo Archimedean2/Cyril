@@ -32,6 +32,16 @@ export const SpeakerColumn = Node.create<SpeakerColumnOptions>({
         parseHTML: element => element.getAttribute('data-speaker-name') || 'Speaker A',
         renderHTML: attributes => ({ 'data-speaker-name': attributes.speakerName }),
       },
+      // C-20: links this column to a Character in the project's registry —
+      // same semantics as LyricLine's `characterId`.
+      characterId: {
+        default: null,
+        parseHTML: element => element.getAttribute('data-character-id') || null,
+        renderHTML: attributes => {
+          if (!attributes.characterId) return {};
+          return { 'data-character-id': attributes.characterId };
+        },
+      },
     };
   },
 

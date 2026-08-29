@@ -282,6 +282,7 @@
    Line type: speaker
    ====================== */
 .line-type-speaker {
+  position: relative;
   font-family: var(--font-ui);
   font-weight: 600;
   text-transform: uppercase;
@@ -295,6 +296,75 @@
 
 /* No dot prefix on speaker labels — a speaker name should not read like a list item.
    Per-character colour identity will return as a margin tick once the character registry lands. */
+
+/* C-20: a character with a registry colour gets `--speaker-color` set inline
+   (per line, via a ProseMirror decoration — see
+   src/editor/extensions/characters/characterDecorations.ts) rather than the
+   single project-wide token above, so every character reads distinctly. */
+.line-type-speaker.has-character-color {
+  color: var(--speaker-color);
+}
+
+/* C-20: a speaker line that repeats the same character as the one before it
+   (script convention — "consecutive lines by the same character don't
+   repeat the label") hides its own text but keeps a persistent colour tick
+   in the left gutter so the identity still reads at a glance. */
+.line-type-speaker.speaker-continuation {
+  color: transparent;
+}
+
+.line-type-speaker.speaker-continuation::before {
+  content: '';
+  position: absolute;
+  left: -0.6em;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--speaker-color, var(--text-faint));
+}
+
+/* ======================
+   Speaker autocomplete ([[ registry match — C-20)
+   ====================== */
+.speaker-autocomplete {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--bg-editor);
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  box-shadow: var(--shadow-soft);
+  padding: 4px 0;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+}
+
+.speaker-autocomplete-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.speaker-autocomplete-option.is-highlighted {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.speaker-autocomplete-swatch {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
 
 /* ======================
    Line type: stage direction
@@ -827,6 +897,13 @@ input[type="text"].concurrent-speaker-name:focus {
   color: var(--text-muted, #738093);
   outline: none;
   box-shadow: none;
+}
+
+/* C-20: a column linked to a registered character takes that character's
+   colour instead of the default faint label treatment. */
+input[type="text"].concurrent-speaker-name.has-character-color,
+input[type="text"].concurrent-speaker-name.has-character-color:focus {
+  color: var(--speaker-color);
 }
 
 /* Remove-column button — invisible until hover */
