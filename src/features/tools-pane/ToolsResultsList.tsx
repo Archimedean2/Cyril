@@ -13,6 +13,25 @@ interface ToolsResultsListProps {
 
 const RHYME_MODES: ToolMode[] = ['rhyme-exact', 'rhyme-near'];
 
+/**
+ * C-45 / DESIGN_PROPOSAL.md §13.5: an ABSOLUTE Datamuse relevance-score threshold for
+ * bolding a rhyme result, replacing the old relative "top 30% of whatever came back"
+ * rule (which still bolded a third of a weak set, junk like "klepht"/"tefft" included).
+ *
+ * Chosen by sampling real `rel_rhy` scores from the Datamuse API (2026-08-29):
+ *   - "left" → bereft 46033, cleft 19046, deft 9035, theft 7049, heft 6036, then a
+ *     cliff to gill cleft 1014, effed 1009, antitheft 1008, klepht 13. 5000 sits
+ *     exactly in that cliff: every genuine dictionary rhyme clears it, every junk/
+ *     obscure entry from DEFECTS.md D-22's "left" example falls below it.
+ *   - "day"/"night" (200 results each, common words): ~24-26% of results clear 5000,
+ *     so a rich result set still shows a meaningful, non-dominant emphasised subset.
+ *   - "love"/"time" (weaker, sparser result sets): only 1-9% of results clear 5000 —
+ *     a weak set correctly ends up mostly or entirely unemphasised.
+ * Datamuse scores are frequency-weighted, not a clean 0-100 "rhyme quality" scale, so
+ * this is a practical cliff found in real data rather than a theoretically pure cutoff.
+ */
+const RHYME_EMPHASIS_SCORE_THRESHOLD = 5000;
+
 export function ToolsResultsList({ response, onCopyResult, onCollectResult }: ToolsResultsListProps) {
   if (!response) {
     return (
@@ -112,12 +131,6 @@ const FEEDBACK_LABEL: Record<'copied' | 'collected' | 'copy-failed', string> = {
 
 /** Groups rhyme results by syllable count and renders them with bold high-relevance words */
 function RhymeResultsList({ results, onCopy, onCollect }: { results: ToolResult[]; onCopy: (w: string) => void; onCollect: (w: string) => void }) {
-  // Determine high-relevance threshold: top 30% by score
-  const scores = results.map(r => r.score ?? 0).filter(s => s > 0);
-  const highThreshold = scores.length > 0
-    ? scores.slice().sort((a, b) => b - a)[Math.floor(scores.length * 0.3)]
-    : Infinity;
-
   // Group by syllable count; words with no syllable data go into group 0
   const groups = new Map<number, ToolResult[]>();
   for (const result of results) {
@@ -146,7 +159,7 @@ function RhymeResultsList({ results, onCopy, onCollect }: { results: ToolResult[
           </div>
           <div className="rhyme-word-row">
             {groups.get(key)!.map((result, i) => {
-              const isHigh = (result.score ?? 0) >= highThreshold;
+              const isHigh = (result.score ?? 0) >= RHYME_EMPHASIS_SCORE_THRESHOLD;
               return (
                 <RhymeWord
                   key={`${result.word}-${i}`}
