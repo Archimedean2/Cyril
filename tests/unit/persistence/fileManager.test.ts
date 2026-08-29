@@ -216,3 +216,160 @@ describe('fileManager external-change guard (C-07 / HARDENING §H6)', () => {
     expect(error).toBeInstanceOf(Error);
   });
 });
+
+/**
+ * Builds a mock handle whose `createWritable()` write is content-labelled and whose
+ * `close()` delay is controllable per label, so a test can force two concurrent saves'
+ * disk writes to complete in whichever order it wants — independent of which save was
+ * *started* first. Used to reproduce EDGE_CASES.md §8's 🟠 "autosave debounce racing a
+ * manual save": without serialization, whichever `close()` lands last wins on disk.
+ */
+function makeMockHandleWithControllableWrites(closeDelayMs: Record<string, number>) {
+  const validJson = serializeProject(createCyrilFile(createDefaultProject('Race Test')));
+  let modified = 1000;
+  let finalContent = '';
+  const getFile = vi
+    .fn()
+    .mockImplementation(() => Promise.resolve({ text: () => Promise.resolve(validJson), lastModified: modified }));
+  const handle = {
+    kind: 'file' as const,
+    name: 'race-test.cyril',
+    getFile,
+    queryPermission: vi.fn().mockResolvedValue('granted' as PermissionState),
+    requestPermission: vi.fn().mockResolvedValue('granted' as PermissionState),
+    createWritable: vi.fn().mockImplementation(() => {
+      let pending = '';
+      return Promise.resolve({
+        write: vi.fn().mockImplementation(async (content: string) => {
+          pending = content;
+        }),
+        close: vi.fn().mockImplementation(async () => {
+          const label = pending.includes('autosave-content') ? 'autosave' : 'manual';
+          const delay = closeDelayMs[label] ?? 0;
+          if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+          modified += 1;
+          // Whichever close() actually finishes last determines what's "on disk" here,
+          // matching the real File System Access API's atomic-rename-on-close semantics.
+          finalContent = pending;
+        }),
+      });
+    }),
+  };
+  return { handle, getFinalContent: () => finalContent };
+}
+
+describe('fileManager save serialization (autosave vs. manual save race, EDGE_CASES §8)', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    delete (window as unknown as { showOpenFilePicker?: unknown }).showOpenFilePicker;
+  });
+
+  it('T-1.32: an autosave save started first, but slower to complete, never clobbers a faster manual save that was invoked after it', async () => {
+    // Autosave's write is slow (simulating real disk latency); the manual save that follows
+    // it is fast. Without serialization, autosave's `close()` would land last and silently
+    // overwrite the manual save's newer content on disk even though its own caller (the
+    // manual Save button) still reports `true` ("saved").
+    const { handle, getFinalContent } = makeMockHandleWithControllableWrites({ autosave: 50, manual: 0 });
+    const file = await openWithHandle(handle);
+
+    const autosaveContent = { ...file, project: { ...file.project, title: 'autosave-content-stale' } };
+    const manualContent = { ...file, project: { ...file.project, title: 'manual-content-newer' } };
+
+    const autosaveCall = saveProject(autosaveContent, false, { allowPermissionPrompt: false });
+    const manualCall = saveProject(manualContent, false);
+
+    const [autosaveResult, manualResult] = await Promise.all([autosaveCall, manualCall]);
+
+    expect(autosaveResult).toBe(true);
+    expect(manualResult).toBe(true);
+    // The save invoked *later* (manual) must always be the one reflected on disk, regardless
+    // of which save's I/O happens to finish first.
+    expect(getFinalContent()).toContain('manual-content-newer');
+    expect(getFinalContent()).not.toContain('autosave-content-stale');
+  });
+
+  it('T-1.32: two overlapping manual saves resolve in call order — the later call always wins on disk', async () => {
+    const { handle, getFinalContent } = makeMockHandleWithControllableWrites({ manual: 0 });
+    const file = await openWithHandle(handle);
+
+    const first = { ...file, project: { ...file.project, title: 'manual-content-first' } };
+    const second = { ...file, project: { ...file.project, title: 'manual-content-second' } };
+
+    const firstCall = saveProject(first, false);
+    const secondCall = saveProject(second, false);
+
+    await expect(firstCall).resolves.toBe(true);
+    await expect(secondCall).resolves.toBe(true);
+    expect(getFinalContent()).toContain('manual-content-second');
+  });
+});
+
+describe('fileManager save failure on a file deleted/renamed externally (EDGE_CASES §8 🔴)', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    delete (window as unknown as { showOpenFilePicker?: unknown }).showOpenFilePicker;
+  });
+
+  it('T-1.33: a file removed from disk after Open causes the next save to reject loudly, never to silently report success', async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    const close = vi.fn().mockResolvedValue(undefined);
+    const validJson = serializeProject(createCyrilFile(createDefaultProject('Deleted File Test')));
+    let call = 0;
+    const getFile = vi.fn().mockImplementation(() => {
+      call += 1;
+      if (call === 1) {
+        // Baseline read at Open: file still exists.
+        return Promise.resolve({ text: () => Promise.resolve(validJson), lastModified: 1000 });
+      }
+      // Every subsequent read (the pre-write external-change check) — the file is gone.
+      return Promise.reject(new DOMException('File not found', 'NotFoundError'));
+    });
+    const handle = {
+      kind: 'file' as const,
+      name: 'deleted-test.cyril',
+      getFile,
+      queryPermission: vi.fn().mockResolvedValue('granted' as PermissionState),
+      requestPermission: vi.fn().mockResolvedValue('granted' as PermissionState),
+      createWritable: vi.fn().mockResolvedValue({ write, close }),
+    };
+    const file = await openWithHandle(handle);
+
+    // The save must fail loudly (reject) rather than resolving `true`/`false` as if nothing
+    // was wrong, and must never fall through to writing a "new" file silently.
+    await expect(saveProject(file, false)).rejects.toThrow();
+    expect(handle.createWritable).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  it('T-1.33: autosave hitting the same deleted-file condition also rejects (never silently no-ops as "saved")', async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    const close = vi.fn().mockResolvedValue(undefined);
+    const validJson = serializeProject(createCyrilFile(createDefaultProject('Deleted File Autosave Test')));
+    let call = 0;
+    const getFile = vi.fn().mockImplementation(() => {
+      call += 1;
+      if (call === 1) {
+        return Promise.resolve({ text: () => Promise.resolve(validJson), lastModified: 1000 });
+      }
+      return Promise.reject(new DOMException('File not found', 'NotFoundError'));
+    });
+    const handle = {
+      kind: 'file' as const,
+      name: 'deleted-autosave-test.cyril',
+      getFile,
+      queryPermission: vi.fn().mockResolvedValue('granted' as PermissionState),
+      requestPermission: vi.fn().mockResolvedValue('granted' as PermissionState),
+      createWritable: vi.fn().mockResolvedValue({ write, close }),
+    };
+    const file = await openWithHandle(handle);
+
+    await expect(saveProject(file, false, { allowPermissionPrompt: false })).rejects.toThrow();
+    expect(write).not.toHaveBeenCalled();
+  });
+});
