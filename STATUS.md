@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 15:05 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 15:23 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,18 +20,18 @@ _Last stamped: **2026-08-29 15:05 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 477/477 tests, 82 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 196 passing, 0 failing, 0 untested, 38 e2e-only |
-| `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
+| `npm test` | 🟢 | 479/479 tests, 82 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 198 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm run test:e2e` | 🟢 | 124 passed |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 3 ahead) |
-| Last commit | Merge T2: golden-file snapshots for the export layer (C-34) |
-| Committed | 2026-08-29 16:04:02 +0100 |
-| Uncommitted files | none — clean tree |
+| Branch | `feat/title-screen` (0 behind / 4 ahead) |
+| Last commit | Merge T3: journey test and visual regression suite (C-34) |
+| Committed | 2026-08-29 16:17:53 +0100 |
+| Uncommitted files | **8** (`git status`) |
 | Backlog | **24 of 34** done · next up **C-21** |
 <!-- END GENERATED -->
 

@@ -98,3 +98,19 @@ describe('T-11.20: an unheaded section invents no heading', () => {
     expect(md).toContain('The hills are alive');
   });
 });
+
+describe('T-11.25: a whitespace-only line is not exported as a blank line', () => {
+  it('T-11.25: a line containing only spaces is dropped from print and markdown', () => {
+    const { file, draft } = draftWith([
+      { type: 'lyricLine', attrs: { lineType: 'lyric' }, content: [{ type: 'text', text: '   ' }] },
+      line('a real line'),
+    ]);
+    const exportable = buildExportableDraft(file, draft, options);
+    const texts = exportable.sections.flatMap(s => s.lines.map(l => l.content));
+    expect(texts).toEqual(['a real line']);
+
+    const md = draftToMarkdown(exportable);
+    expect(md).toContain('a real line');
+    expect(md).not.toMatch(/^\s+$/m);
+  });
+});

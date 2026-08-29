@@ -35,6 +35,10 @@ function setUpProject(inventoryLines: string[] = []) {
   return draft.id;
 }
 
+class NotAllowedErrorStub extends Error {
+  constructor() { super('Write permission denied'); this.name = 'NotAllowedError'; }
+}
+
 describe('Tools pane — filter chips, honest states, and collect (C-14)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -212,12 +216,52 @@ describe('Tools pane — filter chips, honest states, and collect (C-14)', () =>
     fireEvent.click(screen.getByTestId('tools-search-button'));
     await waitFor(() => expect(screen.getByText('sparkle')).toBeInTheDocument());
 
-    // Single click -> copy feedback
+    // Single click -> copy feedback. The clipboard write is genuinely async, and the
+    // feedback now waits for it so it can tell the truth (D-22), hence waitFor.
     fireEvent.click(screen.getByTestId('tools-result-item'));
-    expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/copied/i);
+    await waitFor(() =>
+      expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/^copied$/i),
+    );
 
     // + collect button -> distinct "collected" feedback
     fireEvent.click(screen.getByTestId('tools-collect-button'));
-    expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/collected/i);
+    await waitFor(() =>
+      expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/collected/i),
+    );
+  });
+
+  it('T-14.18: a refused clipboard says so instead of claiming "Copied" (D-22)', async () => {
+    setUpProject([]);
+
+    const mockLookup = vi.fn().mockResolvedValue({
+      term: 'star', mode: 'thesaurus', results: [{ word: 'sparkle', score: 700 }], loading: false, source: 'live',
+    });
+    (cachedToolLookupService.lookup as any) = mockLookup;
+
+    // A denied clipboard is an ordinary environment condition: an insecure context, a
+    // gated permission, an automated session. It must never be reported as success,
+    // and must not log an error.
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: vi.fn().mockRejectedValue(new NotAllowedErrorStub()) },
+      configurable: true,
+      writable: true,
+    });
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(<ToolsPane />);
+    fireEvent.click(screen.getByTestId('tools-tab-thesaurus'));
+    fireEvent.change(screen.getByTestId('tools-search-input'), { target: { value: 'star' } });
+    fireEvent.click(screen.getByTestId('tools-search-button'));
+    await waitFor(() => expect(screen.getByText('sparkle')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByTestId('tools-result-item'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('tools-result-feedback').textContent).toMatch(/couldn't copy/i),
+    );
+    expect(screen.getByTestId('tools-result-feedback').textContent).not.toMatch(/^copied$/i);
+    expect(consoleError).not.toHaveBeenCalled();
+
+    consoleError.mockRestore();
   });
 });

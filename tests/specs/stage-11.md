@@ -46,3 +46,4 @@ DESIGN_PROPOSAL §7): Lyric sheet, Chord sheet, Script / libretto, Annotated.
 
 ## Regression Requirements
 - Stages 0–10 must remain passing
+| T-11.25 | A whitespace-only line is not exported as a blank line | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | From D-23 |

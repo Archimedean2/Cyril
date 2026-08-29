@@ -40,3 +40,4 @@ click-to-edit identity in the top bar.
 | T-14.15 | A failed or hung provider lookup shows an honest offline state instead of an endless spinner | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
 | T-14.16 | Results sourced from the tool cache surface a cache/offline note | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
 | T-14.17 | A visible "+ collect" affordance adds a result to the active draft's Inventory and persists it, with feedback distinguishable from the existing click-to-copy gesture | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
+| T-14.18 | A refused clipboard reports "Couldn't copy" and logs no error | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [x] | [x] | Guards D-22 |

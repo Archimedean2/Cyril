@@ -187,9 +187,15 @@ function processNode(node: RichTextNode, options: ResolvedExportOptions, charact
  * Process a lyric line with optional chords
  */
 function processLyricLine(node: RichTextNode, options: ResolvedExportOptions): ExportableLine | null {
-  // Get text content from inline nodes
+  // Get text content from inline nodes.
+  //
+  // A line that is only whitespace is empty as far as the reader is concerned —
+  // exporting it produced a stray blank line in print and Markdown. Cyril expresses
+  // structure with sections, not with blank lines (SCOPE.md, "structured metadata
+  // over formatting hacks"), so there is nothing to preserve here.
   const text = extractTextContent(node.content);
-  if (!text && !options.includeChords) return null;
+  const hasVisibleText = text.trim().length > 0;
+  if (!hasVisibleText && !options.includeChords) return null;
 
   let chords: ExportableChord[] | undefined;
 
