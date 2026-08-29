@@ -1,0 +1,240 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Export Golden Files (C-34) > T-11.21: Sectionedraft — all four print profiles > T-11.21: annotated profile renders sectionedDraft 1`] = `
+"<body class="profile-annotated" data-print-profile="annotated">
+  <div class="print-container">
+    
+    <div class="print-header">
+      <h1 class="print-title">Test Project</h1>
+      <div class="print-draft-name">Full-Featured Draft</div>
+      <div class="print-profile-tag">Annotated</div>
+    </div>
+  
+    
+    <div class="section" data-section-type="verse">
+      <div class="section-label">Verse 1</div>
+      <div class="section-summary">The Sound of Music intro verse</div>
+      <div class="section-content">
+        
+      <div class="lyric-line-annotated">
+        <div class="lyric-line">The hills are alive</div>
+        <div class="margin-alternates"><div class="alt-item"><span class="alt-label">Version 2:</span> The mountains are singing</div></div>
+      </div>
+    <div class="lyric-line">With songs they have sung for a thousand years</div>
+      </div>
+    </div>
+  
+    <div class="section" data-section-type="chorus">
+      <div class="section-label">Chorus</div>
+      
+      <div class="section-content">
+        <div class="lyric-line">My heart wants to sing every song it hears</div><div class="lyric-line">My heart wants to beat like the wings of the birds</div>
+      </div>
+    </div>
+  
+    <div class="section" data-section-type="concurrent">
+      <div class="section-label">Concurrent</div>
+      
+      <div class="section-content">
+        <div class="lyric-line">MARIA</div><div class="lyric-line">CAPTAIN</div><div class="lyric-line">I go to the hills when my heart is lonely</div><div class="lyric-line">My heart wants to sigh like a chime in the tower</div><div class="lyric-line">I know I will hear what I have heard before</div><div class="lyric-line">I hear my heart singing a song I have never heard</div>
+      </div>
+    </div>
+  
+  </div>
+</body>"
+`;
+
+exports[`Export Golden Files (C-34) > T-11.21: Sectionedraft — all four print profiles > T-11.21: chordSheet profile renders sectionedDraft 1`] = `
+"<body class="profile-chordSheet" data-print-profile="chordSheet">
+  <div class="print-container">
+    
+    <div class="print-header">
+      <h1 class="print-title">Test Project</h1>
+      <div class="print-draft-name">Full-Featured Draft</div>
+      <div class="print-profile-tag">Chord sheet</div>
+    </div>
+  
+    
+    <div class="section" data-section-type="verse">
+      <div class="section-label">Verse 1</div>
+      <div class="section-summary">The Sound of Music intro verse</div>
+      <div class="section-content">
+        
+    <div class="lyric-line-block">
+      <div class="chord-row"><span class="chord-spacing" style="width: 2.4em;"></span><span class="chord">C</span><span class="chord-spacing" style="width: 3.5999999999999996em;"></span><span class="chord">G</span></div>
+      <div class="lyric-line">The hills are alive</div>
+      
+    </div>
+  <div class="lyric-line">With songs they have sung for a thousand years</div>
+      </div>
+    </div>
+  
+    <div class="section" data-section-type="chorus">
+      <div class="section-label">Chorus</div>
+      
+      <div class="section-content">
+        <div class="lyric-line">My heart wants to sing every song it hears</div><div class="lyric-line">My heart wants to beat like the wings of the birds</div>
+      </div>
+    </div>
+  
+    <div class="section" data-section-type="concurrent">
+      <div class="section-label">Concurrent</div>
+      
+      <div class="section-content">
+        <div class="lyric-line">MARIA</div><div class="lyric-line">CAPTAIN</div><div class="lyric-line">I go to the hills when my heart is lonely</div><div class="lyric-line">My heart wants to sigh like a chime in the tower</div><div class="lyric-line">I know I will hear what I have heard before</div><div class="lyric-line">I hear my heart singing a song I have never heard</div>
+      </div>
+    </div>
+  
+  </div>
+</body>"
+`;
+
+exports[`Export Golden Files (C-34) > T-11.21: Sectionedraft — all four print profiles > T-11.21: libretto profile renders sectionedDraft 1`] = `
+"<body class="profile-libretto" data-print-profile="libretto">
+  <div class="print-container">
+    
+    <div class="print-header">
+      <h1 class="print-title">Test Project</h1>
+      <div class="print-draft-name">Full-Featured Draft</div>
+      <div class="print-profile-tag">Script / libretto</div>
+    </div>
+  
+    
+    <div class="section" data-section-type="verse">
+      <div class="section-label">Verse 1</div>
+      <div class="section-summary">The Sound of Music intro verse</div>
+      <div class="section-content">
+        <div class="libretto-character">MARIA</div><div class="lyric-line libretto-dialogue">The hills are alive</div><div class="lyric-line libretto-dialogue">With songs they have sung for a thousand years</div><div class="libretto-stage-direction">((twirling in the mountains))</div>
+      </div>
+    </div>
+  
+    <div class="section" data-section-type="chorus">
+      <div class="section-label">Chorus</div>
+      
+      <div class="section-content">
+        <div class="lyric-line libretto-dialogue">My heart wants to sing every song it hears</div><div class="lyric-line libretto-dialogue">My heart wants to beat like the wings of the birds</div>
+      </div>
+    </div>
+  
+    <div class="section" data-section-type="concurrent">
+      <div class="section-label">Concurrent</div>
+      
+      <div class="section-content">
+        <div class="libretto-character">MARIA</div><div class="lyric-line libretto-dialogue">MARIA</div><div class="libretto-character">CAPTAIN</div><div class="lyric-line libretto-dialogue">CAPTAIN</div><div class="libretto-character">MARIA</div><div class="lyric-line libretto-dialogue">I go to the hills when my heart is lonely</div><div class="libretto-character">CAPTAIN</div><div class="lyric-line libretto-dialogue">My heart wants to sigh like a chime in the tower</div><div class="libretto-character">MARIA</div><div class="lyric-line libretto-dialogue">I know I will hear what I have heard before</div><div class="libretto-character">CAPTAIN</div><div class="lyric-line libretto-dialogue">I hear my heart singing a song I have never heard</div>
+      </div>
+    </div>
+  
+  </div>
+</body>"
+`;
+
+exports[`Export Golden Files (C-34) > T-11.21: Sectionedraft — all four print profiles > T-11.21: lyricSheet profile renders sectionedDraft 1`] = `
+"<body class="profile-lyricSheet" data-print-profile="lyricSheet">
+  <div class="print-container">
+    
+    <div class="print-header">
+      <h1 class="print-title">Test Project</h1>
+      <div class="print-draft-name">Full-Featured Draft</div>
+      <div class="print-profile-tag">Lyric sheet</div>
+    </div>
+  
+    
+    <div class="section" data-section-type="verse">
+      <div class="section-label">Verse 1</div>
+      <div class="section-summary">The Sound of Music intro verse</div>
+      <div class="section-content">
+        <div class="lyric-line">The hills are alive</div><div class="lyric-line">With songs they have sung for a thousand years</div>
+      </div>
+    </div>
+  
+    <div class="section" data-section-type="chorus">
+      <div class="section-label">Chorus</div>
+      
+      <div class="section-content">
+        <div class="lyric-line">My heart wants to sing every song it hears</div><div class="lyric-line">My heart wants to beat like the wings of the birds</div>
+      </div>
+    </div>
+  
+    <div class="section" data-section-type="concurrent">
+      <div class="section-label">Concurrent</div>
+      
+      <div class="section-content">
+        <div class="lyric-line">MARIA</div><div class="lyric-line">CAPTAIN</div><div class="lyric-line">I go to the hills when my heart is lonely</div><div class="lyric-line">My heart wants to sigh like a chime in the tower</div><div class="lyric-line">I know I will hear what I have heard before</div><div class="lyric-line">I hear my heart singing a song I have never heard</div>
+      </div>
+    </div>
+  
+  </div>
+</body>"
+`;
+
+exports[`Export Golden Files (C-34) > T-11.21: Sectionedraft — all four print profiles > T-11.21: markdown export of sectionedDraft 1`] = `
+"# Test Project
+
+**Full-Featured Draft**
+
+## Verse 1
+*The Sound of Music intro verse*
+
+The hills are alive
+With songs they have sung for a thousand years
+
+## Chorus
+My heart wants to sing every song it hears
+My heart wants to beat like the wings of the birds
+
+MARIA
+CAPTAIN
+I go to the hills when my heart is lonely
+My heart wants to sigh like a chime in the tower
+I know I will hear what I have heard before
+I hear my heart singing a song I have never heard
+"
+`;
+
+exports[`Export Golden Files (C-34) > T-11.22: UnsectionedDraft (D-02 regression guards) > T-11.22: unsectionedDraft lyricSheet print snapshot 1`] = `
+"<body class="profile-lyricSheet" data-print-profile="lyricSheet">
+  <div class="print-container">
+    
+    <div class="print-header">
+      <h1 class="print-title">Test Project</h1>
+      <div class="print-draft-name">Bare Lyrics Draft</div>
+      <div class="print-profile-tag">Lyric sheet</div>
+    </div>
+  
+    
+    <div class="section" data-section-type="none">
+      
+      
+      <div class="section-content">
+        <div class="lyric-line">The hills are alive with the sound of music</div><div class="lyric-line">With songs they have sung for a thousand years</div>
+      </div>
+    </div>
+  
+  </div>
+</body>"
+`;
+
+exports[`Export Golden Files (C-34) > T-11.22: UnsectionedDraft (D-02 regression guards) > T-11.22: unsectionedDraft markdown snapshot 1`] = `
+"# Test Project
+
+**Bare Lyrics Draft**
+
+The hills are alive with the sound of music
+With songs they have sung for a thousand years
+"
+`;
+
+exports[`Export Golden Files (C-34) > T-11.23: EmptyDraft edge case > T-11.23: emptyDraft renders empty-state message and does not crash 1`] = `
+"<body class="profile-lyricSheet" data-print-profile="lyricSheet">
+  <div class="print-container">
+    
+    <div class="print-header">
+      <h1 class="print-title">Test Project</h1>
+      <div class="print-draft-name">Empty Draft</div>
+      <div class="print-profile-tag">Lyric sheet</div>
+    </div>
+  
+    <div class="print-empty">This draft has no content yet.</div>
+  </div>
+</body>"
+`;
