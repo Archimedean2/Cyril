@@ -46,6 +46,7 @@ export function createDefaultProject(title: string = 'Untitled Song'): CyrilProj
       }
     ],
     activeDraftId: null,
+    characters: [],
     displaySettings: {
       defaultShowChords: true,
       defaultShowSectionLabels: true,

@@ -8,8 +8,9 @@
  * layout as CSS flex columns. Markdown always uses squash.
  */
 
-import { RichTextNode, ChordMarker, LyricLineMeta } from '../project/types';
+import { Character, RichTextNode, ChordMarker, LyricLineMeta } from '../project/types';
 import { ExportableLine, ExportableChord, ResolvedExportOptions, ConcurrentSectionExport } from './exportTypes';
+import { resolveCharacterColor } from '../project/characters';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -56,7 +57,8 @@ function lyricLineToExportable(
  */
 export function squashConcurrentBlock(
   blockNode: RichTextNode,
-  options: ResolvedExportOptions
+  options: ResolvedExportOptions,
+  characters: Character[] = []
 ): ExportableLine[] {
   const columns = blockNode.content || [];
   if (columns.length === 0) return [];
@@ -80,6 +82,7 @@ export function squashConcurrentBlock(
           type: 'speaker',
           content: speakerName,
           speaker: speakerName,
+          speakerColor: resolveCharacterColor(characters, col.attrs?.characterId as string | null | undefined, speakerName),
         });
       }
 
@@ -101,7 +104,8 @@ export function squashConcurrentBlock(
  */
 export function buildSideBySideConcurrentBlock(
   blockNode: RichTextNode,
-  options: ResolvedExportOptions
+  options: ResolvedExportOptions,
+  characters: Character[] = []
 ): ConcurrentSectionExport {
   const columns = blockNode.content || [];
 
@@ -118,7 +122,11 @@ export function buildSideBySideConcurrentBlock(
         }
       }
 
-      return { speakerName, lines };
+      return {
+        speakerName,
+        speakerColor: resolveCharacterColor(characters, col.attrs?.characterId as string | null | undefined, speakerName),
+        lines,
+      };
     }),
   };
 }

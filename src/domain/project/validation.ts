@@ -37,6 +37,13 @@ const WriterSchema = z.object({
   email: z.string().optional(),
 }).passthrough();
 
+// C-20: character registry
+const CharacterSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  color: z.enum(['blue', 'green', 'gold', 'rose', 'violet']),
+}).passthrough();
+
 // Draft schema
 const DraftSettingsSchema = z.object({
   showChords: z.boolean(),
@@ -107,6 +114,7 @@ export const ProjectSchema = z.object({
   displaySettings: DisplaySettingsSchema,
   exportSettings: ExportSettingsSchema,
   projectSettings: ProjectSettingsSchema,
+  characters: z.array(CharacterSchema).optional(),
 }).passthrough();
 
 export const CyrilFileSchema = z.object({

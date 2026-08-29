@@ -101,6 +101,7 @@ A `.cyril` file is a UTF-8 JSON document.
 | `displaySettings` | DisplaySettings | yes | Project-level display defaults |
 | `exportSettings` | ExportSettings | yes | Project-level export defaults |
 | `projectSettings` | ProjectSettings | yes | Misc project behavior settings |
+| `characters` | array of Character | yes (defaulted `[]`) | The song's character/speaker registry (C-20) |
 
 ---
 
@@ -123,6 +124,55 @@ A `.cyril` file is a UTF-8 JSON document.
 | `name` | string | yes | Writer name |
 | `role` | string | no | Optional role, e.g. lyricist, composer |
 | `email` | string | no | Optional contact field |
+
+---
+
+## Character Schema (C-20)
+
+A first-class character/speaker identity — the registry that gives every speaker line a
+stable, colour-coded identity instead of just bold uppercase text. Lives at **project**
+level (`CyrilProject.characters`), not per-draft: a character is the same person across
+every draft of the song. Editable from the Structure workspace.
+
+```json
+{
+  "id": "character_001",
+  "name": "WOODY",
+  "color": "blue"
+}
+```
+
+### Character fields
+
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| `id` | string | yes | Unique character identifier |
+| `name` | string | yes | Display name (matches the text the writer types in a speaker line) |
+| `color` | string enum | yes | One of `blue`, `green`, `gold`, `rose`, `violet` — see below |
+
+### `color` values
+
+Drawn from the section-accent family in `docs/design/UI_TOKENS.md` (`--section-blue`,
+`-green`, `-gold`, `-rose`, `-violet`), the same five tokens `SectionBlockAttrs.color`
+uses. New characters are auto-assigned the next colour in that fixed order
+(`blue, green, gold, rose, violet`), cycling if a project has more than five characters.
+The writer can recolour a character to any of the five at any time.
+
+### How lines link to a character
+
+- `LyricLineAttrs.characterId` (optional, on lines with `lineType: "speaker"`) and
+  `SpeakerColumnAttrs.characterId` (optional, on concurrent-block columns) hold the id of
+  the `Character` that line/column belongs to.
+- Colour resolution prefers `characterId`; if it's absent or stale, it falls back to a
+  case-insensitive match of the line's own text (or the column's `speakerName`) against
+  `characters[].name`. This keeps colouring working for content that hasn't been linked
+  yet (freshly typed, or not yet reconciled) without ever *requiring* the link to exist.
+- Renaming a character does not retroactively rewrite already-typed line text — only the
+  registry entry and (via the fallback above) any *unlinked* line whose text happens to
+  still equal the new name. A line already linked by `characterId` keeps its colour
+  regardless of what its literal text says.
+- `characterId` is metadata: hiding speaker labels in the UI must not remove it, exactly
+  like the `speaker`/`stageDirection` line-type rules below.
 
 ---
 
@@ -412,6 +462,7 @@ This is the core lyric-bearing line model.
 |------|------|----------|-------------|
 | `id` | string | yes | Unique line identifier |
 | `rhymeGroup` | string or null | no | Optional manual rhyme color/group identifier |
+| `characterId` | string or null | no | C-20: links a `lineType: "speaker"` line to a `Character` in `CyrilProject.characters`. Meaningless on `lyric`/`stageDirection` lines. |
 
 > **Removed (C-10, 2026-07-05):** the `delivery` attribute (`"sung" | "spoken"`) was cut
 > entirely — see `docs/product/DESIGN_PROPOSAL.md` §3.4. It only ever italicised
@@ -741,7 +792,8 @@ If fields are missing, use these defaults unless migration logic says otherwise.
   "subtitle": "",
   "writers": [],
   "drafts": [],
-  "activeDraftId": null
+  "activeDraftId": null,
+  "characters": []
 }
 ```
 
@@ -802,6 +854,7 @@ The following entities must have stable unique IDs:
 - lyricLine
 - alternateLine
 - chordMarker
+- character (C-20)
 
 ### ID requirements
 - Must be strings
@@ -867,6 +920,30 @@ clear, friendly error (`UnsupportedSchemaVersionError` in `src/domain/project/va
 before migration runs at all. The source file is never touched. Files with **no**
 `schemaVersion` at all (legacy/raw exports) are unaffected — those still go through the normal
 migration path described above.
+
+### Character registry migration (C-20)
+
+Every project migration (not just a version bump — this runs on every load, since it's the
+same `migrateProject` pass that fills in every other missing default) ensures `characters`
+exists and that existing speaker content is linked to it:
+
+1. **If `project.characters` is already present**, it's kept as-is (each entry normalized —
+   a missing `id` is generated, a missing/invalid `color` defaults to `blue` — but no entries
+   are added or removed).
+2. **If it's absent** (any project saved before C-20), it is derived: every distinct speaker
+   name already in the project — from `lyricLine` nodes with `lineType: "speaker"` and from
+   `speakerColumn.attrs.speakerName` in concurrent blocks, across *all* drafts, in order of
+   first appearance — becomes one `Character`, with colours auto-assigned in the fixed
+   `blue, green, gold, rose, violet` order. Two speaker occurrences that differ only by case
+   or surrounding whitespace collapse into a single character.
+3. **Either way**, every speaker line/column whose text matches a registry entry by name
+   (case-insensitively) but doesn't yet carry `characterId` gets it backfilled. A name with no
+   match (e.g. a typo, or content added between saves) is left unlinked — it still renders
+   correctly, just without a colour, exactly as speaker lines behaved before C-20.
+
+This is deliberately non-destructive: no line text changes, no character is dropped, and a
+writer who never opens the Structure workspace sees no difference in behaviour beyond
+existing speakers now carrying their auto-assigned colour.
 
 ---
 
