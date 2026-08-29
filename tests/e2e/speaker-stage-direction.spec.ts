@@ -1,4 +1,5 @@
-import { test, expect, Page, Locator } from '@playwright/test';
+import { test, expect } from './fixtures';
+import type { Page, Locator } from '@playwright/test';
 
 /**
  * Helper to wait for editor to be ready for input.
@@ -257,5 +258,55 @@ test.describe('Speaker and Stage Direction', () => {
     const stageDirLine = page.locator('[data-line-type="stageDirection"]').first();
     await expect(stageDirLine).toBeVisible();
     await expect(stageDirLine).toContainText('To infinity and beyond!');
+  });
+
+  test('T-4.21: Typing [[MARIA]] yields a speaker line whose text is exactly "MARIA"', async ({ page }) => {
+    // Type the full gesture, closing brackets included, the way a lyricist
+    // naturally would per DESIGN_PROPOSAL.md §3.1.
+    await page.keyboard.type('[[MARIA]]');
+    await waitForLineType(page, 'speaker');
+
+    const speakerLine = page.locator('[data-line-type="speaker"]').first();
+    await expect(speakerLine).toBeVisible();
+    await expect(speakerLine).toHaveText('MARIA');
+  });
+
+  test('T-4.23: Typing ((beat)) yields a stage-direction line reading exactly "beat"', async ({ page }) => {
+    await page.keyboard.type('((beat))');
+    await waitForLineType(page, 'stageDirection');
+
+    const stageDirLine = page.locator('[data-line-type="stageDirection"]').first();
+    await expect(stageDirLine).toBeVisible();
+    await expect(stageDirLine).toHaveText('beat');
+  });
+
+  // C-20: a speaker line's name re-typed later in the same draft exactly
+  // matches an existing registry character, which makes the `[[` autocomplete
+  // offer it as a suggestion. Pressing Enter must still leave the line (create
+  // a new lyric line) — a regression once had the autocomplete's own Enter
+  // handling swallow the keypress whenever the typed name was an exact match,
+  // silently merging the next line's text onto the still-open speaker line.
+  test('T-4.38: pressing Enter after re-typing an already-registered character name still exits the speaker line (autocomplete does not swallow it)', async ({ page }) => {
+    await page.keyboard.type('[[WOODY');
+    await waitForLineType(page, 'speaker');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Howdy partner!');
+    await page.keyboard.press('Enter');
+
+    // Re-enter speaker mode with the exact same, already-registered name.
+    await page.keyboard.type('[[WOODY');
+    await waitForLineType(page, 'speaker');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Still here.');
+
+    const speakerLines = page.locator('[data-line-type="speaker"]');
+    await expect(speakerLines).toHaveCount(2);
+    await expect(speakerLines.nth(1)).toHaveText('WOODY');
+
+    const lyricLines = page.locator('[data-line-type="lyric"]');
+    await expect(lyricLines).toHaveCount(2);
+    await expect(lyricLines.nth(0)).toHaveText('Howdy partner!');
+    // The critical assertion: this is its own line, not "WOODYStill here."
+    await expect(lyricLines.nth(1)).toHaveText('Still here.');
   });
 });

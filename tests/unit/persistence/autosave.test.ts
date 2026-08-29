@@ -5,7 +5,7 @@ import { createDefaultProject, createCyrilFile } from '../../../src/domain/proje
 
 vi.mock('../../../src/persistence/fileSystem/fileManager', () => ({
   hasFileHandle: vi.fn(() => true),
-  saveProject: vi.fn(() => Promise.resolve()),
+  saveProject: vi.fn(() => Promise.resolve(true)),
   openProject: vi.fn(),
   createNewProject: vi.fn(),
   duplicateProject: vi.fn(),
@@ -23,7 +23,7 @@ describe('Autosave', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.mocked(hasFileHandle).mockReturnValue(true);
-    vi.mocked(saveProject).mockResolvedValue(undefined);
+    vi.mocked(saveProject).mockResolvedValue(true);
     useProjectStore.setState({
       currentProject: null,
       isProjectLoaded: false,

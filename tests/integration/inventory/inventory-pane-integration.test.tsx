@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent, act } from '@testing-library/react';
 import { InventoryPane } from '../../../src/features/inventory/InventoryPane';
 import { useProjectStore } from '../../../src/app/state/projectStore';
 import { createDefaultProject } from '../../../src/domain/project/defaults';
@@ -28,7 +28,7 @@ describe('Inventory Pane Integration', () => {
   test('T-5.03: Inventory pane renders in bottom-right panel', () => {
     // Set up mock store with a loaded project
     const mockProject = createMockProject();
-    
+
     // Mock the store state
     useProjectStore.setState({
       currentProject: mockProject,
@@ -41,39 +41,65 @@ describe('Inventory Pane Integration', () => {
     const inventoryPane = screen.getByTestId('inventory-pane');
     expect(inventoryPane).toBeDefined();
 
-    // Check that the textarea is rendered
-    const textarea = screen.getByTestId('inventory-textarea');
-    expect(textarea).toBeDefined();
-    expect(textarea.tagName.toLowerCase()).toBe('textarea');
+    // Check that the collected-words chip surface is rendered (not a raw textarea)
+    expect(screen.getByTestId('inventory-chips')).toBeDefined();
+    expect(screen.getByTestId('inventory-add-input')).toBeDefined();
+    expect(screen.queryByTestId('inventory-textarea')).not.toBeInTheDocument();
   });
 
   test('T-5.04: Switching drafts switches inventory content correctly', () => {
     const mockProject = createMockProject();
-    
-    // Set up store with first draft active
+    const draftA = mockProject.project.drafts[0];
+    const draftB = {
+      ...draftA,
+      id: 'draft_b',
+      name: 'Draft B',
+      inventory: {
+        type: 'inventory' as const,
+        doc: {
+          type: 'doc' as const,
+          content: [
+            { type: 'paragraph', content: [{ type: 'text', text: 'Draft B fragment' }] },
+          ],
+        },
+      },
+    };
+    draftA.inventory = {
+      type: 'inventory',
+      doc: {
+        type: 'doc',
+        content: [
+          { type: 'paragraph', content: [{ type: 'text', text: 'Draft A fragment' }] },
+        ],
+      },
+    };
+    mockProject.project.drafts = [draftA, draftB];
+
     useProjectStore.setState({
       currentProject: mockProject,
-      activeView: { type: 'draft', draftId: mockProject.project.drafts[0].id }
+      activeView: { type: 'draft', draftId: draftA.id }
     });
 
-    render(<InventoryPane />);
-    
-    const textarea = screen.getByTestId('inventory-textarea') as HTMLTextAreaElement;
-    // Store initial value for comparison if needed later
+    const { rerender } = render(<InventoryPane />);
 
-    // Simulate switching to a different draft (if one existed)
-    // For this test, we'll just verify the component responds to store changes
-    // In a real scenario, you'd have multiple drafts and switch between them
-    
-    // The test passes if the component renders without errors
-    expect(textarea).toBeDefined();
+    expect(screen.getByText('Draft A fragment')).toBeInTheDocument();
+    expect(screen.queryByText('Draft B fragment')).not.toBeInTheDocument();
+
+    // Switch the active draft
+    act(() => {
+      useProjectStore.setState({ activeView: { type: 'draft', draftId: draftB.id } });
+    });
+    rerender(<InventoryPane />);
+
+    expect(screen.getByText('Draft B fragment')).toBeInTheDocument();
+    expect(screen.queryByText('Draft A fragment')).not.toBeInTheDocument();
   });
 
   test('T-5.05: Editing inventory does not alter draft document', () => {
     const mockProject = createMockProject();
     const draftId = mockProject.project.drafts[0].id;
     const originalDocContent = JSON.stringify(mockProject.project.drafts[0].doc);
-    
+
     // Set up store
     useProjectStore.setState({
       currentProject: mockProject,
@@ -81,20 +107,19 @@ describe('Inventory Pane Integration', () => {
     });
 
     render(<InventoryPane />);
-    
-    const textarea = screen.getByTestId('inventory-textarea') as HTMLTextAreaElement;
-    
-    // Type new inventory content
-    fireEvent.change(textarea, { target: { value: 'New inventory line\nAnother line' } });
+
+    const addInput = screen.getByTestId('inventory-add-input');
+    fireEvent.change(addInput, { target: { value: 'New inventory line' } });
+    fireEvent.submit(addInput.closest('form')!);
 
     // Get the updated store state
     const updatedState = useProjectStore.getState();
     const updatedDraft = updatedState.currentProject?.project.drafts.find(d => d.id === draftId);
-    
+
     // Verify that inventory was updated
     expect(updatedDraft).toBeDefined();
     expect(updatedDraft!.inventory.doc.content.length).toBeGreaterThan(0);
-    
+
     // Verify that the main draft document was NOT altered
     const currentDocContent = JSON.stringify(updatedDraft!.doc);
     expect(currentDocContent).toBe(originalDocContent);

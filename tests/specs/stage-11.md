@@ -3,11 +3,14 @@
 **Tags:** `[EXPORT] [PRINT] [STAGE-11]`
 
 ## Scope
-Markdown export and print/PDF pipeline.
+Markdown export and print/PDF pipeline, including the four named print profiles (C-22 /
+DESIGN_PROPOSAL §7): Lyric sheet, Chord sheet, Script / libretto, Annotated.
 
 ## Required Test Files
 - `tests/unit/export/markdown-export.test.ts`
 - `tests/unit/export/print-renderer.test.ts`
+- `tests/unit/export/print-profiles.test.ts`
+- `tests/unit/export/export-golden.test.ts`
 - `tests/integration/export/export-integration.test.ts`
 - `tests/e2e/stage-11-export.spec.ts`
 
@@ -22,6 +25,25 @@ Markdown export and print/PDF pipeline.
 | T-11.05 | Export flow reads canonical project data rather than live DOM state | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | |
 | T-11.06 | Export settings persist and are applied correctly | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | |
 | T-11.07 | Export workflow passes in UI | e2e | `tests/e2e/stage-11-export.spec.ts` | [x] | [x] | |
+| T-11.08 | Lyric sheet profile omits chords, speaker labels, and stage directions (section labels stay optional) | unit | `tests/unit/export/print-profiles.test.ts` | [x] | [x] | |
+| T-11.09 | Chord sheet profile always shows chords + section labels, in a mono chord font | unit | `tests/unit/export/print-profiles.test.ts`, `tests/unit/export/print-renderer.test.ts` | [x] | [x] | |
+| T-11.10 | Libretto profile renders speakers + stage directions in theatre format; lyric sheet omits stage directions | unit | `tests/unit/export/print-profiles.test.ts`, `tests/unit/export/print-renderer.test.ts` | [x] | [x] | |
+| T-11.11 | Annotated profile shows alternates and section notes in the margin | unit | `tests/unit/export/print-profiles.test.ts`, `tests/unit/export/print-renderer.test.ts` | [x] | [x] | |
+| T-11.12 | Chosen print profile and options survive save/load | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | JSON round-trip through `validateCyrilFile` |
+| T-11.13 | Export dialog can build a preview for each profile before printing (no print window opened) | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | |
+| T-11.14 | Export dialog offers four named print profiles with a live preview, and the choice persists | e2e | `tests/e2e/stage-11-export.spec.ts` | [x] | [x] | |
+| T-11.15 | Printing an empty draft renders a valid, non-crashing document for every profile | unit + integration | `tests/unit/export/print-renderer.test.ts`, `tests/integration/export/export-integration.test.ts` | [x] | [x] | EDGE_CASES §11 |
+| T-11.16 | Concurrent block squash order is left-to-right per row in print output | unit | `tests/unit/export/print-renderer.test.ts` | [x] | [x] | EDGE_CASES §11 |
+| T-11.17 | Only the active alternate is exported in the main line; other alternates surface only in the Annotated profile margin | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | EDGE_CASES §11 |
+| T-11.18 | Printing is independent of the editor's view toggles (`draftSettings`) — only `ExportSettings` governs output | integration | `tests/integration/export/export-integration.test.ts` | [x] | [x] | EDGE_CASES §11 |
+
+| T-11.19 | Lyrics written outside any section block still export (print, preview and markdown) | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | A new draft starts as bare `lyricLine` nodes, so this was the common case, not an edge case — such a draft previously exported as an empty document |
+| T-11.20 | An unheaded section invents no section heading in print or markdown | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | Previously printed a label reading "None" |
+| T-11.21 | All four print profiles render correctly for a rich test draft with sections, concurrent blocks, chords, and alternates | unit | `tests/unit/export/export-golden.test.ts` | [x] | [x] | Golden-file snapshots guard against regressive changes to export output |
+| T-11.22 | An unsectioned draft (the app default) exports as complete text without empty state, preserving D-02 fix | unit | `tests/unit/export/export-golden.test.ts` | [x] | [x] | D-02 regression guard: bare lyricLine nodes must print and export |
+| T-11.23 | An empty draft renders without crashing and displays the empty-state message | unit | `tests/unit/export/export-golden.test.ts` | [x] | [x] | EDGE_CASES §11; also prevents regression in markdown export |
+| T-11.24 | Profile-specific content filtering: chords/stage/alternates appear only in their respective profiles | unit | `tests/unit/export/export-golden.test.ts` | [x] | [x] | Verifies that printProfile choice correctly controls output content |
 
 ## Regression Requirements
 - Stages 0–10 must remain passing
+| T-11.25 | A whitespace-only line is not exported as a blank line | unit | `tests/unit/export/loose-lines-export.test.ts` | [x] | [x] | From D-23 |

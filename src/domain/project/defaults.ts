@@ -40,12 +40,13 @@ export function createDefaultProject(title: string = 'Untitled Song'): CyrilProj
         createdAt: now,
         updatedAt: now,
         mode: 'lyrics',
-        doc: { type: 'doc', content: [{ type: 'lyricLine', attrs: { id: generateId('line'), delivery: 'sung', rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] } as DraftDocument,
+        doc: { type: 'doc', content: [{ type: 'lyricLine', attrs: { id: generateId('line'), rhymeGroup: null, meta: { alternates: [], prosody: null, chords: [] } } }] } as DraftDocument,
         inventory: { type: 'inventory', doc: { type: 'doc', content: [{ type: 'paragraph' }] } } as InventoryDocument,
         draftSettings: defaultDraftSettings,
       }
     ],
     activeDraftId: null,
+    characters: [],
     displaySettings: {
       defaultShowChords: true,
       defaultShowSectionLabels: true,

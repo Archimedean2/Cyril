@@ -13,11 +13,39 @@ export default defineConfig({
   },
   expect: {
     timeout: 5000, // Shorter expect timeout
+    toHaveScreenshot: {
+      // Font rasterization differs by a handful of pixels even on the same platform;
+      // a small tolerance beats an exact match without hiding a real layout regression.
+      maxDiffPixelRatio: 0.02,
+    },
   },
+  // Font rendering differs between macOS (dev) and Linux (CI), so a screenshot baseline
+  // taken on one platform will always fail on the other. Keying the path by {platform}
+  // lets both sets of baselines coexist instead of one clobbering the other. See
+  // tests/e2e/visual.spec.ts and the C-34 report for which platform's baselines are
+  // committed here.
+  snapshotPathTemplate: '{testDir}/__screenshots__/{platform}/{testFilePath}/{arg}{ext}',
   webServer: {
     command: 'node ./node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4173',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: true,
     timeout: 30000, // Fail faster if dev server doesn't start
   },
+  projects: [
+    {
+      // Everything except the visual-regression suite. This is what `npm run test:e2e`
+      // runs, and what CI gates on — a font-rendering diff must never block an
+      // unrelated PR (see the C-34 report for the recommended, non-blocking CI step
+      // for the `visual` project instead).
+      name: 'e2e',
+      testDir: './tests/e2e',
+      testIgnore: /visual\.spec\.ts$/,
+    },
+    {
+      // Visual regression only. Run explicitly with `npm run test:visual`.
+      name: 'visual',
+      testDir: './tests/e2e',
+      testMatch: /visual\.spec\.ts$/,
+    },
+  ],
 });

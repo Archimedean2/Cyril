@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Stage 3: Workspaces and Drafts', () => {
   test.beforeEach(async ({ page }) => {
@@ -9,8 +9,8 @@ test.describe('Stage 3: Workspaces and Drafts', () => {
     // Start by creating a new project
     await page.getByTestId('create-project-button').click();
 
-    // Check initial state
-    await expect(page.getByTestId('project-title')).toHaveText('Untitled Song');
+    // Check initial state (song title lives in the top bar only — T-14.05/06)
+    await expect(page.getByTestId('topbar-project-title')).toHaveText('Untitled Song');
     await expect(page.getByRole('button', { name: 'Draft 1' })).toBeVisible();
     await expect(page.getByTestId('topbar-draft-name')).toHaveText('Draft 1');
 

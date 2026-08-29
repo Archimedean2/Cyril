@@ -1,7 +1,17 @@
 import { create } from 'zustand';
-import { CyrilFile, ExportSettings } from '../../domain/project/types';
+import { Character, CharacterColor, CyrilFile, ExportSettings } from '../../domain/project/types';
 import { createDraft, DuplicationMode } from '../../domain/project/drafts';
-import { openProject, saveProject, createNewProject, duplicateProject, tryReopenLastProject } from '../../persistence/fileSystem/fileManager';
+import {
+  openProject,
+  saveProject,
+  createNewProject,
+  duplicateProject,
+  tryReopenLastProject,
+  hasPendingPermissionRequest,
+  getPendingPermissionFileName,
+  regrantFilePermission,
+} from '../../persistence/fileSystem/fileManager';
+import { readRecoverySnapshot, clearRecoverySnapshot } from '../../persistence/indexeddb/recoveryStore';
 import { importFromShareBlob } from '../../domain/share/shareService';
 
 export type WorkspaceType = 'brief' | 'structure' | 'hookLab' | 'vocabularyWorld';
@@ -12,7 +22,21 @@ interface ProjectState {
   currentProject: CyrilFile | null;
   error: string | null;
   isInitializing: boolean;
-  
+
+  // A pending local recovery snapshot (HARDENING §H2 / C-04): set when app init finds a
+  // snapshot newer than whatever was opened (or nothing was opened at all). Non-null means
+  // "offer recovery" — the UI should ask the user to accept or decline it.
+  recoverySnapshot: CyrilFile | null;
+  acceptRecovery: () => void;
+  declineRecovery: () => void;
+
+  // BACKLOG C-29: the name of a file whose stored handle lost write permission
+  // (`NotAllowedError`), kept by fileManager rather than discarded. Non-null means the
+  // top-of-editor banner should offer to re-grant it. `regrantPermission` fires
+  // `requestPermission` from the banner's own click (a user gesture is required).
+  permissionLockedFileName: string | null;
+  regrantPermission: () => Promise<void>;
+
   // UI State
   activeView: ActiveView;
   
@@ -20,8 +44,12 @@ interface ProjectState {
   initApp: () => Promise<void>;
   createProject: (title?: string) => void;
   openProject: () => Promise<void>;
-  saveProject: () => Promise<void>;
-  saveProjectAs: () => Promise<void>;
+  // Resolve `true` if the save actually wrote to disk, `false` if it was cancelled
+  // without error (picker dismissed, or the user declined to overwrite a file that
+  // changed outside Cyril — HARDENING §H6 / C-07). Rethrows genuine failures after
+  // recording `error`, so callers (the save-status indicator) can react honestly.
+  saveProject: () => Promise<boolean>;
+  saveProjectAs: () => Promise<boolean>;
   renameProject: (newTitle: string) => void;
   duplicateProject: (newTitle: string) => void;
   closeProject: () => void;
@@ -49,6 +77,11 @@ interface ProjectState {
   updateExportSetting: (settingKey: keyof ExportSettings, value: boolean | string) => void;
   updateExportSettings: (settings: Partial<ExportSettings>) => void;
 
+  // Character registry Actions (C-20)
+  addCharacter: (character: Character) => void;
+  renameCharacter: (characterId: string, name: string) => void;
+  recolorCharacter: (characterId: string, color: CharacterColor) => void;
+
   // Share Actions
   importShare: (shareBlob: string) => void;
 }
@@ -58,17 +91,58 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   currentProject: null,
   error: null,
   isInitializing: true,
+  recoverySnapshot: null,
+  permissionLockedFileName: null,
   activeView: { type: 'draft', draftId: '' }, // Will be set properly when project loads
 
   initApp: async () => {
     // Try to reopen the last project first
     const lastProject = await tryReopenLastProject();
+
+    // If that failed specifically because the stored handle lost write permission (not
+    // because the file is gone/corrupt), fileManager keeps it and flags it here — the
+    // banner (C-29) offers a one-click re-grant instead of forcing `Open` again.
+    const permissionLockedFileName = hasPendingPermissionRequest() ? getPendingPermissionFileName() : null;
+
+    // Then check for a local recovery snapshot (HARDENING §H2 / C-04) — best-effort, so a
+    // storage failure here just means "no snapshot", never a thrown init error.
+    const snapshot = await readRecoverySnapshot().catch(() => null);
+
+    if (snapshot) {
+      // A snapshot from a different project than the one just reopened is stale (e.g. left
+      // over from a project that was open earlier, before the user switched files) — treat
+      // it as irrelevant to *this* file rather than offering to recover the wrong project.
+      const isSameProject = !lastProject || snapshot.file.project.id === lastProject.project.id;
+      const isNewer = isSameProject && (!lastProject || snapshot.file.project.updatedAt > lastProject.project.updatedAt);
+
+      if (isNewer) {
+        set({
+          currentProject: lastProject,
+          isProjectLoaded: !!lastProject,
+          isInitializing: false,
+          error: null,
+          recoverySnapshot: snapshot.file,
+          permissionLockedFileName,
+          activeView: lastProject
+            ? { type: 'draft', draftId: lastProject.project.activeDraftId || lastProject.project.drafts[0]?.id || '' }
+            : { type: 'draft', draftId: '' }
+        });
+        return;
+      }
+
+      // Stale relative to what's on disk (or belongs to a different project) — discard
+      // quietly rather than asking the user about work that's already superseded.
+      await clearRecoverySnapshot();
+    }
+
     if (lastProject) {
       set({
         currentProject: lastProject,
         isProjectLoaded: true,
         isInitializing: false,
         error: null,
+        recoverySnapshot: null,
+        permissionLockedFileName,
         activeView: { type: 'draft', draftId: lastProject.project.activeDraftId || lastProject.project.drafts[0]?.id || '' }
       });
       return;
@@ -81,8 +155,66 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       isProjectLoaded: false,
       isInitializing: false,
       error: null,
+      recoverySnapshot: null,
+      permissionLockedFileName,
       activeView: { type: 'draft', draftId: '' }
     });
+  },
+
+  regrantPermission: async () => {
+    // Must be called directly from the banner's own click handler — `requestPermission`
+    // requires an active user gesture (BACKLOG C-29).
+    const file = await regrantFilePermission();
+    const stillPending = hasPendingPermissionRequest();
+
+    if (file) {
+      const { currentProject } = get();
+      if (!currentProject) {
+        // Nothing was loaded any other way (e.g. no recovery snapshot existed) — adopt the
+        // freshly reconnected file.
+        set({
+          currentProject: file,
+          isProjectLoaded: true,
+          error: null,
+          permissionLockedFileName: null,
+          activeView: { type: 'draft', draftId: file.project.activeDraftId || file.project.drafts[0]?.id || '' }
+        });
+      } else {
+        // A project is already loaded (e.g. recovered from the local snapshot) — keep its
+        // in-memory state; the reconnected handle is already wired up for future saves.
+        set({ permissionLockedFileName: null });
+      }
+      return;
+    }
+
+    if (!stillPending) {
+      // fileManager gave up on this handle (the file turned out to be gone/corrupt) —
+      // nothing left to reconnect to; the user's normal fallback is `Open`.
+      set({ permissionLockedFileName: null });
+    }
+    // Otherwise still pending (permission declined again) — leave the banner up so the
+    // user can retry.
+  },
+
+  acceptRecovery: () => {
+    const { recoverySnapshot } = get();
+    if (!recoverySnapshot) return;
+    set({
+      currentProject: recoverySnapshot,
+      isProjectLoaded: true,
+      isInitializing: false,
+      error: null,
+      recoverySnapshot: null,
+      activeView: {
+        type: 'draft',
+        draftId: recoverySnapshot.project.activeDraftId || recoverySnapshot.project.drafts[0]?.id || ''
+      }
+    });
+  },
+
+  declineRecovery: () => {
+    clearRecoverySnapshot();
+    set({ recoverySnapshot: null });
   },
 
   createProject: (title?: string) => {
@@ -114,26 +246,34 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   saveProject: async () => {
     const { currentProject } = get();
-    if (!currentProject) return;
-    
+    if (!currentProject) return false;
+
     try {
-      await saveProject(currentProject, false);
-      // Re-set to trigger re-renders if updatedAt changed
-      set({ currentProject: { ...currentProject } });
+      const wrote = await saveProject(currentProject, false);
+      if (wrote) {
+        // Re-set to trigger re-renders if updatedAt changed
+        set({ currentProject: { ...currentProject } });
+      }
+      return wrote;
     } catch (err: unknown) {
       set({ error: err instanceof Error ? err.message : String(err) });
+      throw err;
     }
   },
 
   saveProjectAs: async () => {
     const { currentProject } = get();
-    if (!currentProject) return;
-    
+    if (!currentProject) return false;
+
     try {
-      await saveProject(currentProject, true);
-      set({ currentProject: { ...currentProject } });
+      const wrote = await saveProject(currentProject, true);
+      if (wrote) {
+        set({ currentProject: { ...currentProject } });
+      }
+      return wrote;
     } catch (err: unknown) {
       set({ error: err instanceof Error ? err.message : String(err) });
+      throw err;
     }
   },
 
@@ -405,6 +545,68 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           updatedAt: new Date().toISOString(),
         }
       }
+    });
+  },
+
+  addCharacter: (character: Character) => {
+    const { currentProject } = get();
+    if (!currentProject) return;
+
+    // Guard against a duplicate id sneaking in twice (e.g. a callback fired
+    // twice for the same finalize event) rather than trusting every caller.
+    const existing = currentProject.project.characters ?? [];
+    if (existing.some(c => c.id === character.id)) return;
+
+    set({
+      currentProject: {
+        ...currentProject,
+        project: {
+          ...currentProject.project,
+          characters: [...existing, character],
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    });
+  },
+
+  renameCharacter: (characterId: string, name: string) => {
+    const { currentProject } = get();
+    if (!currentProject) return;
+
+    // Deliberately not trimmed/rejected-if-empty here: this is called on
+    // every keystroke from a controlled rename input, and normalizing
+    // mid-edit would fight the input while the writer is still typing.
+    // An empty/whitespace name is the writer's prerogative while editing;
+    // nothing downstream treats it as invalid.
+    set({
+      currentProject: {
+        ...currentProject,
+        project: {
+          ...currentProject.project,
+          characters: (currentProject.project.characters ?? []).map(c =>
+            c.id === characterId ? { ...c, name } : c
+          ),
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    });
+  },
+
+  recolorCharacter: (characterId: string, color: CharacterColor) => {
+    const { currentProject } = get();
+    if (!currentProject) return;
+
+    set({
+      currentProject: {
+        ...currentProject,
+        project: {
+          ...currentProject.project,
+          characters: (currentProject.project.characters ?? []).map(c =>
+            c.id === characterId ? { ...c, color } : c
+          ),
+          updatedAt: new Date().toISOString(),
+        },
+      },
     });
   },
 

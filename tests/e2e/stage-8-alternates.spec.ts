@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Stage 8: Alternate Lyrics', () => {
   test.beforeEach(async ({ page }) => {

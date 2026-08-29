@@ -1,3 +1,11 @@
+/* Editor-scoped tokens (C-19). Danger states (chord/alternate delete) live only
+   in this file, so the pair is declared here rather than in the shell's
+   :root — derived from --status-error so it tracks the shell's palette. */
+:root {
+  --bg-danger: color-mix(in srgb, var(--status-error) 10%, var(--bg-editor));
+  --border-danger: color-mix(in srgb, var(--status-error) 45%, var(--bg-editor));
+}
+
 .editor-container {
   display: flex;
   flex-direction: column;
@@ -6,6 +14,15 @@
   width: 100%;
   cursor: text;
   background: var(--bg-editor);
+}
+
+/* The "desk": a shell-toned backdrop the draft page sits on, distinct from --bg-editor
+   (the page itself) so the page reads as an object, not a continuation of the shell.
+   Scoped to the draft editor specifically (.draft-view-canvas) so the workspace
+   editor (Brief/Structure/Hook Lab/Vocabulary World, which reuses .editor-container
+   as a plain max-width wrapper) keeps its existing paper-toned background. */
+.draft-view-canvas .editor-container {
+  background: var(--bg-app);
 }
 
 /* Tiptap renders EditorContent as a div wrapping .ProseMirror.
@@ -21,13 +38,40 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  /* Warm paper: flat paper colour with a very faint grain overlay */
-  background-color: var(--bg-editor);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  /* Center the page horizontally; explicit widths on .ProseMirror (below) combine
+     with this to clamp-and-center rather than stretch full pane width. Desk padding
+     guarantees a visible gutter around the page even when the pane is narrower than
+     --editor-page-max-width, so the page edge never coincides with the pane edge. */
+  align-items: center;
+  padding: 0 var(--space-6);
+  box-sizing: border-box;
+  background-color: var(--bg-app);
   overflow-y: auto;
   scrollbar-gutter: stable;
   cursor: default;
-  border-bottom: 1px solid var(--border-default);
+}
+
+/* The page. A defined sheet with its own edge and elevation, sitting on the desk
+   above (.editor-surface). Width is capped well above the lyric measure so
+   full-width children (concurrent blocks) still have real room; the lyric column
+   itself is narrowed separately below. */
+.editor-surface .ProseMirror {
+  width: 100%;
+  max-width: var(--editor-page-max-width);
+  /* flex:1 makes this a well-behaved flex ITEM of .editor-surface (fills available
+     height); it must NOT itself be display:flex, or its own children (lyric-line
+     divs etc.) become flex items and lose their normal block width-stretching. */
+  flex: 1;
+  box-sizing: border-box;
+  margin: var(--space-8) 0;
+  padding: var(--space-6) 0 var(--editor-page-bottom-padding);
+  /* Warm paper: flat paper colour with a very faint grain overlay */
+  background-color: var(--bg-editor);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  box-shadow: var(--shadow-soft);
+  cursor: text;
 }
 
 /* Lyrics are the hero: set the editor body in the editorial serif */
@@ -75,31 +119,25 @@
 }
 
 .editor-surface .ProseMirror {
-  /* Full-width: centering is done per block-child below */
-  padding: 0;
-  min-height: 100%;
-  width: 100%;
+  /* Page padding is set above (top/bottom); this rule only needs the leftovers.
+     min-height accounts for the page's own top/bottom margin (var(--space-8) each)
+     so a short/empty draft still fills the pane WITHOUT overflowing it — an
+     overflow here would make the focus caret auto-scroll to center the oversized
+     box, silently eating the desk margin the instant the editor is focused. */
+  min-height: calc(100% - (2 * var(--space-8)));
   outline: none;
-  box-sizing: border-box;
-  cursor: text;
 }
 
-/* Every direct block child except concurrent-block is constrained and centered */
+/* The lyric column: a comfortable reading measure, centred within the page.
+   Concurrent blocks are excluded — they use the full width of the page itself
+   so multiple speaker columns have real room. */
 .editor-surface .ProseMirror > *:not(.concurrent-block) {
-  max-width: 46rem;
+  max-width: var(--editor-lyric-measure);
   margin-left: auto;
   margin-right: auto;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: var(--space-7);
+  padding-right: var(--space-7);
   box-sizing: border-box;
-}
-
-.editor-surface .ProseMirror > *:not(.concurrent-block):first-child {
-  padding-top: 1.5rem;
-}
-
-.editor-surface .ProseMirror > *:not(.concurrent-block):last-child {
-  padding-bottom: 1.5rem;
 }
 
 /* Top/bottom rhythm */
@@ -121,20 +159,32 @@
   width: 100%;
 }
 
+/* Toolbar (C-13): grouped controls, separated from the page below it by both
+   a border and a soft shadow (the same --shadow-soft the page itself and
+   editor popovers use) so it reads as an infrastructural strip sitting above
+   the paper, not a continuation of it. Sizing follows UI_TOKENS.md §22. */
 .editor-toolbar {
   display: flex;
-  gap: 0.25rem;
-  padding: 0.375rem 0.75rem;
+  align-items: center;
+  height: 32px;
+  flex: 0 0 32px;
+  padding: 0 var(--space-1);
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   border-bottom: 1px solid var(--border-default);
   background-color: var(--bg-panel);
-  align-items: center;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
 }
 
 .toolbar-group {
   display: flex;
-  gap: 2px;
+  gap: var(--space-1);
   align-items: center;
+  flex-shrink: 0;
 }
 
 .toolbar-group + .toolbar-group {
@@ -143,21 +193,45 @@
   border-left: 1px solid var(--border-subtle);
 }
 
+/* Pushes the history group (undo/redo) to the far right without breaking the
+   left-to-right group/separator order. */
+.toolbar-group--end {
+  margin-left: auto;
+}
+
+/* Positioning context for a toolbar button's own popover (SectionTypePicker,
+   InsertConcurrentBlockDialog), scoped tighter than the group so a popover
+   anchors under its own button rather than the left edge of a merged group. */
+.toolbar-anchor {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .editor-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  min-width: 28px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 4px;
-  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  padding: 0 6px;
   font-size: 0.8rem;
   cursor: pointer;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 0.1s ease, color 0.1s ease;
 }
 
 .editor-toolbar button:hover:not(:disabled) {
   background-color: var(--bg-hover);
 }
 
+/* Active line type / active tool is visibly indicated: filled accent
+   background + accent text, matching the shell's own nav-item-active
+   treatment exactly (background: --accent-soft, color: --accent-strong). */
 .editor-toolbar button.is-active,
 .editor-toolbar button.active {
   background-color: var(--accent-soft);
@@ -208,6 +282,7 @@
    Line type: speaker
    ====================== */
 .line-type-speaker {
+  position: relative;
   font-family: var(--font-ui);
   font-weight: 600;
   text-transform: uppercase;
@@ -221,6 +296,75 @@
 
 /* No dot prefix on speaker labels — a speaker name should not read like a list item.
    Per-character colour identity will return as a margin tick once the character registry lands. */
+
+/* C-20: a character with a registry colour gets `--speaker-color` set inline
+   (per line, via a ProseMirror decoration — see
+   src/editor/extensions/characters/characterDecorations.ts) rather than the
+   single project-wide token above, so every character reads distinctly. */
+.line-type-speaker.has-character-color {
+  color: var(--speaker-color);
+}
+
+/* C-20: a speaker line that repeats the same character as the one before it
+   (script convention — "consecutive lines by the same character don't
+   repeat the label") hides its own text but keeps a persistent colour tick
+   in the left gutter so the identity still reads at a glance. */
+.line-type-speaker.speaker-continuation {
+  color: transparent;
+}
+
+.line-type-speaker.speaker-continuation::before {
+  content: '';
+  position: absolute;
+  left: -0.6em;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--speaker-color, var(--text-faint));
+}
+
+/* ======================
+   Speaker autocomplete ([[ registry match — C-20)
+   ====================== */
+.speaker-autocomplete {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--bg-editor);
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  box-shadow: var(--shadow-soft);
+  padding: 4px 0;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+}
+
+.speaker-autocomplete-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.speaker-autocomplete-option.is-highlighted {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.speaker-autocomplete-swatch {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
 
 /* ======================
    Line type: stage direction
@@ -293,7 +437,7 @@
 
 /* Consecutive section separator */
 .section-block + .section-block {
-  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-top: 1px solid var(--border-subtle);
   padding-top: 0.5em;
 }
 
@@ -315,17 +459,13 @@
 /* Stage directions are NEVER indented — no sibling rule needed */
 /* Their italic + parentheses styling is sufficient distinction */
 
-[data-type="lyricLine"][data-delivery="spoken"] {
-  font-style: italic;
-}
-
 /* ======================
    Selected section
    ====================== */
 .section-block.ProseMirror-selectednode {
   outline: 2px solid var(--accent-color, var(--accent-primary));
   outline-offset: 2px;
-  background: rgba(74, 158, 255, 0.04);
+  background: var(--accent-soft);
   border-radius: 4px;
 }
 
@@ -469,7 +609,7 @@
   color: var(--accent-primary);
   text-align: center;
   padding: 2px 8px 5px;
-  border-bottom: 1px solid #dce8f5;
+  border-bottom: 1px solid var(--accent-soft);
   margin-bottom: 7px;
 }
 
@@ -759,6 +899,13 @@ input[type="text"].concurrent-speaker-name:focus {
   box-shadow: none;
 }
 
+/* C-20: a column linked to a registered character takes that character's
+   colour instead of the default faint label treatment. */
+input[type="text"].concurrent-speaker-name.has-character-color,
+input[type="text"].concurrent-speaker-name.has-character-color:focus {
+  color: var(--speaker-color);
+}
+
 /* Remove-column button — invisible until hover */
 .concurrent-remove-col-btn {
   flex-shrink: 0;
@@ -906,7 +1053,7 @@ input[type="text"].concurrent-speaker-name:focus {
   background: var(--bg-surface, #fff);
   border: 1px solid var(--border-color, #c8d0db);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-soft);
   padding: 4px 0;
   min-width: 180px;
 }
@@ -928,7 +1075,7 @@ input[type="text"].concurrent-speaker-name:focus {
 }
 
 .section-context-menu-item--danger:hover {
-  background: #fef2f2;
+  background: var(--bg-danger);
 }
 
 .section-context-menu-separator {
@@ -944,9 +1091,9 @@ input[type="text"].concurrent-speaker-name:focus {
   left: 0;
   z-index: 200;
   background: var(--bg-editor);
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-soft);
   min-width: 160px;
   padding: 4px 0;
   font-size: 0.82rem;
@@ -1029,7 +1176,7 @@ input[type="text"].concurrent-speaker-name:focus {
 .stp-custom-input {
   flex: 1;
   padding: 4px 8px;
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 3px;
   font-size: 0.82rem;
   outline: none;
@@ -1060,16 +1207,16 @@ input[type="text"].concurrent-speaker-name:focus {
   align-items: center;
   gap: 4px;
   background: var(--bg-editor);
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: var(--shadow-soft);
   padding: 5px 7px;
 }
 
 .chord-popover-input {
   width: 80px;
   padding: 3px 6px;
-  border: 1px solid #c8d0db;
+  border: 1px solid var(--border-default);
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -1102,11 +1249,11 @@ input[type="text"].concurrent-speaker-name:focus {
 }
 
 .chord-popover-delete {
-  background: #fee2e2;
+  background: var(--bg-danger);
   color: var(--status-error);
-  border-color: #fca5a5;
+  border-color: var(--border-danger);
 }
 
 .chord-popover-delete:hover {
-  background: #fecaca;
+  background: color-mix(in srgb, var(--bg-danger) 50%, var(--border-danger) 50%);
 }

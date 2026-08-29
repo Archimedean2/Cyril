@@ -17,7 +17,7 @@ describe('Sections and Metadata Integration', () => {
           content: [
             {
               type: 'lyricLine',
-              attrs: { id: 'line-1', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+              attrs: { id: 'line-1', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
               content: [{ type: 'text', text: 'Inside section' }]
             }
           ]
@@ -41,17 +41,17 @@ describe('Sections and Metadata Integration', () => {
       content: [
         {
           type: 'lyricLine',
-          attrs: { id: 'spk-1', delivery: 'sung', rhymeGroup: null, lineType: 'speaker', meta: { alternates: [], prosody: null, chords: [] } },
+          attrs: { id: 'spk-1', rhymeGroup: null, lineType: 'speaker', meta: { alternates: [], prosody: null, chords: [] } },
           content: [{ type: 'text', text: 'BUZZ' }]
         },
         {
           type: 'lyricLine',
-          attrs: { id: 'dir-1', delivery: 'sung', rhymeGroup: null, lineType: 'stageDirection', meta: { alternates: [], prosody: null, chords: [] } },
+          attrs: { id: 'dir-1', rhymeGroup: null, lineType: 'stageDirection', meta: { alternates: [], prosody: null, chords: [] } },
           content: [{ type: 'text', text: 'Looks around' }]
         },
         {
           type: 'lyricLine',
-          attrs: { id: 'line-1', delivery: 'spoken', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+          attrs: { id: 'line-1', rhymeGroup: 'A', lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
           content: [{ type: 'text', text: 'Where am I?' }]
         }
       ]
@@ -64,7 +64,7 @@ describe('Sections and Metadata Integration', () => {
     expect(json.content?.[0].content?.[0]).toMatchObject({ type: 'text', text: 'BUZZ' });
     expect(json.content?.[1].attrs?.lineType).toBe('stageDirection');
     expect(json.content?.[1].content?.[0]).toMatchObject({ type: 'text', text: 'Looks around' });
-    expect(json.content?.[2].attrs?.delivery).toBe('spoken');
+    expect(json.content?.[2].attrs?.rhymeGroup).toBe('A');
     editor.destroy();
   });
 

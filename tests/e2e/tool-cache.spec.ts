@@ -3,7 +3,7 @@
  * Tests cached/offline result path in UI workflow.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Tool Cache E2E', () => {
   test.beforeEach(async ({ page }) => {
@@ -26,7 +26,7 @@ test.describe('Tool Cache E2E', () => {
     // Wait for results
     const resultsList = page.locator('[data-testid="tools-results-list"]');
     const emptyState = page.locator('[data-testid="tools-results-empty"]');
-    const errorState = page.locator('[data-testid="tools-results-error"]');
+    const errorState = page.locator('[data-testid="tools-results-offline"]');
     await expect(resultsList.or(emptyState).or(errorState)).toBeVisible({ timeout: 10000 });
 
     // Perform same search again - should use cache
@@ -63,7 +63,7 @@ test.describe('Tool Cache E2E', () => {
     // Wait for results or other state
     const resultsList = page.locator('[data-testid="tools-results-list"]');
     const emptyState = page.locator('[data-testid="tools-results-empty"]');
-    const errorState = page.locator('[data-testid="tools-results-error"]');
+    const errorState = page.locator('[data-testid="tools-results-offline"]');
     await expect(resultsList.or(emptyState).or(errorState)).toBeVisible({ timeout: 10000 });
   });
 
@@ -77,7 +77,7 @@ test.describe('Tool Cache E2E', () => {
 
     const resultsList = page.locator('[data-testid="tools-results-list"]');
     const emptyState = page.locator('[data-testid="tools-results-empty"]');
-    const errorState = page.locator('[data-testid="tools-results-error"]');
+    const errorState = page.locator('[data-testid="tools-results-offline"]');
     const searchInput = page.locator('[data-testid="tools-search-input"]');
 
     for (const mode of modes) {

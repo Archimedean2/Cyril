@@ -74,7 +74,7 @@ describe('Project CRUD Integration', () => {
     expect(useProjectStore.getState().currentProject?.project.title).toBe('Roundtrip');
 
     // Simulate save
-    vi.mocked(fileManager.saveProject).mockResolvedValue(undefined);
+    vi.mocked(fileManager.saveProject).mockResolvedValue(true);
     await useProjectStore.getState().saveProject();
     
     expect(fileManager.saveProject).toHaveBeenCalled();

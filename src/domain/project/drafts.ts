@@ -7,7 +7,6 @@ function makeLyricLineJSON() {
     type: 'lyricLine' as const,
     attrs: {
       id: generateId('line'),
-      delivery: 'sung',
       rhymeGroup: null,
       meta: { alternates: [], prosody: null, chords: [] },
     },

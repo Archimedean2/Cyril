@@ -2,15 +2,23 @@ import { Node, mergeAttributes, InputRule } from '@tiptap/core';
 
 export interface LyricLineOptions {
   HTMLAttributes: Record<string, unknown>;
+  /**
+   * C-20: called when a speaker line's name is "finalized" (the writer
+   * leaves it via Enter, or `reconcileSpeakerCharacters` runs on blur) so
+   * the surrounding app can look up or create the matching `Character` in
+   * the project's registry. Returns the resolved character's id, or `null`
+   * to leave the line unlinked (e.g. no registry is available).
+   *
+   * Kept as an injected callback rather than importing the project store
+   * directly — this extension stays store-agnostic and unit-testable with a
+   * bare `Editor` instance (see `tests/unit/editor/character-link.test.ts`).
+   */
+  onFinalizeSpeakerName?: (name: string) => string | null;
 }
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     lyricLine: {
-      /**
-       * Toggle sung/spoken delivery for the current lyric line
-       */
-      toggleDelivery: () => ReturnType;
       /**
        * Set the lineType of the current lyric line
        */
@@ -19,6 +27,23 @@ declare module '@tiptap/core' {
        * Toggle the lineType between the given value and 'lyric'
        */
       toggleLineType: (lineType: string) => ReturnType;
+      /**
+       * C-20: set (or clear) the `characterId` link on the speaker line at `pos`.
+       */
+      setSpeakerCharacterId: (pos: number, characterId: string | null) => ReturnType;
+      /**
+       * C-20: replace the text of the speaker line at `pos` with `name` and
+       * link it to `characterId` in one step — used by the `[[` autocomplete
+       * when the writer picks an existing character from the registry.
+       */
+      setSpeakerLineNameAndCharacter: (pos: number, name: string, characterId: string) => ReturnType;
+      /**
+       * C-20: scan the whole document for speaker lines with non-empty text
+       * and no `characterId` yet, resolving each via `options.onFinalizeSpeakerName`
+       * and linking it in a single transaction. No-op (returns false) if that
+       * option isn't provided, or nothing needed linking.
+       */
+      reconcileSpeakerCharacters: () => ReturnType;
     }
   }
 }
@@ -53,15 +78,6 @@ export const LyricLine = Node.create<LyricLineOptions>({
           };
         },
       },
-      delivery: {
-        default: 'sung', // 'sung' or 'spoken'
-        parseHTML: element => element.getAttribute('data-delivery'),
-        renderHTML: attributes => {
-          return {
-            'data-delivery': attributes.delivery,
-          };
-        },
-      },
       rhymeGroup: {
         default: null,
         parseHTML: element => element.getAttribute('data-rhyme-group'),
@@ -80,6 +96,19 @@ export const LyricLine = Node.create<LyricLineOptions>({
         renderHTML: attributes => {
           return {
             'data-line-type': attributes.lineType,
+          };
+        },
+      },
+      // C-20: links a `lineType: 'speaker'` line to a Character in the
+      // project's registry (`CyrilProject.characters`). See
+      // docs/engineering/DATA_MODEL.md.
+      characterId: {
+        default: null,
+        parseHTML: element => element.getAttribute('data-character-id') || null,
+        renderHTML: attributes => {
+          if (!attributes.characterId) return {};
+          return {
+            'data-character-id': attributes.characterId,
           };
         },
       },
@@ -155,7 +184,6 @@ export const LyricLine = Node.create<LyricLineOptions>({
         class: `lyric-line line-type-${node.attrs.lineType}`,
         'data-type': 'lyricLine',
         'data-line-type': node.attrs.lineType,
-        'data-delivery': node.attrs.delivery,
         'data-id': node.attrs.id,
       }),
       0,
@@ -164,26 +192,6 @@ export const LyricLine = Node.create<LyricLineOptions>({
 
   addCommands() {
     return {
-      toggleDelivery: () => ({ tr, state, dispatch }) => {
-        const { selection } = state;
-        const { $from, $to } = selection;
-
-        let toggled = false;
-        
-        state.doc.nodesBetween($from.pos, $to.pos, (node, pos) => {
-          if (node.type.name === this.name) {
-            if (dispatch) {
-              const currentDelivery = node.attrs.delivery;
-              const newDelivery = currentDelivery === 'sung' ? 'spoken' : 'sung';
-              tr.setNodeMarkup(pos, undefined, { ...node.attrs, delivery: newDelivery });
-            }
-            toggled = true;
-          }
-        });
-
-        return toggled;
-      },
-
       setLineType: (lineType: string) => ({ tr, state, dispatch }) => {
         const { $from } = state.selection;
         const pos = $from.before($from.depth);
@@ -195,6 +203,9 @@ export const LyricLine = Node.create<LyricLineOptions>({
           tr.setNodeMarkup(pos, undefined, {
             ...node.attrs,
             lineType,
+            // A line that stops being a speaker line is no longer linked to
+            // a character — clear the stale id rather than carry it silently.
+            characterId: lineType === 'speaker' ? node.attrs.characterId : null,
           });
         }
         return true;
@@ -218,9 +229,61 @@ export const LyricLine = Node.create<LyricLineOptions>({
           tr.setNodeMarkup(pos, undefined, {
             ...node.attrs,
             lineType: newType,
+            characterId: newType === 'speaker' ? node.attrs.characterId : null,
           });
         }
         return true;
+      },
+
+      setSpeakerCharacterId: (pos: number, characterId: string | null) => ({ tr, state, dispatch }) => {
+        const node = state.doc.nodeAt(pos);
+        if (!node || node.type.name !== 'lyricLine') return false;
+
+        if (dispatch) {
+          tr.setNodeMarkup(pos, undefined, { ...node.attrs, characterId });
+        }
+        return true;
+      },
+
+      setSpeakerLineNameAndCharacter: (pos: number, name: string, characterId: string) => ({ tr, state, dispatch }) => {
+        const node = state.doc.nodeAt(pos);
+        if (!node || node.type.name !== 'lyricLine') return false;
+
+        if (dispatch) {
+          const from = pos + 1;
+          const to = pos + node.nodeSize - 1;
+          // `pos` (the node's own start) sits before this range, so it's
+          // unaffected by the text replacement and stays valid for the
+          // setNodeMarkup call below within the same transaction.
+          tr.insertText(name, from, to);
+          tr.setNodeMarkup(pos, undefined, { ...node.attrs, characterId });
+        }
+        return true;
+      },
+
+      reconcileSpeakerCharacters: () => ({ tr, state, dispatch }) => {
+        const resolve = this.options.onFinalizeSpeakerName;
+        if (!resolve) return false;
+
+        let changed = false;
+
+        state.doc.descendants((node, pos) => {
+          if (node.type.name !== 'lyricLine') return;
+          if (node.attrs.lineType !== 'speaker') return;
+          if (node.attrs.characterId) return;
+
+          const text = node.textContent.trim();
+          if (!text) return;
+
+          const characterId = resolve(text);
+          if (characterId) {
+            tr.setNodeMarkup(pos, undefined, { ...node.attrs, characterId });
+            changed = true;
+          }
+        });
+
+        if (changed && dispatch) dispatch(tr);
+        return changed;
       },
     };
   },
@@ -277,6 +340,39 @@ export const LyricLine = Node.create<LyricLineOptions>({
 
         },
       }),
+      // ]] → closes an in-progress [[NAME]] gesture: strip the trailing brackets
+      // instead of leaving them in the text. Only fires on a line the opening
+      // trigger already converted to 'speaker' — a plain lyric line typing a
+      // literal "]]" is left alone.
+      new InputRule({
+        find: /\]\]$/,
+        handler: ({ state, range }) => {
+          const { tr } = state;
+          const $from = state.doc.resolve(range.from);
+
+          if ($from.parent.type.name !== 'lyricLine' || $from.parent.attrs.lineType !== 'speaker') {
+            return null;
+          }
+
+          tr.delete(range.from, range.to);
+        },
+      }),
+      // )) → closes an in-progress ((text)) gesture: strip the trailing parens
+      // instead of leaving them in the text. Only fires on a line the opening
+      // trigger already converted to 'stageDirection'.
+      new InputRule({
+        find: /\)\)$/,
+        handler: ({ state, range }) => {
+          const { tr } = state;
+          const $from = state.doc.resolve(range.from);
+
+          if ($from.parent.type.name !== 'lyricLine' || $from.parent.attrs.lineType !== 'stageDirection') {
+            return null;
+          }
+
+          tr.delete(range.from, range.to);
+        },
+      }),
     ];
   },
 
@@ -302,6 +398,15 @@ export const LyricLine = Node.create<LyricLineOptions>({
         if ($newFrom.parent.type.name === 'lyricLine' && $newFrom.parent.attrs.lineType !== 'lyric') {
           editor.commands.setLineType('lyric');
         }
+
+        // C-20: leaving a speaker line via Enter is the moment its name is
+        // "finalized" — resolve it against the character registry so
+        // colour/identity resolution has a stable link rather than relying
+        // solely on text matching.
+        if (currentLineType === 'speaker') {
+          editor.commands.reconcileSpeakerCharacters();
+        }
+
         return true;
       },
       Backspace: ({ editor }) => {

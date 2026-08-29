@@ -1,0 +1,220 @@
+# Cyril — Status
+
+**Read this file first, every time you come back.** It answers "where was I?" in about
+thirty seconds. Half of it is stamped by a script and cannot drift; half is written by
+whoever last worked here.
+
+- **What's true right now** → the generated block below (`npm run status` to refresh).
+- **What I was in the middle of** → *Current focus*.
+- **What to do next** → `BACKLOG.md`, lowest unclaimed item.
+- **What "done" means** → `DEFINITION_OF_DONE.md`.
+
+---
+
+<!-- BEGIN GENERATED — npm run status -->
+_Last stamped: **2026-08-29 16:38 UTC** · regenerate with `npm run status`_
+
+### Gate status — 🔴 something is red
+
+| Gate | Status | Detail |
+|---|:--:|---|
+| `npm run build` | 🔴 | `tests/integration/tools/rhyme-list-skimmability.test.tsx(42,65): error TS2322: Type 'boolean' is not assignable to type 'void | Promise<boolean>'.` |
+| `npm run lint` | 🟢 | 0 errors, 0 warnings |
+| `npm test` | 🟢 | 508/508 tests, 87 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 202 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm run test:e2e` | 🟢 | 124 passed |
+
+### Repo
+
+| | |
+|---|---|
+| Branch | `feat/title-screen` |
+| Last commit | feat: npm run launcher — a desktop .app that opens the latest build |
+| Committed | 2026-08-29 17:30:41 +0100 |
+| Uncommitted files | **6** (`git status`) |
+| Backlog | **25 of 46** done · 3 in flight (C-48, C-35, C-36) · 2 blocked on you (C-25, C-27) |
+| Next up | **C-41 (20) Double-click a word in the lyric to look it up**<br>C-42 (30) Click an Inventory chip to insert it at the caret<br>C-47 (90) Empty states teach the double-click gesture |
+<!-- END GENERATED -->
+
+---
+
+## Current focus
+
+> Hand-maintained. Whoever is working: keep this to **three lines or fewer** and update it
+> when you start and when you stop. If it disagrees with the generated block above, the
+> generated block is right.
+
+**Working on:** three agents — F1 (C-32 repo hygiene), F2 (C-48 editor command bridge, then
+C-35 speaker picker and C-36 the paintable speaker gutter), F3 (C-45 absolute score emphasis,
+C-43 collect-on-click, C-44 dim-when-used).
+
+**Last verified state:** all gates green — 479 unit + integration tests, 198/198 non-e2e
+criteria, e2e 124/124, 8 visual baselines.
+
+**Expect visual baselines to fail** after these merge: F2 and F3 both change the UI. Agents
+were told not to regenerate them; the coordinator does it once after all merges, so the PNGs
+don't conflict.
+
+**Pending action at F3's merge — do not do this early.** C-43 removes the `tools-collect-button`
+testid (the result item itself becomes the collect action). Two files outside F3's ownership
+reference it and must be updated *in the same merge commit*:
+
+- `tests/e2e/journey-write-a-song.spec.ts:98`
+- `tests/e2e/visual.spec.ts:133`
+
+Both: `getByTestId('tools-collect-button').first().click()` → `getByTestId('tools-result-item').first().click()`.
+
+Applying it before C-43 lands would break the suite — on the current tree a result click copies
+rather than collects, so no Inventory chip appears and the assertion fails.
+
+## Decisions taken unsupervised (2026-08-29) — review these
+
+The maintainer stepped away and asked for the backlog to be worked autonomously. These are the
+judgement calls made in their absence, each one reversible:
+
+1. **`beforeunload` treats `saving` as dirty** (was an open question from C-03, now C-30). A tab
+   closed mid-write got no warning. Cost of a false positive is a spurious dialog in a sub-second
+   window; cost of a false negative is lost work. Chose the dialog.
+2. **The re-grant affordance (C-29) is an inline banner, not a modal.** Non-blocking, sits near
+   the work. A modal on init would block a writer who just wants to keep typing.
+3. **The Inventory (C-11) keeps its existing storage.** Chips are a rendering change over the
+   same document, not a schema change — one line per collected item. Changing `.cyril` for a
+   visual improvement would have been the wrong trade, and `TASKING.md` forbids casual schema
+   drift. The agent was told to stop and report if that proved impossible.
+4. **CI now runs on pull requests to any base branch.** Stacked PR #9 was getting no CI at all.
+5. **CI fails if a tracked file exceeds 5 MB.** Added after a near-miss: a `git add -A` on a
+   branch cut before the current `.gitignore` staged the 486 MB ConceptNet dump and GitHub's
+   hook rejected the push. The smaller 9 MB and 24 MB indexes would not have been rejected.
+6. **Print profiles are based on PR #4, not `main`** (C-32). `main` cannot run `npm run lint`
+   or `npm run coverage:features` at all — neither `.eslintrc.cjs` nor
+   `scripts/feature-coverage.mjs` is tracked. Basing the branch on the tooling PR was the only
+   way to verify it honestly.
+7. **Order of work: finished the P0 persistence block before visual polish**, on the maintainer's
+   own stated priority that data safety outranks look and feel.
+
+---
+
+## How to resume after a pause
+
+```bash
+npm run status          # stamps the block above: gates, git, backlog count
+npm run status -- --e2e # same, plus Playwright (~25s slower)
+```
+
+Then read, in this order:
+
+1. **This file** — the generated block tells you if the tree is healthy and what's uncommitted.
+2. **The session log below** — the last few entries say what happened and why.
+3. **`BACKLOG.md`** — anything marked `🚧` is claimed and in flight; that's probably yours.
+4. `git log --oneline -10` and `git status` — the ground truth the stamp summarises.
+
+If the generated block is red and the session log doesn't explain it, the safe move is
+`git stash` and re-stamp to find out whether the breakage is yours or committed.
+
+---
+
+## Session log
+
+Newest first. **Append one entry per working session**, even a short one — this is the memory
+that survives you. Keep entries to the shape below; it takes a minute and saves an hour.
+
+```
+### YYYY-MM-DD — <who> — <one-line headline>
+Did:      what actually landed (with item IDs)
+Gates:    green / red, and which
+Next:     the single next thing you'd do
+Notes:    anything surprising, any decision made, anything half-finished
+```
+
+### 2026-08-29 — F3 (lane S) — Lookup-and-collect: score emphasis, click-to-collect, dim-when-used
+
+Did:      C-45 replaced the relative "top 30%" rhyme-emphasis threshold with a fixed absolute
+          score (5000), chosen by sampling real `rel_rhy` scores from the Datamuse API — it sits
+          in the cliff between genuine dictionary rhymes and DEFECTS.md D-22's known junk
+          ("left" → bereft/cleft/deft/theft/heft above it, antitheft/klepht below). C-43 flipped
+          Tools-pane result clicks: primary click now collects into Inventory, copy moved to a
+          shared secondary `tools-copy-button` (same testid for both the rhyme and generic result
+          renderers, per coordinator note). Retired T-7.06 (stage-7.md, struck ID so the coverage
+          script skips it) rather than reword it in place, since it asserted the exact behaviour
+          C-43 inverted; T-14.20 carries the current behaviour. C-44 added a derived (never
+          stored) "used" state — `src/domain/tools/draftWordUsage.ts` tokenizes the draft's text
+          (walking every node type: sectionBlock/concurrentBlock/speakerColumn/lyricLine) and
+          does whole-word, case-insensitive, punctuation-insensitive matching, so "low" is not
+          used merely because the draft has "below". Dims Inventory chips and Tools results
+          already in the draft or already collected.
+Gates:    🟢 all four (build/lint/test/coverage) after each of the three commits; e2e green for
+          stage-7-tools.spec.ts + stage-5-inventory.spec.ts. Full `npm run test:e2e` also run:
+          115/116 pass — the one failure (journey-write-a-song.spec.ts:98, `tools-collect-button`
+          no longer exists) is expected from C-43 and was coordinated with main/the file's owner
+          ahead of time; fix is a one-line testid swap to be applied at merge.
+Next:     C-42 (click an Inventory chip to insert at the caret) is the next item in this area,
+          but needs the C-48 editor bridge, which is a different agent's lane.
+Notes:    `tests/e2e/visual.spec.ts` and `journey-write-a-song.spec.ts` both still reference the
+          removed `tools-collect-button` testid — flagged to `main`/the owning agent rather than
+          edited directly (outside this lane's file ownership). Visual baselines will need
+          regenerating for the right-rail shot after this merges (expected, not done here per
+          instructions). BACKLOG.md's "Depends: C-42" on C-43/C-44 turned out not to apply in
+          practice — both landed fully without any editor access, since collecting/dimming are
+          rail-side-only concerns; left the dependency column as-is since it wasn't asked for.
+
+### 2026-08-28 — agent fleet (lane S) — Editor page surface and single title
+
+Did:      C-12 restructured the centre pane into a "desk + page" model — the page now carries a
+          capped width, border, soft shadow, paper tone and grain, with the lyric column on its
+          own ~65-character measure so concurrent-speaker blocks keep the full page width. Two
+          real bugs surfaced while building it: `display:flex` on the page stopped block children
+          stretching (a speaker label shrank to content width), and `min-height:100%` plus the
+          page margin overflowed the scroll container, so focusing the editor silently ate the
+          top and bottom gap on first keystroke. Both fixed. C-16 removed the duplicated song
+          title from LeftNav. New tokens, no hardcoded hex.
+Gates:    🟢 all five on the merged tree — 310 tests, 146/146 non-e2e criteria, e2e 113/113.
+Next:     C-04 (IndexedDB recovery snapshot).
+Notes:    T-14.07 asserts DOM nesting plus the CSS source rather than pixel values, because jsdom
+          runs no layout — a reasonable call, but it means the page's *appearance* is guarded by
+          screenshots and human review, not by the suite. Worth remembering before trusting the
+          gates alone on visual work.
+
+### 2026-08-28 — agent fleet (lanes P/E/X) — First parallel run: 4 items landed
+
+Did:      C-01 write-permission check before every save, with autosave explicitly barred from
+          prompting (it has no user gesture) so a non-granted handle ends in `error`, never
+          `saved`. C-03 `beforeunload` guard registered while dirty. C-09 `[[NAME]]` / `((text))`
+          now strip their closing brackets — the rule only fires on a line the opening trigger
+          already converted, so a plain lyric line typing `]]` is untouched. C-18 lint made
+          blocking, CI job name fixed, Playwright install scoped to chromium.
+Gates:    🟢 all five on the merged tree — 294 tests, 144/144 non-e2e criteria, e2e 113/113.
+Next:     C-04 (IndexedDB recovery snapshot) — the largest remaining durability win, unblocked
+          now that C-01 has landed.
+Notes:    Three things worth carrying. (1) The C-18 item was partly wrong: it claimed CI had no
+          e2e step, which came from reading 60 lines of a 73-line file. E2E was already wired;
+          corrected in place in BACKLOG.md. (2) C-09's undo behaviour was verified in a real
+          browser, not just in unit tests: Backspace after `[[MARIA]]` does restore `MARIA]]`.
+          But the unit test also asserts `undoInputRule()` restores a bare `[[`, which no user
+          can reach — lyricLine's own Backspace handler wins that case and yields an empty lyric
+          line. Harmless, but the assertion overstates. (3) Every merge conflicted on
+          FEATURE_COVERAGE.md, because every agent regenerates it. Resolve by regenerating from
+          the merged tree, never by picking a side — or stop tracking it.
+
+### 2026-08-28 — Claude (product/design audit) — Restructured the docs; built the tracker
+
+Did:      Audited the whole project as a product designer. Ran all five gates (all green).
+          Drove the running app and captured a live design review. Reorganised 30 root-level
+          markdown files into `docs/{product,design,engineering,testing,process,archive}`.
+          Wrote `BACKLOG.md` (28 agent-ready items in 5 parallel lanes), this `STATUS.md`,
+          and `scripts/status.mjs` + `npm run status`.
+Gates:    🟢 green — build 0, lint 0 errors / 0 warnings, 286 tests, feature coverage 100%
+          (136/136 non-e2e), e2e 111/111.
+Next:     `BACKLOG.md` C-01 — write-permission check before save. The P0 persistence block is
+          the project's largest real risk: none of H1–H7 in HARDENING_PERSISTENCE exists.
+Notes:    Three findings worth carrying forward. (1) The docs badly understate the project —
+          they describe a broken build and hanging tests that were fixed long ago; the code is
+          in far better shape than it reads. (2) `[[NAME]]` leaves `]]` in the line (C-09) —
+          the documented gesture doesn't match the implemented rule. (3) ~530 MB of untracked
+          word-index data and a raw ConceptNet dump are sitting in the working tree, imported
+          by nothing (C-08) — one `git add -A` away from a very bad commit.
+
+### Earlier history
+
+Pre-2026-08-28 build history is preserved in `docs/archive/PROGRESS.md` (the stage-by-stage
+build log) and `docs/archive/NEXT_STEPS.md` (the stabilization plan that repaired the quality
+gates). Both are **history, not instructions** — do not work from them.

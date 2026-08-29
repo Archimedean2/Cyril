@@ -36,9 +36,63 @@ describe('migrateProject', () => {
     expect(migratedNode.type).toBe('lyricLine');
     expect(migratedNode.attrs.lineType).toBe('speaker');
     expect(migratedNode.attrs.id).toBe('sl_1');
-    expect(migratedNode.attrs.delivery).toBe('sung');
     expect(migratedNode.attrs.meta).toEqual({ alternates: [], prosody: null, chords: [] });
     expect(migratedNode.content).toEqual([{ type: 'text', text: 'Hello' }]);
+  });
+
+  it('T-4.27: drops the removed `delivery` attribute from legacy lyricLine nodes as a silent no-op', () => {
+    const legacy = {
+      project: {
+        id: 'proj_legacy_delivery',
+        title: 'Legacy Delivery Song',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        drafts: [{
+          id: 'draft_1',
+          name: 'D1',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+          mode: 'lyrics',
+          doc: {
+            type: 'doc',
+            content: [
+              {
+                type: 'lyricLine',
+                attrs: { id: 'line_1', delivery: 'spoken', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+                content: [{ type: 'text', text: 'Spoken once' }],
+              },
+              {
+                type: 'sectionBlock',
+                attrs: { id: 'sec_1', sectionType: 'verse' },
+                content: [
+                  {
+                    type: 'lyricLine',
+                    attrs: { id: 'line_2', delivery: 'sung', rhymeGroup: null, lineType: 'lyric', meta: { alternates: [], prosody: null, chords: [] } },
+                    content: [{ type: 'text', text: 'Sung nested' }],
+                  },
+                ],
+              },
+            ],
+          },
+          inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
+          draftSettings: {},
+        }],
+      },
+    };
+
+    // Loading a legacy project that still carries `delivery` must not throw.
+    expect(() => migrateProject(legacy)).not.toThrow();
+
+    const result = migrateProject(legacy);
+    const [topLevelLine, section] = result.project.drafts[0].doc.content as any[];
+
+    expect(topLevelLine.type).toBe('lyricLine');
+    expect(topLevelLine.attrs).not.toHaveProperty('delivery');
+    expect(topLevelLine.content).toEqual([{ type: 'text', text: 'Spoken once' }]);
+
+    const nestedLine = section.content[0];
+    expect(nestedLine.attrs).not.toHaveProperty('delivery');
+    expect(nestedLine.content).toEqual([{ type: 'text', text: 'Sung nested' }]);
   });
 
   it('migrates legacy speakerLine without content but with speaker attr to lyricLine carrying speaker text', () => {
@@ -268,5 +322,147 @@ describe('migrateProject', () => {
 
     expect(Array.isArray(result.project.drafts)).toBe(true);
     expect(result.project.drafts).toHaveLength(0);
+  });
+
+  // ─── C-20: character registry migration ─────────────────────────────────────
+
+  describe('character registry migration (C-20)', () => {
+    it('T-4.35: derives a registry from distinct speaker lines/columns when `characters` is absent — no data loss, nothing to redo', () => {
+      const legacy = {
+        project: {
+          id: 'p', title: 'T',
+          createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+          // No `characters` field at all — a pre-C-20 project.
+          drafts: [{
+            id: 'd1', name: 'Draft 1',
+            createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+            mode: 'lyrics',
+            doc: {
+              type: 'doc',
+              content: [
+                { type: 'lyricLine', attrs: { id: 'l1', lineType: 'speaker' }, content: [{ type: 'text', text: 'WOODY' }] },
+                { type: 'lyricLine', attrs: { id: 'l2', lineType: 'lyric' }, content: [{ type: 'text', text: 'Howdy partner' }] },
+                { type: 'lyricLine', attrs: { id: 'l3', lineType: 'speaker' }, content: [{ type: 'text', text: 'BUZZ' }] },
+                { type: 'lyricLine', attrs: { id: 'l4', lineType: 'lyric' }, content: [{ type: 'text', text: 'To infinity' }] },
+                // Same speaker again, different case/whitespace — must collapse to the same character.
+                { type: 'lyricLine', attrs: { id: 'l5', lineType: 'speaker' }, content: [{ type: 'text', text: ' woody ' }] },
+              ],
+            },
+            inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
+            draftSettings: {},
+          }],
+        },
+      };
+
+      const result = migrateProject(legacy);
+      // migrateProject always populates `characters`; the TS type is optional
+      // only for interop with pre-existing hand-built CyrilProject fixtures
+      // elsewhere in the repo (see the comment on CyrilProject.characters).
+      const characters = result.project.characters!;
+
+      expect(characters).toHaveLength(2);
+      expect(characters.map(c => c.name)).toEqual(['WOODY', 'BUZZ']);
+      expect(characters[0].color).toBe('blue');
+      expect(characters[1].color).toBe('green');
+
+      // Every speaker line matching a derived character gets linked —
+      // nothing for the writer to redo.
+      const doc = result.project.drafts[0].doc.content as any[];
+      expect(doc[0].attrs.characterId).toBe(characters[0].id); // WOODY
+      expect(doc[2].attrs.characterId).toBe(characters[1].id); // BUZZ
+      expect(doc[4].attrs.characterId).toBe(characters[0].id); // " woody " → same character as WOODY
+
+      // No lyric content was touched.
+      expect(doc[1].content).toEqual([{ type: 'text', text: 'Howdy partner' }]);
+      expect(doc[3].content).toEqual([{ type: 'text', text: 'To infinity' }]);
+    });
+
+    it('T-4.35: also derives characters from concurrent-block speakerColumn names', () => {
+      const legacy = {
+        project: {
+          id: 'p', title: 'T',
+          createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+          drafts: [{
+            id: 'd1', name: 'Draft 1',
+            createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+            mode: 'lyrics',
+            doc: {
+              type: 'doc',
+              content: [{
+                type: 'concurrentBlock',
+                attrs: { id: 'cb1' },
+                content: [
+                  { type: 'speakerColumn', attrs: { id: 'col1', speakerName: 'JACK' }, content: [{ type: 'lyricLine', attrs: { id: 'l1', lineType: 'lyric' }, content: [] }] },
+                  { type: 'speakerColumn', attrs: { id: 'col2', speakerName: 'JILL' }, content: [{ type: 'lyricLine', attrs: { id: 'l2', lineType: 'lyric' }, content: [] }] },
+                ],
+              }],
+            },
+            inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
+            draftSettings: {},
+          }],
+        },
+      };
+
+      const result = migrateProject(legacy);
+      const characters = result.project.characters!;
+      expect(characters.map(c => c.name)).toEqual(['JACK', 'JILL']);
+
+      const block = result.project.drafts[0].doc.content[0] as any;
+      expect(block.content[0].attrs.characterId).toBe(characters[0].id);
+      expect(block.content[1].attrs.characterId).toBe(characters[1].id);
+    });
+
+    it('T-4.34: an existing `characters` registry survives migration unchanged (round-trip through save/load)', () => {
+      const project = {
+        id: 'p', title: 'T',
+        createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+        drafts: [],
+        characters: [
+          { id: 'char_1', name: 'WOODY', color: 'violet', favoriteSnack: 'plastic corn' }, // unknown field preserved
+        ],
+      };
+
+      // Simulate an actual disk round-trip.
+      const roundTripped = JSON.parse(JSON.stringify({ schemaVersion: '1.0.0', project }));
+      const result = migrateProject(roundTripped);
+
+      expect(result.project.characters).toEqual([
+        { id: 'char_1', name: 'WOODY', color: 'violet', favoriteSnack: 'plastic corn' },
+      ]);
+    });
+
+    it('normalizes a malformed existing character entry (missing id/invalid color) rather than dropping it', () => {
+      const project = {
+        id: 'p', title: 'T',
+        createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+        drafts: [],
+        characters: [{ name: 'MYSTERY', color: 'not-a-real-color' }],
+      };
+
+      const result = migrateProject({ project });
+      const characters = result.project.characters!;
+      expect(characters).toHaveLength(1);
+      expect(characters[0].id).toBeTruthy();
+      expect(characters[0].name).toBe('MYSTERY');
+      expect(characters[0].color).toBe('blue');
+    });
+
+    it('a project with no speaker content at all gets an empty registry, not an error', () => {
+      const project = {
+        id: 'p', title: 'T',
+        createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+        drafts: [{
+          id: 'd', name: 'D',
+          createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+          mode: 'lyrics',
+          doc: { type: 'doc', content: [{ type: 'lyricLine', attrs: { id: 'l1', lineType: 'lyric' }, content: [{ type: 'text', text: 'Just a lyric' }] }] },
+          inventory: { type: 'inventory', doc: { type: 'doc', content: [] } },
+          draftSettings: {},
+        }],
+      };
+
+      const result = migrateProject({ project });
+      expect(result.project.characters).toEqual([]);
+    });
   });
 });

@@ -52,6 +52,12 @@
   --topbar-height: 40px;
   --resize-handle-width: 4px;
 
+  /* Editor page (UI_TOKENS §1 "Main editor content" + §15 "Shadows") */
+  --shadow-soft: 0 1px 2px rgba(31, 36, 48, 0.06);
+  --editor-page-max-width: 900px;
+  --editor-lyric-measure: 640px;
+  --editor-page-bottom-padding: 64px;
+
   /* Typography */
   --font-ui: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-editor: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -408,6 +414,334 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+/* Display controls — grouped view toggles */
+.display-controls-group + .display-controls-group {
+  margin-top: var(--space-4);
+}
+
+.display-controls-group-label {
+  margin: 0 0 var(--space-1);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Inventory — collected-words chip surface (C-11) */
+.inventory-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  overflow: hidden;
+}
+
+.inventory-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: var(--space-2);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.inventory-empty-state {
+  margin: 0;
+  padding: var(--space-2) 0;
+  font-size: 13px;
+  line-height: var(--lh-normal, 1.4);
+  color: var(--text-muted);
+}
+
+.inventory-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: 4px 4px 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.inventory-chip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* C-44 / DESIGN_PROPOSAL.md §13.4: "used" is derived (never stored) from whether the
+ * chip's word currently appears in the active draft — quietly dimmed, not hidden. */
+.inventory-chip-used {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.inventory-chip-used .inventory-chip-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-faint);
+}
+
+.inventory-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.inventory-chip-remove:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.inventory-chip-remove:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+.inventory-add-form {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.inventory-add-input {
+  flex: 1;
+  min-width: 0;
+  height: var(--input-height, 32px);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  background: var(--bg-editor);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.inventory-add-input::placeholder {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.inventory-add-input:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+  border-color: var(--accent-primary);
+}
+
+.inventory-add-button {
+  height: var(--input-height, 32px);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.inventory-add-button:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.inventory-add-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.inventory-add-button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+/* Tools pane — filter chips, honest states, collect affordance (C-14) */
+.tools-filter-chips {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-2) 0;
+}
+
+.tools-filter-chip {
+  height: 22px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tools-filter-chip:hover {
+  background: var(--bg-hover);
+}
+
+.tools-filter-chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent-primary);
+  color: var(--accent-strong);
+}
+
+.tools-filter-chip:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+.tools-results-offline {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.tools-results-cache-note {
+  padding: var(--space-1) var(--space-3);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* C-44 / DESIGN_PROPOSAL.md §13.4: dim results already in the draft or already
+ * collected, so the writer scans what is new. Derived, never stored. */
+.tools-result-item-used {
+  opacity: 0.5;
+}
+
+.rhyme-word-used {
+  opacity: 0.45;
+}
+
+.tools-result-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.tools-copy-button {
+  flex-shrink: 0;
+  height: 20px;
+  padding: 0 var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.tools-result-item:hover .tools-copy-button,
+.tools-copy-button:focus-visible {
+  opacity: 1;
+}
+
+.tools-copy-button:hover {
+  border-color: var(--border-default);
+  background: var(--bg-hover);
+  color: var(--accent-strong);
+}
+
+.tools-copy-button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+/* Even, generous spacing is what makes a long rhyme list skimmable. Previously the
+   gaps came from comma elements plus an in-flow copy button, so they varied word to
+   word and commas orphaned themselves at the start of wrapped lines. */
+.rhyme-word-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 14px;
+  row-gap: 4px;
+}
+
+.rhyme-word-wrap {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+/* The rhyme list is for skimming, so nothing may disturb the rhythm of the words.
+   The copy affordance is therefore taken out of the layout entirely and floated
+   over the word on hover: in flow (even at opacity 0) it reserved width beside
+   every result, which is what made the spacing ragged and hard to scan. */
+.rhyme-copy-btn {
+  position: absolute;
+  top: -13px;
+  right: -6px;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+}
+
+.rhyme-word-wrap:hover .rhyme-copy-btn,
+.rhyme-copy-btn:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rhyme-copy-btn:hover {
+  color: var(--accent-strong);
+  background: var(--bg-hover);
+}
+
+.rhyme-copy-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+.tools-result-feedback {
+  position: absolute;
+  top: -18px;
+  right: 0;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tools-result-item .tools-result-feedback {
+  position: static;
+  display: inline-block;
+  margin-top: 2px;
 }
 
 /* Navigation */

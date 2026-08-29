@@ -15,6 +15,9 @@
 import { NodeViewRendererProps } from '@tiptap/core';
 import { Editor } from '@tiptap/core';
 import { ViewMutationRecord } from '@tiptap/pm/view';
+import { characterColorPluginKey } from '../../editor/extensions/characters';
+import { characterColorVar, resolveCharacterColor } from '../../domain/project/characters';
+import { CharacterColor } from '../../domain/project/types';
 
 export function createConcurrentBlockView({
   node: initialNode,
@@ -22,6 +25,19 @@ export function createConcurrentBlockView({
   editor,
 }: NodeViewRendererProps) {
   let currentNode = initialNode;
+  // C-20: colours last applied to each column's header, so `update()` can
+  // detect a recolour even when the column's own attrs didn't change (e.g.
+  // the writer recoloured the character from the Structure workspace).
+  let lastColors: (CharacterColor | undefined)[] = [];
+
+  function resolveColors(node: typeof initialNode): (CharacterColor | undefined)[] {
+    const characters = characterColorPluginKey.getState((editor as Editor).state)?.characters ?? [];
+    const colors: (CharacterColor | undefined)[] = [];
+    node.forEach(col => {
+      colors.push(resolveCharacterColor(characters, col.attrs.characterId, col.attrs.speakerName));
+    });
+    return colors;
+  }
 
   // Outer wrapper
   const dom = document.createElement('div');
@@ -61,6 +77,8 @@ export function createConcurrentBlockView({
     addBtnRow.innerHTML = '';
 
     const colCount = node.childCount;
+    const colors = resolveColors(node);
+    lastColors = colors;
 
     for (let i = 0; i < colCount; i++) {
       const col = node.child(i);
@@ -81,6 +99,15 @@ export function createConcurrentBlockView({
       nameInput.setAttribute('data-testid', `concurrent-speaker-name-${i}`);
       const LETTERS = ['A', 'B', 'C', 'D'];
       nameInput.value = col.attrs.speakerName || `Speaker ${LETTERS[i] ?? i + 1}`;
+
+      // C-20: colour this column's header the same as its character's
+      // registry colour, resolved via characterId (falling back to a name
+      // match) — kept in sync with the editor's own speaker-line colouring.
+      const colColor = colors[i];
+      if (colColor) {
+        nameInput.style.setProperty('--speaker-color', characterColorVar(colColor));
+        nameInput.classList.add('has-character-color');
+      }
 
       nameInput.addEventListener('mousedown', (e: MouseEvent) => {
         // Prevent the browser from updating the DOM text selection on mousedown.
@@ -230,10 +257,16 @@ export function createConcurrentBlockView({
       const prevNode = currentNode;
       currentNode = updatedNode;
       dom.setAttribute('data-id', updatedNode.attrs.id);
-      // Only rebuild the header DOM when column count or speaker names changed.
-      // Rebuilding on every ProseMirror transaction would destroy the focused
-      // nameSpan while the user is editing it, dropping focus immediately.
-      if (columnsChanged(prevNode, updatedNode)) {
+      // Only rebuild the header DOM when column count, speaker names, or
+      // (C-20) resolved colours changed. Rebuilding on every ProseMirror
+      // transaction would destroy the focused nameSpan while the user is
+      // editing it, dropping focus immediately — but a colour change (e.g.
+      // recolouring a character from the Structure workspace) doesn't touch
+      // this node's own attrs, so it needs its own check here too.
+      const newColors = resolveColors(updatedNode);
+      const colorsChanged = newColors.length !== lastColors.length
+        || newColors.some((c, i) => c !== lastColors[i]);
+      if (columnsChanged(prevNode, updatedNode) || colorsChanged) {
         rebuildHeader(updatedNode);
       }
       return true;

@@ -25,6 +25,7 @@ export function WorkspaceNav() {
               role="button"
               tabIndex={0}
               aria-selected={isActive}
+              data-testid={`workspace-nav-${ws.id}`}
             >
               {ws.label}
             </div>
