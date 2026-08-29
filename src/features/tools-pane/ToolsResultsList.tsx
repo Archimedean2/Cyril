@@ -7,7 +7,7 @@ interface PaneResponse extends ToolLookupResponse {
 
 interface ToolsResultsListProps {
   response: PaneResponse | null;
-  onCopyResult: (text: string) => void;
+  onCopyResult: (text: string) => void | Promise<boolean>;
   onCollectResult: (text: string) => void;
 }
 
@@ -86,15 +86,29 @@ export function ToolsResultsList({ response, onCopyResult, onCollectResult }: To
 
 /** Ephemeral "Copied" / "Collected" feedback, distinguishing the two gestures. */
 function useGestureFeedback() {
-  const [feedback, setFeedback] = useState<'copied' | 'collected' | null>(null);
+  const [feedback, setFeedback] = useState<'copied' | 'collected' | 'copy-failed' | null>(null);
 
-  const flash = (type: 'copied' | 'collected') => {
+  const flash = (type: 'copied' | 'collected' | 'copy-failed') => {
     setFeedback(type);
     window.setTimeout(() => setFeedback((current) => (current === type ? null : current)), 1200);
   };
 
-  return { feedback, flash };
+  /** Flash the truth: "Copied" only when the clipboard actually took it. */
+  const flashCopy = async (result: void | Promise<boolean> | boolean) => {
+    const ok = typeof result === 'object' && result !== null && 'then' in result
+      ? await (result as Promise<boolean>)
+      : result !== false;
+    flash(ok ? 'copied' : 'copy-failed');
+  };
+
+  return { feedback, flash, flashCopy };
 }
+
+const FEEDBACK_LABEL: Record<'copied' | 'collected' | 'copy-failed', string> = {
+  copied: 'Copied',
+  collected: 'Collected',
+  'copy-failed': "Couldn't copy",
+};
 
 /** Groups rhyme results by syllable count and renders them with bold high-relevance words */
 function RhymeResultsList({ results, onCopy, onCollect }: { results: ToolResult[]; onCopy: (w: string) => void; onCollect: (w: string) => void }) {
@@ -158,16 +172,16 @@ function RhymeWord({ word, isHigh, isFirst, onCopy, onCollect }: {
   onCopy: (w: string) => void;
   onCollect: (w: string) => void;
 }) {
-  const { feedback, flash } = useGestureFeedback();
+  const { feedback, flash, flashCopy } = useGestureFeedback();
 
   return (
     <span className="rhyme-word-wrap">
       {!isFirst && <span className="rhyme-sep">,</span>}
       <span
         className={`rhyme-word${isHigh ? ' rhyme-word-bold' : ''}`}
-        onClick={() => { onCopy(word); flash('copied'); }}
+        onClick={() => { void flashCopy(onCopy(word)); }}
         onDoubleClick={(e) => { e.preventDefault(); onCollect(word); flash('collected'); }}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCopy(word); flash('copied'); } }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void flashCopy(onCopy(word)); } }}
         role="button"
         tabIndex={0}
         title="Click to copy · double-click to collect"
@@ -187,7 +201,7 @@ function RhymeWord({ word, isHigh, isFirst, onCopy, onCollect }: {
       </button>
       {feedback && (
         <span className={`tools-result-feedback tools-result-feedback-${feedback}`} data-testid="tools-result-feedback">
-          {feedback === 'copied' ? 'Copied' : 'Collected'}
+          {FEEDBACK_LABEL[feedback]}
         </span>
       )}
     </span>
@@ -202,14 +216,14 @@ interface ResultItemProps {
 }
 
 function ResultItem({ result, mode, onCopy, onCollect }: ResultItemProps) {
-  const { feedback, flash } = useGestureFeedback();
+  const { feedback, flash, flashCopy } = useGestureFeedback();
 
   return (
     <div
       className="tools-result-item"
-      onClick={() => { onCopy(); flash('copied'); }}
+      onClick={() => { void flashCopy(onCopy()); }}
       onDoubleClick={(e) => { e.preventDefault(); onCollect(); flash('collected'); }}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCopy(); flash('copied'); } }}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void flashCopy(onCopy()); } }}
       role="button"
       tabIndex={0}
       data-testid="tools-result-item"
@@ -240,7 +254,7 @@ function ResultItem({ result, mode, onCopy, onCollect }: ResultItemProps) {
 
       {feedback && (
         <span className={`tools-result-feedback tools-result-feedback-${feedback}`} data-testid="tools-result-feedback">
-          {feedback === 'copied' ? 'Copied' : 'Collected'}
+          {FEEDBACK_LABEL[feedback]}
         </span>
       )}
     </div>

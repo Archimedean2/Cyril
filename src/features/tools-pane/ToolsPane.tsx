@@ -106,16 +106,21 @@ export function ToolsPane({ getSelectedText }: ToolsPaneProps) {
   }, [activeMode, performSearch]);
 
   // Handle copy to clipboard
-  const handleCopyResult = useCallback(async (text: string) => {
+  // Returns whether the copy actually happened, so the result list can tell the
+  // writer the truth rather than flashing "Copied" over a failure.
+  //
+  // A denied or unavailable clipboard is an ordinary environment condition — an
+  // insecure context, a browser that gates the permission, an automated session —
+  // not a fault. It must degrade quietly (EDGE_CASES §10) and must NOT log an
+  // error: doing so trains people to ignore the console, and the e2e console guard
+  // would fail every run.
+  const handleCopyResult = useCallback(async (text: string): Promise<boolean> => {
     try {
+      if (!navigator.clipboard?.writeText) return false;
       await navigator.clipboard.writeText(text);
-    } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-      // Fallback: try to select the text
-      const selection = window.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-      }
+      return true;
+    } catch {
+      return false;
     }
   }, []);
 

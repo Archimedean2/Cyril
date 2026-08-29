@@ -28,6 +28,7 @@ Severity: 🔴 data loss / core flow broken · 🟠 wrong behaviour · 🟡 poli
 | D-11 | 🟡 | **An unheaded section printed a heading reading "None"** in both print and Markdown. | Surfaced only once D-02 made unheaded sections reachable. | `T-11.20` |
 | D-12 | 🟡 | **A tooltip advertised a shortcut that did not exist** (`Ctrl+Shift+K` on Concurrent). | Nothing checks tooltip claims against real keybindings. | Removed in C-13 |
 | D-13 | 🟠 | **A tab closed mid-write got no unsaved warning** — the guard treated only `unsaved`/`error` as dirty, not `saving`. | The spec was written that way; the test encoded the spec. | `T-1.30` |
+| D-22 | 🟠 | **A denied clipboard logged a console error and flashed "Copied" over a failure.** Clicking a tool result called `navigator.clipboard.writeText` and, on denial (insecure context, gated permission, automated session), logged `console.error` and ran a no-op "fallback" that cleared the selection. The user was told "Copied" regardless. | Nothing failed a test on a console error until the guard landed — this was its very first catch. | `T-7.08` + the console guard |
 | D-14 | 🟠 | **`T-5.04` was a hollow test** — it claimed to verify per-draft inventory without ever switching drafts. | It passed, which is the whole problem. | Rewritten to switch drafts |
 
 ## Open
