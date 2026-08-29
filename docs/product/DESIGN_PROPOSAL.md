@@ -458,3 +458,101 @@ Each step is a stage of work that must pass all four gates and land `T-`tagged t
 
 Theatre (steps 2–3) leads because it's what makes Cyril unmistakably itself and is the clearest reason a
 musical-theatre writer would choose it over MasterWriter.
+
+
+---
+
+## 12. Editing after the fact — restructuring what you already wrote
+
+_Added 2026-08-29. Cyril has excellent **entry** (the `<<`, `[[`, `((` gestures keep you in flow)
+and almost no **editing**. Right-clicking a line offers convert-type and delete; there is no
+drag-and-drop anywhere in `src/`. The moment a writer wants to rearrange what they wrote, they
+fall off a cliff._
+
+Writing and restructuring are different modes and want different interaction models. Writing
+wants keyboard gestures. Restructuring is moving furniture — it wants direct manipulation.
+
+### 12.1 Speaker assignment — three intents, kept separate
+
+These are constantly conflated, and conflating them corrupts data quietly:
+
+| Intent | Scope | Where it belongs |
+|---|---|---|
+| "This line is CAPTAIN, not ANNA" | one line | on the line |
+| "These eight lines are CAPTAIN" | a range | on the lines |
+| "ANNA is actually ANNIE" | the whole song | the character registry |
+
+Today all three are done by retyping the speaker name, so fixing one line can mint a duplicate
+character, and a genuine rename means hand-editing every occurrence. The registry (§3.1, shipped
+as C-20) makes the distinction expressible for the first time.
+
+**Rename lives only in the registry** and propagates everywhere. **Reassignment lives on the
+line**, via the character colour dot — which already exists and is currently inert.
+
+Acceptance criteria:
+- Clicking a speaker line's colour dot opens a character picker; choosing a character reassigns
+  that line only, and does not create a new character.
+- Renaming a character in the registry updates every line by that character, in the editor and
+  in export.
+- Reassigning a line is a single undo step.
+
+### 12.2 The speaker gutter — assign by painting
+
+Extend C-20's continuation tick into a permanent thin column left of the lyrics, one cell per
+line, carrying the character's colour.
+
+- **Click a cell** → character picker for that line.
+- **Click and drag down the gutter** → paint a character across a range.
+
+This is the answer to "assign lines to a speaker after the fact", and it suits how people
+actually work: the words come first, who sings them comes second. Dump sixteen lines, then drag
+down the gutter twice to split them between two characters — no selection, no menu, no dialog.
+It also gives a persistent map of who sings what down the left edge of the page.
+
+Acceptance criteria:
+- Every line shows a gutter cell; lines with a character show that character's colour.
+- Dragging across a range assigns all lines in it, as **one** undo step.
+- The gutter has a keyboard equivalent (see §12.5) — it is never the only path.
+- Painting across a section header or a stage direction skips them rather than erroring.
+
+### 12.3 Structure outline — reorder sections where you can see them
+
+Dragging inside a long document is bad: you cannot see the destination while holding the thing.
+Build an outline instead — sections as compact cards showing type, label, line count and first
+line — in the Structure workspace. Drag to reorder; click to jump.
+
+Songwriters restructure constantly (chorus first, move the bridge, cut verse three). The outline
+shows the whole song at once, doubles as navigation, and reuses the §3.3 section colour-coding.
+
+Acceptance criteria:
+- The outline lists every section in document order and updates as the document changes.
+- Dragging a card reorders the section in the document, as one undo step.
+- Clicking a card scrolls the editor to that section.
+- `Cmd/Ctrl+Ctrl+↑/↓` moves the section containing the caret, matching the move-line idiom.
+
+### 12.4 Bulk operations
+
+Selecting several lines and converting them all — lyric ↔ stage direction ↔ speaker — in one
+action. Today conversion is strictly one line at a time. Exposed through the §10 context menu.
+
+Acceptance criteria: a multi-line selection converts every line in it in one undo step; a
+selection spanning a section header applies only to the lines.
+
+### 12.5 Smart paste and keyboard parity
+
+- **Smart paste.** Pasting a block shaped `ANNA: …` / `CAPTAIN: …` detects speakers and builds
+  the structure. People draft lyrics in Notes on their phone; this is the cheapest large win here.
+- **Selection-aware command menu.** `Cmd+K` already exists; with lines selected it should offer
+  "Assign to character…", "Convert to…", "Move to section…". Every mouse gesture above then has
+  a keyboard twin for free.
+
+Acceptance criteria: pasting speaker-prefixed text produces speaker lines and lyric lines with
+no literal `ANNA:` left in the text; unrecognised text pastes as plain lyric lines; the paste is
+one undo step.
+
+### 12.6 The rule that governs all of the above
+
+**Every one of these is a single undo step.** Painting a speaker across eight lines and then
+pressing `Cmd+Z` eight times to get back is what makes an editor feel untrustworthy.
+`docs/engineering/EDGE_CASES.md` §5 already flags structural atomicity and it is the most likely
+source of "it ate my work" feelings. No modals — these are inline operations on the page.

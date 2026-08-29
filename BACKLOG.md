@@ -300,9 +300,21 @@ one, don't take three.
 | C-22 | **Print profiles** — lyric / chord / libretto / annotated | S | ✅ | L | C-21 | DESIGN_PROPOSAL §7 |
 | C-23 | Reference tools: offline indexes, tabs, filters, collect loop | D | ⬜ | L | C-08, C-14 | DESIGN_PROPOSAL §6, §6.1 |
 | C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | DESIGN_PROPOSAL §5 |
+| C-35 | Speaker picker on the character colour dot | E | ⬜ | S | C-20 | DESIGN_PROPOSAL §12.1 |
+| C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | ⬜ | M | C-35 | DESIGN_PROPOSAL §12.2 |
+| C-37 | Structure outline with drag-reorder and jump-to | S | ⬜ | M | C-21 | DESIGN_PROPOSAL §12.3 |
+| C-38 | Bulk line-type conversion on a multi-line selection | E | ⬜ | S | C-26 | DESIGN_PROPOSAL §12.4 |
+| C-39 | Smart paste — detect `NAME:` prefixes into speaker lines | E | ⬜ | M | C-20 | DESIGN_PROPOSAL §12.5 |
+| C-40 | Make `Cmd+K` selection-aware | S | ⬜ | S | C-38 | DESIGN_PROPOSAL §12.5 |
 | C-25 | Chords: transpose, trailing runs, instrumental lines | E | ⬜ | L | C-17 | DESIGN_PROPOSAL §4.4–4.5 |
 | C-26 | Unified right-click context menu | E | ⬜ | L | C-20, C-25 | DESIGN_PROPOSAL §10 |
 | C-27 | Hook Lab as a structured workspace | X | ⬜ | L | — | DESIGN_PROPOSAL §9 |
+
+**The editing-after-the-fact block (C-35 … C-40)** comes from a design review on 2026-08-29:
+Cyril has excellent entry and almost no editing. Take them in order — C-35 is small and uses the
+registry that already exists; C-36 is the differentiator. **Every one of them must be a single
+undo step** (see §12.6); that constraint is not optional and is the most likely source of
+data-loss-feeling bugs.
 
 **Priority read:** C-20 (characters) is the headline differentiator — it is the reason a musical-
 theatre writer picks Cyril over MasterWriter, and it is currently only a CSS token with nothing
