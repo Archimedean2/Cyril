@@ -148,7 +148,7 @@ describe('Tools Sidebar Integration', () => {
 
     // Wait for error state
     await waitFor(() => {
-      expect(screen.getByTestId('tools-results-error')).toBeInTheDocument();
+      expect(screen.getByTestId('tools-results-offline')).toBeInTheDocument();
     });
 
     // Component should still be functional

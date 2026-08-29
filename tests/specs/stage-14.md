@@ -15,6 +15,9 @@ click-to-edit identity in the top bar.
 - `tests/integration/ui/qol-topbar-inline-edit.test.tsx`
 - `tests/integration/ui/qol-single-title.test.tsx`
 - `tests/integration/ui/qol-editor-page.test.tsx`
+- `tests/integration/ui/qol-view-toggles-grouped.test.tsx`
+- `tests/integration/inventory/inventory-chips.test.tsx`
+- `tests/integration/tools/tools-filter-chips-and-collect.test.tsx`
 
 ## Checklist
 
@@ -27,3 +30,13 @@ click-to-edit identity in the top bar.
 | T-14.05 | Song title and draft name in the top bar are click-to-edit; Enter/blur commits, Escape cancels | integration | `tests/integration/ui/qol-topbar-inline-edit.test.tsx` | [ ] | [ ] | |
 | T-14.06 | The song title renders exactly once in the chrome (top bar); the left nav leads with Project/Drafts/View instead of a repeated title, with no leftover gap | integration | `tests/integration/ui/qol-single-title.test.tsx` | [ ] | [ ] | C-16 |
 | T-14.07 | The editor page reads as a page: measure-constrained lyric column centred within it, a defined border/elevation edge distinct from the shell, a deliberate gap below the toolbar, and the grain overlay preserved | integration | `tests/integration/ui/qol-editor-page.test.tsx` | [ ] | [ ] | C-12 |
+| T-14.08 | The six View toggles are grouped under quiet Structure/Sound sub-labels instead of a flat checklist; each toggle still works and keeps keyboard focus, and state persists per draft | integration | `tests/integration/ui/qol-view-toggles-grouped.test.tsx` | [ ] | [ ] | C-15 |
+| T-14.09 | Inventory has no native textarea/resize grabber; collected items render as chips | integration | `tests/integration/inventory/inventory-chips.test.tsx` | [ ] | [ ] | C-11 |
+| T-14.10 | Adding an item via the Inventory add-input persists it to the draft inventory (and blank/whitespace submissions are ignored) | integration | `tests/integration/inventory/inventory-chips.test.tsx` | [ ] | [ ] | C-11 |
+| T-14.11 | Removing an Inventory chip persists the removal to the draft inventory | integration | `tests/integration/inventory/inventory-chips.test.tsx` | [ ] | [ ] | C-11 |
+| T-14.12 | An empty Inventory shows an inviting, sentence-case, verb-first empty state | integration | `tests/integration/inventory/inventory-chips.test.tsx` | [ ] | [ ] | C-11 |
+| T-14.13 | Existing multi-line legacy Inventory text loads with its content intact as chips | integration | `tests/integration/inventory/inventory-chips.test.tsx` | [ ] | [ ] | C-11 |
+| T-14.14 | Rhyme filter chips (Perfect/Close/Wide) are wired to the existing rhyme-exact/rhyme-near modes (no new mode/provider); switching a chip changes the queried mode and, for Close, narrows the near-rhyme result set | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
+| T-14.15 | A failed or hung provider lookup shows an honest offline state instead of an endless spinner | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
+| T-14.16 | Results sourced from the tool cache surface a cache/offline note | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
+| T-14.17 | A visible "+ collect" affordance adds a result to the active draft's Inventory and persists it, with feedback distinguishable from the existing click-to-copy gesture | integration | `tests/integration/tools/tools-filter-chips-and-collect.test.tsx` | [ ] | [ ] | C-14 |
