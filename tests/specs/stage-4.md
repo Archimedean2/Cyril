@@ -12,6 +12,7 @@ Structured sections, metadata tags, and metadata display toggles.
 - `tests/unit/editor/editor-css-tokens.test.ts`
 - `tests/unit/domain/migration.test.ts`
 - `tests/integration/editor/sections-metadata-integration.test.ts`
+- `tests/integration/editor/draft-toolbar-integration.test.tsx`
 - `tests/e2e/stage-4-sections-metadata.spec.ts`
 - `tests/e2e/speaker-stage-direction.spec.ts`
 
@@ -47,6 +48,7 @@ Structured sections, metadata tags, and metadata display toggles.
 | T-4.26 | No `delivery`/`DeliveryMode` remains anywhere in `src/` (grep-clean) and the Delivery control is gone from the toolbar | unit | `tests/unit/editor/delivery-removed.test.ts` | [x] | [x] | C-10: removed per `docs/product/DESIGN_PROPOSAL.md` §3.4 |
 | T-4.27 | Opening a legacy project that had `delivery` on its lines loads cleanly, with no error and no visible change beyond the removed italic | unit | `tests/unit/domain/migration.test.ts` | [x] | [x] | C-10: `migrateProject` strips the attribute as a silent no-op |
 | T-4.28 | No hardcoded hex or rgba colour remains in `editor.css` (grep-clean; `var(--x, fallback)` may stay) | unit | `tests/unit/editor/editor-css-tokens.test.ts` | [x] | [x] | C-19: cross-referenced from `docs/product/DESIGN_PROPOSAL.md` §2 (visual foundation), tracked here as this is the only spec file this lane owns |
+| T-4.29 | Toolbar controls are grouped (inline format, line type, structure, history) with a separator between each group; every control's tooltip names a real shortcut (or none, if none exists); the active line type is visibly indicated | integration | `tests/integration/editor/draft-toolbar-integration.test.tsx` | [x] | [x] | C-13: toolbar rebuild. Visual distinctiveness/no-wrap-at-1024px verified manually with Playwright screenshots (not asserted here — see agent report) |
 
 ## Retired criteria
 - **T-4.06** ("Spoken/sung state persists on lyric line") — retired 2026-08-29 (C-10). The

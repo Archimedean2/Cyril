@@ -70,7 +70,7 @@ export function InsertConcurrentBlockDialog({
         background: 'var(--bg-editor)',
         border: '1px solid var(--border-default)',
         borderRadius: 'var(--radius-sm)',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+        boxShadow: 'var(--shadow-soft)',
         padding: '12px 14px',
         minWidth: 220,
       }}

@@ -159,20 +159,32 @@
   width: 100%;
 }
 
+/* Toolbar (C-13): grouped controls, separated from the page below it by both
+   a border and a soft shadow (the same --shadow-soft the page itself and
+   editor popovers use) so it reads as an infrastructural strip sitting above
+   the paper, not a continuation of it. Sizing follows UI_TOKENS.md §22. */
 .editor-toolbar {
   display: flex;
-  gap: 0.25rem;
-  padding: 0.375rem 0.75rem;
+  align-items: center;
+  height: 32px;
+  flex: 0 0 32px;
+  padding: 0 var(--space-1);
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   border-bottom: 1px solid var(--border-default);
   background-color: var(--bg-panel);
-  align-items: center;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
 }
 
 .toolbar-group {
   display: flex;
-  gap: 2px;
+  gap: var(--space-1);
   align-items: center;
+  flex-shrink: 0;
 }
 
 .toolbar-group + .toolbar-group {
@@ -181,21 +193,45 @@
   border-left: 1px solid var(--border-subtle);
 }
 
+/* Pushes the history group (undo/redo) to the far right without breaking the
+   left-to-right group/separator order. */
+.toolbar-group--end {
+  margin-left: auto;
+}
+
+/* Positioning context for a toolbar button's own popover (SectionTypePicker,
+   InsertConcurrentBlockDialog), scoped tighter than the group so a popover
+   anchors under its own button rather than the left edge of a merged group. */
+.toolbar-anchor {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .editor-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  min-width: 28px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 4px;
-  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  padding: 0 6px;
   font-size: 0.8rem;
   cursor: pointer;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 0.1s ease, color 0.1s ease;
 }
 
 .editor-toolbar button:hover:not(:disabled) {
   background-color: var(--bg-hover);
 }
 
+/* Active line type / active tool is visibly indicated: filled accent
+   background + accent text, matching the shell's own nav-item-active
+   treatment exactly (background: --accent-soft, color: --accent-strong). */
 .editor-toolbar button.is-active,
 .editor-toolbar button.active {
   background-color: var(--accent-soft);
