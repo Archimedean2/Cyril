@@ -477,6 +477,18 @@ button {
   white-space: nowrap;
 }
 
+/* C-44 / DESIGN_PROPOSAL.md §13.4: "used" is derived (never stored) from whether the
+ * chip's word currently appears in the active draft — quietly dimmed, not hidden. */
+.inventory-chip-used {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.inventory-chip-used .inventory-chip-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-faint);
+}
+
 .inventory-chip-remove {
   display: inline-flex;
   align-items: center;
@@ -605,6 +617,16 @@ button {
   color: var(--text-muted);
   font-style: italic;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+/* C-44 / DESIGN_PROPOSAL.md §13.4: dim results already in the draft or already
+ * collected, so the writer scans what is new. Derived, never stored. */
+.tools-result-item-used {
+  opacity: 0.5;
+}
+
+.rhyme-word-used {
+  opacity: 0.45;
 }
 
 .tools-result-row {

@@ -9,6 +9,11 @@ interface ToolsResultsListProps {
   response: PaneResponse | null;
   onCopyResult: (text: string) => void | Promise<boolean>;
   onCollectResult: (text: string) => void;
+  /** C-44 / DESIGN_PROPOSAL.md §13.4: whether a result's word already appears in the
+   * active draft or is already collected into Inventory. Optional so this component
+   * still works standalone (e.g. in tests) without the derivation wired up; absent
+   * means "nothing is used" rather than an error. */
+  isResultUsed?: (word: string) => boolean;
 }
 
 const RHYME_MODES: ToolMode[] = ['rhyme-exact', 'rhyme-near'];
@@ -32,7 +37,7 @@ const RHYME_MODES: ToolMode[] = ['rhyme-exact', 'rhyme-near'];
  */
 const RHYME_EMPHASIS_SCORE_THRESHOLD = 5000;
 
-export function ToolsResultsList({ response, onCopyResult, onCollectResult }: ToolsResultsListProps) {
+export function ToolsResultsList({ response, onCopyResult, onCollectResult, isResultUsed }: ToolsResultsListProps) {
   if (!response) {
     return (
       <div className="tools-results-empty" data-testid="tools-results-empty">
@@ -85,6 +90,7 @@ export function ToolsResultsList({ response, onCopyResult, onCollectResult }: To
           results={response.results}
           onCopy={onCopyResult}
           onCollect={onCollectResult}
+          isResultUsed={isResultUsed}
         />
       ) : (
         <div className="tools-results-list" data-testid="tools-results-list">
@@ -95,6 +101,7 @@ export function ToolsResultsList({ response, onCopyResult, onCollectResult }: To
               mode={response.mode}
               onCopy={() => onCopyResult(result.word)}
               onCollect={() => onCollectResult(result.word)}
+              isUsed={isResultUsed ? isResultUsed(result.word) : false}
             />
           ))}
         </div>
@@ -130,7 +137,12 @@ const FEEDBACK_LABEL: Record<'copied' | 'collected' | 'copy-failed', string> = {
 };
 
 /** Groups rhyme results by syllable count and renders them with bold high-relevance words */
-function RhymeResultsList({ results, onCopy, onCollect }: { results: ToolResult[]; onCopy: (w: string) => void; onCollect: (w: string) => void }) {
+function RhymeResultsList({ results, onCopy, onCollect, isResultUsed }: {
+  results: ToolResult[];
+  onCopy: (w: string) => void;
+  onCollect: (w: string) => void;
+  isResultUsed?: (word: string) => boolean;
+}) {
   // Group by syllable count; words with no syllable data go into group 0
   const groups = new Map<number, ToolResult[]>();
   for (const result of results) {
@@ -166,6 +178,7 @@ function RhymeResultsList({ results, onCopy, onCollect }: { results: ToolResult[
                   word={result.word}
                   isHigh={isHigh}
                   isFirst={i === 0}
+                  isUsed={isResultUsed ? isResultUsed(result.word) : false}
                   onCopy={onCopy}
                   onCollect={onCollect}
                 />
@@ -178,10 +191,11 @@ function RhymeResultsList({ results, onCopy, onCollect }: { results: ToolResult[
   );
 }
 
-function RhymeWord({ word, isHigh, isFirst, onCopy, onCollect }: {
+function RhymeWord({ word, isHigh, isFirst, isUsed, onCopy, onCollect }: {
   word: string;
   isHigh: boolean;
   isFirst: boolean;
+  isUsed: boolean;
   onCopy: (w: string) => void;
   onCollect: (w: string) => void;
 }) {
@@ -196,7 +210,7 @@ function RhymeWord({ word, isHigh, isFirst, onCopy, onCollect }: {
     <span className="rhyme-word-wrap">
       {!isFirst && <span className="rhyme-sep">,</span>}
       <span
-        className={`rhyme-word${isHigh ? ' rhyme-word-bold' : ''}`}
+        className={`rhyme-word${isHigh ? ' rhyme-word-bold' : ''}${isUsed ? ' rhyme-word-used' : ''}`}
         onClick={collect}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); collect(); } }}
         role="button"
@@ -228,11 +242,12 @@ function RhymeWord({ word, isHigh, isFirst, onCopy, onCollect }: {
 interface ResultItemProps {
   result: ToolResult;
   mode: string;
+  isUsed: boolean;
   onCopy: () => void;
   onCollect: () => void;
 }
 
-function ResultItem({ result, mode, onCopy, onCollect }: ResultItemProps) {
+function ResultItem({ result, mode, isUsed, onCopy, onCollect }: ResultItemProps) {
   const { feedback, flash, flashCopy } = useGestureFeedback();
 
   // C-43 / DESIGN_PROPOSAL.md §13.3: the primary click collects; copy is secondary.
@@ -240,7 +255,7 @@ function ResultItem({ result, mode, onCopy, onCollect }: ResultItemProps) {
 
   return (
     <div
-      className="tools-result-item"
+      className={`tools-result-item${isUsed ? ' tools-result-item-used' : ''}`}
       onClick={collect}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); collect(); } }}
       role="button"

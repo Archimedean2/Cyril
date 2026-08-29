@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useProjectStore } from '../../app/state/projectStore';
 import { inventoryDocToItems, itemsToInventoryDoc } from './inventoryDoc';
+import { extractDraftPlainText, tokenizeWords, isPhraseUsedInDraft } from '../../domain/tools/draftWordUsage';
 
 /**
  * Inventory Pane - Draft-specific collected-words surface for spare lines, rhymes,
@@ -25,6 +26,17 @@ export function InventoryPane() {
     if (!draft) return null;
 
     return draft.inventory;
+  }, [currentProject, activeView]);
+
+  // C-44 / DESIGN_PROPOSAL.md §13.4: "used" is DERIVED from the live draft doc on
+  // every render — never stored — so a chip un-dims the moment its word leaves the
+  // draft, with no stale flag to clean up. Recomputed whenever the draft doc changes
+  // (every keystroke updates the store — see DraftView's onChange -> updateDraftDoc).
+  const draftWords = useMemo(() => {
+    if (!currentProject || activeView.type !== 'draft') return [];
+    const draft = currentProject.project.drafts.find(d => d.id === activeView.draftId);
+    if (!draft) return [];
+    return tokenizeWords(extractDraftPlainText(draft.doc));
   }, [currentProject, activeView]);
 
   // Get the active draft ID for updates
@@ -72,8 +84,15 @@ export function InventoryPane() {
             Collect words, rhymes, and fragments as you write.
           </p>
         ) : (
-          items.map((item, index) => (
-            <span className="inventory-chip" data-testid="inventory-chip" key={`${item}-${index}`}>
+          items.map((item, index) => {
+            const isUsed = isPhraseUsedInDraft(item, draftWords);
+            return (
+            <span
+              className={`inventory-chip${isUsed ? ' inventory-chip-used' : ''}`}
+              data-testid="inventory-chip"
+              key={`${item}-${index}`}
+              title={isUsed ? `"${item}" is already in the draft` : undefined}
+            >
               <span className="inventory-chip-text">{item}</span>
               <button
                 type="button"
@@ -86,7 +105,8 @@ export function InventoryPane() {
                 ×
               </button>
             </span>
-          ))
+            );
+          })
         )}
       </div>
 
