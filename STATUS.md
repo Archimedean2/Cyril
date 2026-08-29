@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 16:00 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 16:24 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,19 +20,19 @@ _Last stamped: **2026-08-29 16:00 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 479/479 tests, 82 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 198 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm test` | 🟢 | 504/504 tests, 86 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 201 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | 🟢 | 124 passed |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 2 ahead) |
-| Last commit | Merge F1: fold printProfile into ExportSettings (C-32) |
-| Committed | 2026-08-29 16:58:32 +0100 |
+| Branch | `feat/title-screen` (0 behind / 5 ahead) |
+| Last commit | Merge F3: absolute emphasis, collect-on-click, dim-when-used (C-45, C-43, C-44) |
+| Committed | 2026-08-29 17:23:01 +0100 |
 | Uncommitted files | none — clean tree |
-| Backlog | **25 of 46** done · 7 in flight (C-32, C-48, C-45, C-35, C-36, C-43, C-44) · 2 blocked on you (C-25, C-27) |
+| Backlog | **25 of 46** done · 3 in flight (C-48, C-35, C-36) · 2 blocked on you (C-25, C-27) |
 | Next up | **C-41 (20) Double-click a word in the lyric to look it up**<br>C-42 (30) Click an Inventory chip to insert it at the caret<br>C-47 (90) Empty states teach the double-click gesture |
 <!-- END GENERATED -->
 
