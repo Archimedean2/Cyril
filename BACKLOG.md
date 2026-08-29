@@ -51,10 +51,12 @@ block comes first.
 
 Full spec with sub-task detail: **`docs/engineering/HARDENING_PERSISTENCE.md`**.
 
-**Progress:** H1, H2, H3 and H5 (C-01, C-04, C-03, C-02) have landed. The zero-durability hole
-is closed — a never-saved project now writes an IndexedDB snapshot on the autosave debounce
-regardless of file handle, and a reload offers recovery. Verified in a real browser, not only in
-unit tests. C-05, C-06 and C-07 remain.
+**Progress: this block is COMPLETE.** All of H1–H7 have landed (C-01, C-04, C-03, C-02, C-06,
+C-07, C-05), plus C-29 (re-grant banner) and C-30 (`saving` is dirty). The zero-durability hole
+is closed — a never-saved project writes an IndexedDB snapshot on the autosave debounce
+regardless of file handle, a reload offers recovery, and the indicator reads "Saved in browser —
+not on disk yet" rather than a false "Saved". All verified in a real browser, not only in unit
+tests.
 
 | # | Item | Lane | Status | Size | Depends on | Spec | Tests |
 |---|---|---|:--:|:--:|---|---|---|
@@ -62,16 +64,15 @@ unit tests. C-05, C-06 and C-07 remain.
 | C-02 | Validate on load; handle corrupt + newer-schema files | P | ✅ | M | — | HARDENING §H5 | `T-1.26`, `T-1.27` |
 | C-03 | `beforeunload` guard when dirty | P | ✅ | S | — | HARDENING §H3 | `T-1.24` |
 | C-04 | **IndexedDB recovery snapshot** — the durability win | P | ✅ | L | C-01 | HARDENING §H2 | `T-1.22`, `T-1.23` |
-| C-05 | Download/upload fallback when File System Access API is absent | P | 🚧 lane-P | M | C-04 | HARDENING §H4 | `T-1.25` |
-| C-29 | Re-grant UI when a file handle loses permission | P | 🚧 lane-P | S | C-02 | below | — |
-| C-06 | Save status never says "Saved" without a durable copy | P | 🚧 lane-P | S | C-04 | HARDENING §H7 | `T-1.29` |
-| C-07 | Warn before overwriting a file changed outside Cyril | P | 🚧 lane-P | S | C-01 | HARDENING §H6 | `T-1.28` |
+| C-05 | Download/upload fallback when File System Access API is absent | P | ✅ | M | C-04 | HARDENING §H4 | `T-1.25` |
+| C-29 | Re-grant UI when a file handle loses permission | P | ✅ | S | C-02 | below | — |
+| C-06 | Save status never says "Saved" without a durable copy | P | ✅ | S | C-04 | HARDENING §H7 | `T-1.29` |
+| C-07 | Warn before overwriting a file changed outside Cyril | P | ✅ |
+| C-30 | `beforeunload` also treats `saving` as dirty | P | ✅ | S | C-03 | decision, see above | `T-1.30` | S | C-01 | HARDENING §H6 | `T-1.28` |
 
-> **Open decision from C-03 (2026-08-28).** The `beforeunload` guard treats only `unsaved` and
-> `error` as dirty — matching the literal §H3 wording — so a tab closed *mid-write* (status
-> `saving`) gets no warning. The window is short but it is a real data-loss path. Adding
-> `'saving'` to `DIRTY_STATUSES` in `src/persistence/beforeUnloadGuard.ts` is a one-line change;
-> it needs a deliberate call, not a silent edit.
+> **Decided 2026-08-29 (C-30).** `saving` now counts as dirty. A false positive costs a spurious
+> dialog in a sub-second window; a false negative costs work. Taken while the maintainer was
+> away — reversible in one line if they disagree.
 
 > **C-04 is the one that matters most.** A project the writer has never manually saved currently
 > has *zero* durability — autosave no-ops when there is no file handle, silently. A snapshot on
@@ -149,10 +150,10 @@ prototype" and "built by professionals".
 | # | Item | Lane | Status | Size | Depends on | Spec |
 |---|---|---|:--:|:--:|---|---|
 | C-09 | `[[NAME]]` / `((text))` must accept the closing brackets | E | ✅ | S | — | below |
-| C-10 | Remove the `delivery` feature | E | 🚧 lane-E | M | — | DESIGN_PROPOSAL §3.4 |
+| C-10 | Remove the `delivery` feature | E | ✅ | M | — | DESIGN_PROPOSAL §3.4 |
 | C-11 | Inventory: real collected-words surface, not a raw `<textarea>` | S | ✅ | M | — | DESIGN_REVIEW §9 |
 | C-12 | Give the editor a real page: measure, edges, elevation | S | ✅ | M | — | below |
-| C-13 | Rebuild the editor toolbar as grouped icon+label controls | E | 🚧 lane-E | M | C-10 | below |
+| C-13 | Rebuild the editor toolbar as grouped icon+label controls | E | ✅ | M | C-10 | below |
 | C-14 | Tools pane: filter chips, honest empty/offline states | S | ✅ | M | — | DESIGN_PROPOSAL §6 |
 | C-15 | Group View toggles under Structure / Sound sub-labels | S | ✅ | S | — | DESIGN_REVIEW §6 |
 | C-16 | Stop showing the song title twice (top bar + left nav) | S | ✅ | S | — | below |
@@ -236,7 +237,7 @@ one, don't take three.
 
 | # | Item | Lane | Status | Size | Depends on | Spec |
 |---|---|---|:--:|:--:|---|---|
-| C-19 | Finish the token sweep (danger + selection tints) | E | 🚧 lane-E | S | — | DESIGN_PROPOSAL §2 |
+| C-19 | Finish the token sweep (danger + selection tints) | E | ✅ | S | — | DESIGN_PROPOSAL §2 |
 | C-20 | **Characters registry** — colour identity + autocomplete | S | ⬜ | L | C-09 | DESIGN_PROPOSAL §3.1 |
 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | DESIGN_PROPOSAL §3.2–3.3 |
 | C-22 | **Print profiles** — lyric / chord / libretto / annotated | S | ⬜ | L | C-21 | DESIGN_PROPOSAL §7 |
