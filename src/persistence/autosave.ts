@@ -24,10 +24,18 @@ async function flush() {
   // current on every debounce tick (HARDENING_PERSISTENCE.md §H2 / C-04). This is the
   // durability floor for a project that has never been saved to disk — autosave-to-file
   // below this point still requires a handle and the autosave setting, but this doesn't.
-  await writeRecoverySnapshot(project);
+  const wroteSnapshot = await writeRecoverySnapshot(project);
+
+  if (!hasFileHandle()) {
+    // There is no file on disk at all for this project — the recovery snapshot above is
+    // the only durability it has. Report that honestly (C-06 / HARDENING §H7): never let
+    // the indicator sit on a stale 'unsaved' that reads the same as "nothing is safe" once
+    // the snapshot has actually landed, and never claim 'saved' when there is no file.
+    useSaveStatusStore.getState().setStatus(wroteSnapshot ? 'local-only' : 'error');
+    return;
+  }
 
   if (!project.project.projectSettings.autosave) return;
-  if (!hasFileHandle()) return;
   if (saving) return;
 
   saving = true;

@@ -35,6 +35,11 @@ Project CRUD and local persistence.
 | T-1.23 | On init with a newer snapshot, recovery is offered; accepting restores it exactly; declining discards it | integration | `tests/integration/persistence/recovery-offer.test.ts` | [x] | [x] | HARDENING §H2 (C-04) |
 | T-1.26 | Opening corrupt JSON surfaces a validation error and does not throw to a crash | unit, integration | `tests/unit/persistence/load-validation.test.ts`, `tests/integration/persistence/load-validation.test.ts` | [x] | [x] | HARDENING §H5 (C-02) |
 | T-1.27 | A newer schemaVersion is handled (warned, not blindly loaded) | unit, integration | `tests/unit/persistence/load-validation.test.ts`, `tests/integration/persistence/load-validation.test.ts` | [x] | [x] | HARDENING §H5 (C-02) |
+| T-1.30 | A tab closed mid-write ('saving') is warned like any other dirty state | unit | `tests/unit/persistence/beforeUnloadGuard.test.ts` | [x] | [x] | C-30 |
+| T-1.29 | No file handle + edits pending → status never reads 'saved'/clean 'idle'; reports honest 'local-only' | integration | `tests/integration/persistence/save-status-honesty.test.tsx` | [x] | [x] | HARDENING §H7 (C-06) |
+| T-1.28 | A changed lastModified triggers the overwrite warning; autosave never clobbers, it fails | unit, integration | `tests/unit/persistence/fileManager.test.ts`, `tests/integration/persistence/external-change-guard.test.ts`, `tests/integration/persistence/save-cancel-vs-error.test.ts` | [x] | [x] | HARDENING §H6 (C-07) |
+| T-1.31 | A stored handle that lost permission surfaces an inline re-grant banner; reconnecting resumes saving with no re-pick; declining leaves the project usable | unit, integration | `tests/unit/persistence/permission-regrant.test.ts`, `tests/integration/persistence/permission-regrant-store.test.ts`, `tests/integration/persistence/permission-banner.test.tsx` | [x] | [x] | BACKLOG C-29 (no HARDENING §, ID minted here — none was assigned) |
+| T-1.25 | With pickers undefined, Save produces a download Blob and Open reads a File; no throw | unit | `tests/unit/persistence/file-system-fallback.test.ts` | [x] | [x] | HARDENING §H4 (C-05) |
 
 ## Regression Requirements
 - Stage 0 tests must remain passing
