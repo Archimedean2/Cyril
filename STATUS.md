@@ -12,26 +12,26 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-08-29 16:24 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-08-29 16:38 UTC** · regenerate with `npm run status`_
 
-### Gate status — 🟢 all green
+### Gate status — 🔴 something is red
 
 | Gate | Status | Detail |
 |---|:--:|---|
-| `npm run build` | 🟢 | tsc + vite clean |
+| `npm run build` | 🔴 | `tests/integration/tools/rhyme-list-skimmability.test.tsx(42,65): error TS2322: Type 'boolean' is not assignable to type 'void | Promise<boolean>'.` |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 504/504 tests, 86 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 201 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm test` | 🟢 | 508/508 tests, 87 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 202 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | 🟢 | 124 passed |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 5 ahead) |
-| Last commit | Merge F3: absolute emphasis, collect-on-click, dim-when-used (C-45, C-43, C-44) |
-| Committed | 2026-08-29 17:23:01 +0100 |
-| Uncommitted files | none — clean tree |
+| Branch | `feat/title-screen` |
+| Last commit | feat: npm run launcher — a desktop .app that opens the latest build |
+| Committed | 2026-08-29 17:30:41 +0100 |
+| Uncommitted files | **6** (`git status`) |
 | Backlog | **25 of 46** done · 3 in flight (C-48, C-35, C-36) · 2 blocked on you (C-25, C-27) |
 | Next up | **C-41 (20) Double-click a word in the lyric to look it up**<br>C-42 (30) Click an Inventory chip to insert it at the caret<br>C-47 (90) Empty states teach the double-click gesture |
 <!-- END GENERATED -->

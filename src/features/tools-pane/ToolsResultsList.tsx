@@ -7,7 +7,7 @@ interface PaneResponse extends ToolLookupResponse {
 
 interface ToolsResultsListProps {
   response: PaneResponse | null;
-  onCopyResult: (text: string) => void | Promise<boolean>;
+  onCopyResult: (text: string) => void | boolean | Promise<boolean>;
   onCollectResult: (text: string) => void;
   /** C-44 / DESIGN_PROPOSAL.md §13.4: whether a result's word already appears in the
    * active draft or is already collected into Inventory. Optional so this component
@@ -177,7 +177,6 @@ function RhymeResultsList({ results, onCopy, onCollect, isResultUsed }: {
                   key={`${result.word}-${i}`}
                   word={result.word}
                   isHigh={isHigh}
-                  isFirst={i === 0}
                   isUsed={isResultUsed ? isResultUsed(result.word) : false}
                   onCopy={onCopy}
                   onCollect={onCollect}
@@ -191,10 +190,9 @@ function RhymeResultsList({ results, onCopy, onCollect, isResultUsed }: {
   );
 }
 
-function RhymeWord({ word, isHigh, isFirst, isUsed, onCopy, onCollect }: {
+function RhymeWord({ word, isHigh, isUsed, onCopy, onCollect }: {
   word: string;
   isHigh: boolean;
-  isFirst: boolean;
   isUsed: boolean;
   onCopy: (w: string) => void;
   onCollect: (w: string) => void;
@@ -208,7 +206,6 @@ function RhymeWord({ word, isHigh, isFirst, isUsed, onCopy, onCollect }: {
 
   return (
     <span className="rhyme-word-wrap">
-      {!isFirst && <span className="rhyme-sep">,</span>}
       <span
         className={`rhyme-word${isHigh ? ' rhyme-word-bold' : ''}${isUsed ? ' rhyme-word-used' : ''}`}
         onClick={collect}
@@ -228,7 +225,9 @@ function RhymeWord({ word, isHigh, isFirst, isUsed, onCopy, onCollect }: {
         title="Copy"
         onClick={(e) => { e.stopPropagation(); void flashCopy(onCopy(word)); }}
       >
-        copy
+        {/* A glyph, not the word "copy" — twelve results meant the word appeared
+            twelve times down the rail and broke up the list you are trying to skim. */}
+        <span aria-hidden="true">⧉</span>
       </button>
       {feedback && (
         <span className={`tools-result-feedback tools-result-feedback-${feedback}`} data-testid="tools-result-feedback">
