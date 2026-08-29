@@ -3,7 +3,7 @@
  * Tests cached/offline result path in UI workflow.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Tool Cache E2E', () => {
   test.beforeEach(async ({ page }) => {

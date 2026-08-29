@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Stage 11: Export and Print', () => {
   test.beforeEach(async ({ page }) => {

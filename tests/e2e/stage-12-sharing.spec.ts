@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from './fixtures';
+import type { Page } from '@playwright/test';
 
 // The LaunchScreen replaced the old no-project shell, which used to render the
 // TopBar (and so the export button) before any project existed. Anything that

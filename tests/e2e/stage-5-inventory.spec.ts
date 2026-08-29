@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Stage 5: Inventory Pane', () => {
   test.beforeEach(async ({ page }) => {

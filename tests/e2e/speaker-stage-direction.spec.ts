@@ -1,4 +1,5 @@
-import { test, expect, Page, Locator } from '@playwright/test';
+import { test, expect } from './fixtures';
+import type { Page, Locator } from '@playwright/test';
 
 /**
  * Helper to wait for editor to be ready for input.

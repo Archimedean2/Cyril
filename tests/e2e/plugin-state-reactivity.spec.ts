@@ -14,7 +14,8 @@
  * mounted — not just that CSS classes change on a wrapper div.
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from './fixtures';
+import type { Page } from '@playwright/test';
 
 async function setup(page: Page) {
   await page.goto('/');
