@@ -7,6 +7,7 @@ import { DraftToolbar } from './DraftToolbar';
 import { SectionContextMenu } from './SectionContextMenu';
 import { LineContextMenu } from './LineContextMenu';
 import { ChordPopover, ChordPopoverTarget } from './ChordPopover';
+import { CharacterDotPicker, CharacterDotPickerTarget } from './CharacterDotPicker';
 import { SpeakerAutocomplete, SpeakerSuggestState } from './SpeakerAutocomplete';
 import { useLineMenuStore } from '../../app/state/lineMenuStore';
 import { useActiveEditorStore } from '../../app/state/activeEditorStore';
@@ -119,6 +120,8 @@ export function DraftEditor({
 
   const [chordPopover, setChordPopover] = useState<ChordPopoverTarget | null>(null);
   const closeChordPopover = useCallback(() => setChordPopover(null), []);
+  const [characterDotPicker, setCharacterDotPicker] = useState<CharacterDotPickerTarget | null>(null);
+  const closeCharacterDotPicker = useCallback(() => setCharacterDotPicker(null), []);
   const openLineMenu = useLineMenuStore(s => s.open);
   const editorSurfaceRef = useRef<HTMLDivElement>(null);
 
@@ -273,6 +276,28 @@ export function DraftEditor({
     return () => dom.removeEventListener('click', handleChordClick);
   }, [editor]);
 
+  // C-35 (§12.1): clicking a speaker line's colour dot opens the character
+  // picker. Same pattern as the chord marker click above — the dot is a
+  // decoration widget (see `characterDecorations.ts`), not document
+  // content, so it's found via a document-level click listener rather than
+  // a node view.
+  useEffect(() => {
+    if (!editor) return;
+    function handleCharacterDotClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      const dot = target.closest('.cyril-character-dot') as HTMLElement | null;
+      if (!dot) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const linePosAttr = dot.getAttribute('data-line-pos');
+      if (linePosAttr === null) return;
+      setCharacterDotPicker({ linePos: Number(linePosAttr), anchorEl: dot });
+    }
+    const dom = editor.view.dom;
+    dom.addEventListener('click', handleCharacterDotClick);
+    return () => dom.removeEventListener('click', handleCharacterDotClick);
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
@@ -311,6 +336,15 @@ export function DraftEditor({
           target={chordPopover}
           editor={editor}
           onClose={closeChordPopover}
+        />,
+        document.body
+      )}
+      {characterDotPicker && createPortal(
+        <CharacterDotPicker
+          target={characterDotPicker}
+          characters={characters}
+          editor={editor}
+          onClose={closeCharacterDotPicker}
         />,
         document.body
       )}

@@ -324,6 +324,65 @@
   background: var(--speaker-color, var(--text-faint));
 }
 
+/* C-35 (§12.1): the clickable colour dot on a speaker line — reassigns
+   *that line only* to a different registered character. A decoration
+   widget (see characterDecorations.ts), not document content. */
+.cyril-character-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  background: var(--dot-color, var(--text-faint));
+  cursor: pointer;
+  user-select: none;
+}
+
+.cyril-character-dot:hover {
+  outline: 2px solid var(--dot-color, var(--border-default));
+  outline-offset: 1px;
+}
+
+.character-dot-picker {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--bg-editor);
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  box-shadow: var(--shadow-soft);
+  padding: 4px 0;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+}
+
+.character-dot-picker-empty {
+  padding: 5px 12px;
+  color: var(--text-faint);
+}
+
+.character-dot-picker-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.character-dot-picker-option:hover {
+  background: var(--accent-soft);
+}
+
+.character-dot-picker-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 /* ======================
    Speaker autocomplete ([[ registry match — C-20)
    ====================== */

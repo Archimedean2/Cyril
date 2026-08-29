@@ -78,6 +78,23 @@ export function buildCharacterDecorations(doc: Node, characters: Character[]): D
         if (styleParts.length) attrs.style = styleParts.join('; ');
         decorations.push(Decoration.node(pos, pos + node.nodeSize, attrs));
       }
+
+      // C-35 (§12.1): a clickable colour dot on every speaker line — the
+      // reassignment affordance ("this line is CAPTAIN, not ANNA"). A pure
+      // presentational widget (not document content): `DraftEditor` handles
+      // the click via a document-level listener (same pattern as the chord
+      // marker) and opens a character picker keyed off `data-line-pos`.
+      const dot = document.createElement('span');
+      dot.className = 'cyril-character-dot';
+      dot.setAttribute('data-testid', 'character-dot');
+      dot.setAttribute('data-line-pos', String(pos));
+      dot.setAttribute('contenteditable', 'false');
+      dot.setAttribute('aria-hidden', 'true');
+      if (color) dot.style.setProperty('--dot-color', characterColorVar(color));
+      decorations.push(
+        Decoration.widget(pos + 1, dot, { side: -1, key: `character-dot-${node.attrs.id ?? pos}` })
+      );
+
       return false; // no block-level children to inspect
     }
 

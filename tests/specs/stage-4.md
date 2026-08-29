@@ -23,6 +23,7 @@ Structured sections, metadata tags, and metadata display toggles.
 - `tests/unit/editor/active-editor-store.test.ts` (C-48)
 - `tests/unit/editor/active-editor-bridge.test.ts` (C-48)
 - `tests/integration/editor/active-editor-bridge-integration.test.tsx` (C-48)
+- `tests/integration/editor/character-dot-picker-integration.test.tsx` (C-35)
 
 ## Checklist
 
@@ -76,6 +77,8 @@ Structured sections, metadata tags, and metadata display toggles.
 | T-4.46 | The workspace `RichTextEditor` never registers with `activeEditorStore` | integration | `tests/integration/editor/active-editor-bridge-integration.test.tsx` | [x] | [x] | C-48: a chip click must never land in the Brief |
 | T-4.47 | `getFocusedWord` returns the word under the caret or a single-word selection; `null` for whitespace/punctuation or a multi-word selection | unit | `tests/unit/editor/active-editor-bridge.test.ts` | [x] | [x] | C-48 |
 | T-4.48 | `insertAtCaret` replaces a non-empty selection, still as one undo step | unit | `tests/unit/editor/active-editor-bridge.test.ts` | [x] | [x] | C-48 |
+| T-4.49 | A speaker line gets a clickable colour-dot widget decoration carrying the resolved colour | unit | `tests/unit/editor/character-decorations.test.ts` | [x] | [x] | C-35 |
+| T-4.50 | Clicking a speaker line's colour dot then choosing a character reassigns that line only (text + `characterId`), in one undo step, leaves every other line untouched, and never creates a new character (the picker only ever lists the registry it was given) | integration | `tests/integration/editor/character-dot-picker-integration.test.tsx` | [x] | [x] | C-35: reassignment is local; renaming stays in the registry (out of scope here) |
 
 ## Retired criteria
 - **T-4.06** ("Spoken/sung state persists on lyric line") — retired 2026-08-29 (C-10). The

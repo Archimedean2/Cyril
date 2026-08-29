@@ -51,6 +51,26 @@ describe('buildCharacterDecorations (C-20)', () => {
     expect((deco as any).type.attrs.class).toContain('has-character-color');
   });
 
+  test('T-4.49: a speaker line gets a clickable colour-dot widget decoration carrying the resolved colour (C-35)', () => {
+    editor = new Editor(getDraftEditorConfig({
+      content: {
+        type: 'doc',
+        content: [
+          { type: 'lyricLine', attrs: { id: 'l1', lineType: 'speaker', characterId: 'char_jack' }, content: [{ type: 'text', text: 'JACK' }] },
+        ],
+      },
+    }));
+
+    const decorations = buildCharacterDecorations(editor.state.doc, CHARACTERS);
+    // The dot is a widget decoration placed just before the text (pos + 1).
+    const dotDeco = decorations.find().find((d) => d.from === 1 && d.to === 1);
+    expect(dotDeco).toBeDefined();
+    const dom = (dotDeco as any).type.toDOM as HTMLElement;
+    expect(dom.className).toBe('cyril-character-dot');
+    expect(dom.getAttribute('data-line-pos')).toBe('0');
+    expect(dom.style.getPropertyValue('--dot-color')).toContain('var(--section-blue)');
+  });
+
   test('an unlinked speaker line falls back to matching its literal text against the registry', () => {
     editor = new Editor(getDraftEditorConfig({
       content: {
