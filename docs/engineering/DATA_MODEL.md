@@ -707,7 +707,9 @@ Future anchor types such as token/grid may be added in later schema versions.
   "includeStageDirections": true,
   "includeChords": false,
   "fontPreset": "default",
-  "pageDensity": "normal"
+  "pageDensity": "normal",
+  "concurrentLayout": "squash",
+  "printProfile": "lyricSheet"
 }
 ```
 
@@ -721,6 +723,8 @@ Future anchor types such as token/grid may be added in later schema versions.
 | `includeChords` | boolean | yes | Include chords in export |
 | `fontPreset` | string enum | yes | Export font preset |
 | `pageDensity` | string enum | yes | Export density/layout mode |
+| `concurrentLayout` | string enum | no (defaults to `squash`) | How a top-level concurrent block is exported/printed: interleaved (`squash`) or as side-by-side columns (`sideBySide`) |
+| `printProfile` | string enum | no (defaults to `lyricSheet`) | **(C-22)** The named print profile last chosen in the Export/Print dialog. Declared via TypeScript module augmentation in `src/domain/export/exportTypes.ts` rather than on the base `ExportSettings` interface in `src/domain/project/types.ts`, so the export feature can own this field without editing project-domain files; `ExportSettingsSchema` in `src/domain/project/validation.ts` is `.passthrough()`, so it round-trips through save/load with no schema change needed. Only `includeSectionLabels` remains user-adjustable across every profile — the profile fixes everything else (see `resolvePrintOptions` in `src/domain/export/printProfiles.ts`) so each profile's printed output is reliably different from the others. |
 
 ### Allowed `fontPreset` values in v1
 - `default`
@@ -728,6 +732,16 @@ Future anchor types such as token/grid may be added in later schema versions.
 ### Allowed `pageDensity` values in v1
 - `normal`
 - `compact`
+
+### Allowed `concurrentLayout` values
+- `squash`
+- `sideBySide`
+
+### Allowed `printProfile` values (C-22)
+- `lyricSheet` — lyrics only; no chords, speakers, or stage directions
+- `chordSheet` — chords above lyrics in a mono font, with section labels; no speakers/stage directions
+- `libretto` — speakers and stage directions in theatre format; no chords
+- `annotated` — lyric sheet plus other alternates and the section summary as margin notes
 
 ---
 
