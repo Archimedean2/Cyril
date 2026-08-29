@@ -345,6 +345,16 @@ export function getLastProjectName(): string | null {
   return localStorage.getItem(LAST_PROJECT_KEY);
 }
 
+// Per EDGE_CASES.md §8 (autosave debounce racing a manual save): `saveProjectInternal` below
+// touches shared module state (`fileHandle`, `lastKnownModified`) and issues real disk I/O
+// whose completion order is not guaranteed to match call order. Two concurrent calls (an
+// autosave flush and a manual Save, or two manual Saves) can otherwise interleave so that
+// whichever `close()` lands *last* wins on disk — which can be the older/stale content, even
+// though the newer save reports `true` ("saved") to its caller. `saveProject` below queues
+// every call through a single chain so calls are always applied strictly in the order they
+// were invoked; a call is never let to run until every earlier call has fully settled.
+let saveQueue: Promise<unknown> = Promise.resolve();
+
 /**
  * Saves `fileContent` to disk.
  *
@@ -354,8 +364,27 @@ export function getLastProjectName(): string | null {
  * (permission denied, an autosave that detected an external change with no gesture to ask
  * with, disk errors, etc.) so callers can tell "nothing happened, on purpose" apart from
  * "this failed".
+ *
+ * Concurrent calls are serialized (see `saveQueue` above) so a racing autosave and manual
+ * save can never interleave their writes.
  */
-export async function saveProject(
+export function saveProject(
+  fileContent: CyrilFile,
+  isSaveAs: boolean = false,
+  options?: SaveProjectOptions
+): Promise<boolean> {
+  const run = saveQueue.then(() => saveProjectInternal(fileContent, isSaveAs, options));
+  // Keep the queue moving even if this save failed/was cancelled — a later save must not be
+  // blocked forever by an earlier rejection — but don't let that swallow this call's own
+  // rejection, which `run` (returned below) still carries to its caller.
+  saveQueue = run.then(
+    () => undefined,
+    () => undefined
+  );
+  return run;
+}
+
+async function saveProjectInternal(
   fileContent: CyrilFile,
   isSaveAs: boolean = false,
   options?: SaveProjectOptions
