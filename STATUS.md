@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-09-12 16:55 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-09-12 17:03 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,20 +20,20 @@ _Last stamped: **2026-09-12 16:55 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 586/586 tests, 99 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 241 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm test` | 🟢 | 608/608 tests, 101 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 252 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `main` (0 behind / 4 ahead) |
-| Last commit | feat(C-50): narrow rhyme results to one syllable count (T-14.33-36) |
-| Committed | 2026-09-12 17:54:21 +0100 |
+| Branch | `main` (0 behind / 2 ahead) |
+| Last commit | feat(C-25): transpose the whole draft a semitone at a time (T-9.08–18, E-9.24–26) |
+| Committed | 2026-09-12 18:02:52 +0100 |
 | Uncommitted files | **1** (`git status`) |
-| Backlog | **33 of 67** done |
-| Next up | **C-23 (45) Wire the offline rhyme + family indexes (was Pri 140)**<br>C-51 (46) Phonetic rhyme tiers from the rime index, retiring the 40% heuristic<br>C-25 (95) Chords: transpose, trailing runs, instrumental lines |
+| Backlog | **33 of 67** done · 1 in flight (C-25) |
+| Next up | **C-23 (45) Wire the offline rhyme + family indexes (was Pri 140)**<br>C-51 (46) Phonetic rhyme tiers from the rime index, retiring the 40% heuristic<br>C-24 (100) Alternates peek + draft compare view |
 <!-- END GENERATED -->
 
 ---
@@ -44,7 +44,11 @@ _Last stamped: **2026-09-12 16:55 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** nothing in flight. `main` is the only branch that exists now, locally or on
+**Working on:** C-25 — transpose has shipped; the format-change parts (trailing runs,
+instrumental lines) are next, then capo. C-23 (Pri 45) is skipped, not forgotten: it is
+blocked on two maintainer decisions recorded in its BACKLOG detail.
+
+**Previously:** nothing in flight. `main` is the only branch that exists now, locally or on
 origin — every PR is landed and closed, every worktree removed. Cut new work from `main`.
 A reference-layer plan landed (`docs/product/MASTERWRITER_PLAN.md`) and put eleven items in the
 queue; **C-23 was promoted from Pri 140 to 45** and now blocks five of them, with two open
@@ -168,6 +172,33 @@ Notes:    Four findings worth carrying. (1) **The Tools pane is one Datamuse end
           documenting a missing feature. C-49 removes it; C-53 re-adds the seam with a corpus
           behind it. Also: `docs/product/FEATURES.md` numbers two different features 10, and 11,
           12 and 13 twice over. Flagged inside C-56 rather than fixed here.
+
+### 2026-09-12 — Claude — Transpose ships (C-25, part 1 of 4)
+
+Did:      The first slice of C-25 and the only one that touches no file format: transposing
+          rewrites `ChordMarker.symbol` and nothing else. Two toolbar buttons in chord mode
+          move the whole draft a semitone at a time, in one transaction — so a forty-line song
+          transposes and un-transposes with one `Cmd+Z` — and `closeHistory` keeps it out of
+          whatever the writer was typing a moment earlier (the D-27 lesson, reused). Chords
+          inside concurrent-block speaker columns move with everything else.
+Gates:    🟢 all five — 608 tests (101 files), 252/252 non-e2e criteria, e2e 123/123, visual 8/8.
+Next:     **C-23 (Pri 45) is still blocked on you** — see *Decisions* below. Then C-25's
+          remaining three parts: stop clamping, trailing runs + instrumental lines (the
+          approved format change), and capo last.
+Notes:    Two things.
+          (1) **The design rule this slice is built on: never mangle what you do not
+          understand.** A chord field is free text a writer typed — it may hold `N.C.`, `%`,
+          `tacet`, a repeat mark, or a convention this parser has never seen. Anything
+          unparseable comes back untouched, and `T-9.12` pins that. The subtle case is
+          `Am7b5`: the `b` belongs to the quality, not the root, so only the leading note is
+          ever rewritten (`T-9.09`). A naive string replace of "b" destroys that chord, which
+          is exactly the kind of silent corruption a transposer must never do.
+          (2) **A third visual baseline needed regenerating by hand** (shot 5, chords on) for
+          the same reason as the previous two: two new toolbar buttons changed the shot by
+          less than `maxDiffPixelRatio: 0.02`, so the suite passed without noticing. Three
+          times in one day is a pattern, not bad luck — the 2% tolerance is too loose to
+          guard panel-level change, and something in the region of 0.2% would still absorb
+          font rasterisation while catching a new control.
 
 ### 2026-09-12 — Claude — Phase 0 of the reference layer: C-49, C-50
 
