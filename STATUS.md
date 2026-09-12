@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-09-12 16:24 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-09-12 16:55 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,20 +20,20 @@ _Last stamped: **2026-09-12 16:24 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 576/576 tests, 98 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 235 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm test` | 🟢 | 586/586 tests, 99 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 241 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `main` |
-| Last commit | docs: record T-13.18–21 and recover the concurrent-speaker enhancement spec |
-| Committed | 2026-09-12 17:19:09 +0100 |
+| Branch | `main` (0 behind / 4 ahead) |
+| Last commit | feat(C-50): narrow rhyme results to one syllable count (T-14.33-36) |
+| Committed | 2026-09-12 17:54:21 +0100 |
 | Uncommitted files | **1** (`git status`) |
-| Backlog | **31 of 54** done |
-| Next up | **C-25 (95) Chords: transpose, trailing runs, instrumental lines**<br>C-24 (100) Alternates peek + draft compare view<br>C-21 (110) Section type colour-coding + sticky stage-direction mode |
+| Backlog | **33 of 67** done |
+| Next up | **C-23 (45) Wire the offline rhyme + family indexes (was Pri 140)**<br>C-51 (46) Phonetic rhyme tiers from the rime index, retiring the 40% heuristic<br>C-25 (95) Chords: transpose, trailing runs, instrumental lines |
 <!-- END GENERATED -->
 
 ---
@@ -168,6 +168,39 @@ Notes:    Four findings worth carrying. (1) **The Tools pane is one Datamuse end
           documenting a missing feature. C-49 removes it; C-53 re-adds the seam with a corpus
           behind it. Also: `docs/product/FEATURES.md` numbers two different features 10, and 11,
           12 and 13 twice over. Flagged inside C-56 rather than fixed here.
+
+### 2026-09-12 — Claude — Phase 0 of the reference layer: C-49, C-50
+
+Did:      C-49 removed `'idioms'` from `ToolMode` — declared, no provider, no tab: a type
+          documenting a feature that did not exist — and repointed the "Related" tab from
+          Datamuse `sl` (sounds-like) to `rel_trg` (triggers). That tab had been returning words
+          that RHYME with the term, sitting next to two tabs that already do rhyme properly;
+          a writer reading "Related" expects meaning, and now gets it. Added `TOOL_MODES`, a
+          runtime list of the union, because a TypeScript type is erased and there was no way
+          to assert the property C-49 exists to protect. C-50 added a syllable filter to rhyme
+          results: chips offering only the counts actually present, clicking the active chip
+          clears it, and the narrowing is sticky across lookups — a writer filling a fixed slot
+          in a melody wants the next word the same length as the last.
+Gates:    🟢 all five — 586 tests (99 files), 241/241 non-e2e criteria, e2e 120/120, visual 8/8.
+Next:     **C-23 (Pri 45) is next and is blocked on you** — two decisions in its BACKLOG detail
+          (how the 24 MB family index ships; whether the ConceptNet CC BY-SA licence is
+          acceptable). Skipped it rather than pick quietly, per `TASKING.md`. Building C-25
+          meanwhile, transpose first — it needs no format change and no decision.
+Notes:    Three things.
+          (1) **The backlog was reprioritised mid-session by another session.** A MasterWriter
+          plan added C-49 … C-59 and promoted C-23 from Pri 140 to 45, above the C-25 I had
+          just claimed. Released C-25 and took the new lowest item instead. Check
+          `git log` before assuming a claim still reflects the queue.
+          (2) **Two sessions share one git index.** A concurrent `git add -A` left files staged
+          and its commit died leaving `.git/index.lock`; clearing the lock and committing swept
+          three of that session's files (`MASTERWRITER_PLAN.md`, `STATUS.md`, `DOC_MAP.md`) into
+          commit b22fb71. The message now says so rather than being rewritten under a live
+          session. If you see a stale `index.lock`, check `ps` before deleting it, and prefer
+          `git add <path>` to `-A` while another agent is running.
+          (3) **The visual baseline needed regenerating again**, for the same reason as last
+          time: the new chip row changed the right rail by less than `maxDiffPixelRatio: 0.02`,
+          so the suite passed and Playwright did not rewrite the PNG. This is now twice in one
+          day. The tolerance is doing more harm than good at 2% for panel-level changes.
 
 ### 2026-09-12 — Claude — Cleaned out the worktrees, branches and the stash
 
