@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-09-12 16:13 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-09-12 16:24 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -21,7 +21,7 @@ _Last stamped: **2026-09-12 16:13 UTC** · regenerate with `npm run status`_
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
 | `npm test` | 🟢 | 576/576 tests, 98 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 231 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm run coverage:features` | 🟢 | 100.0% — 235 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
 
 ### Repo
@@ -29,8 +29,8 @@ _Last stamped: **2026-09-12 16:13 UTC** · regenerate with `npm run status`_
 | | |
 |---|---|
 | Branch | `main` |
-| Last commit | Merge origin/main: PRs #4 and #5, landed on GitHub during this session |
-| Committed | 2026-09-12 17:07:35 +0100 |
+| Last commit | docs: record T-13.18–21 and recover the concurrent-speaker enhancement spec |
+| Committed | 2026-09-12 17:19:09 +0100 |
 | Uncommitted files | **1** (`git status`) |
 | Backlog | **31 of 54** done |
 | Next up | **C-25 (95) Chords: transpose, trailing runs, instrumental lines**<br>C-24 (100) Alternates peek + draft compare view<br>C-21 (110) Section type colour-coding + sticky stage-direction mode |
@@ -44,8 +44,8 @@ _Last stamped: **2026-09-12 16:13 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** nothing in flight. `main` is now the trunk again — every PR is landed and
-closed, and the branch to cut new work from is `main`, not `feat/title-screen`. The lookup-and-collect loop (§13) is complete end to end:
+**Working on:** nothing in flight. `main` is the only branch that exists now, locally or on
+origin — every PR is landed and closed, every worktree removed. Cut new work from `main`. The lookup-and-collect loop (§13) is complete end to end:
 double-click to look up, click to collect, dim what is used, click a chip to put it back.
 C-25 and C-27 were unblocked by the maintainer — see *Decisions* below before starting either.
 
@@ -128,6 +128,32 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-09-12 — Claude — Cleaned out the worktrees, branches and the stash
+
+Did:      Removed all four agent worktrees and every branch but `main` — 19 local, 12 remote.
+          Each was verified contained in `main` first, not assumed. Two branches (PRs #1 and #3)
+          were squash-merged so their commits are not ancestors; they were checked by content
+          instead and force-deleted once confirmed superseded. Restore SHAs, should any be
+          wanted back: concurrent-block-deletion 7d2cbd4, e2e-stale-draft-mode-testids b0a5668,
+          the stash 3672f4c, title-screen ed42280.
+Gates:    🟢 all five on `main` — 576 tests, **235/235** non-e2e criteria, e2e 120/120, visual 8/8.
+Next:     C-25 (Pri 95) — chords; transpose first, it needs no format change.
+Notes:    The clean-up turned up two things that were not clean-up.
+          (1) **Four tests had been passing uncounted since they were written.** `T-13.18`–`T-13.21`
+          (concurrent-block row and block deletion) are tagged correctly in
+          `concurrent-block-integration.test.ts`, but no criterion row for them ever existed in
+          `tests/specs/stage-13.md` — on any branch, so this was an original omission, not a merge
+          loss. The ledger read 231/231 while the suite actually verified 235 criteria' worth of
+          behaviour. Rows added; the ledger now reports 235/235. Worth knowing the gate is silent
+          in this direction: an untagged test is invisible, and so is a tagged test with no row.
+          (2) **A July stash held the only copy of a written spec.** It was 99% edits to documents
+          the audit retired (`NEXT_STEPS.md`, `current_step.md`, the old `CLAUDE.md` orchestration
+          section), but one hunk documented enhancements E1 (row alignment guides while editing)
+          and E2 (Backspace row/block deletion) for `docs/features/feature-concurrent-speakers.md`.
+          Both features had shipped; only the reasoning was never committed. Recovered into that
+          doc, marked shipped, before the stash was dropped. It also records the one piece of E2
+          that was never built — the hover-revealed bin control — which is not in `BACKLOG.md`.
 
 ### 2026-09-12 — Claude — Landed the whole PR stack on `main`
 
