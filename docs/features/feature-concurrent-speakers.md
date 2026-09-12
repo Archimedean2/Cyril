@@ -290,3 +290,52 @@ Add field `concurrentLayout`:
 - Depends on: Stage 4 (unified `lyricLine` node), Stage 11 (export pipeline)
 - Must not break: any existing `lyricLine`, `sectionBlock`, speaker/stage direction, alternates, or chord behavior
 - Proposed stage: **Stage 13**
+
+---
+
+## Enhancements (specified 2026-07-05, both shipped)
+
+Recovered on 2026-09-12 from a stashed working tree that predated the documentation
+reorganisation. The features themselves were built and are covered by tests; only this
+written spec had never been committed anywhere. Kept for the reasoning, not as a to-do.
+
+### E1. Row alignment markers — visible only while editing · ✅ shipped
+
+While the caret is **inside** a concurrent block, quiet guides line up the same-index lines
+across every column, so the writer can see which lines are simultaneous — which of Speaker A's
+lines lands against which of Speaker B's.
+
+- A subtle band marks the **active row** across all columns. Low-contrast, on the paper/token
+  palette — a guide, not a table grid.
+- Markers appear when focus enters the block and **disappear when focus leaves it**, so the
+  reading view stays clean. Never in print or export.
+- Purely presentational: derived from row indices at render time; nothing new is stored.
+
+Implemented as the `concurrent-block--focused` / `lyric-line--active-row` decoration pair
+(`src/editor/nodes/concurrentBlock/concurrentBlock.ts`, `src/components/editor/editor.css`).
+Covered by **T-13.16a** (guides appear with the caret inside) and **T-13.16b** (both classes
+removed once the caret leaves).
+
+Scope note from the original spec, still worth keeping: clicking an empty cell in one column at
+a row where another column has text, and typing there, **already worked** before this change —
+the only missing piece was the visual guides. Don't rebuild the fill behaviour; don't regress it.
+
+### E2. Removing rows and blocks · ✅ shipped
+
+Written when deletion inside a concurrent block was **broken** — the delete paths had been lost
+and there was no way to remove a row or the block. Restored with:
+
+- **Backspace to delete a row.** At the start of the *first column's* line, when that row is
+  empty in every column, the row is removed across all columns. When the block is down to a
+  single empty row, Backspace removes the whole block, falling back to a normal empty
+  `lyricLine` at that position.
+- Backspace is blocked while the first column still has content, so it can never eat text.
+
+Covered by **T-13.18**, **T-13.19**, **T-13.20** and **T-13.21**. Those four tests were written
+at the time but their criteria were never added to `tests/specs/stage-13.md`, so the
+feature-coverage ledger did not count them until 2026-09-12 — the tests passed for weeks while
+the ledger reported four fewer criteria than the suite actually verified.
+
+The bin/trash control described in the original spec (a hover-revealed explicit delete, with a
+confirm when the block still has content) was **not** built. It is not tracked in `BACKLOG.md`;
+raise an item for it if the keyboard path proves insufficient.

@@ -32,6 +32,10 @@ Concurrent speaker blocks: authoring, navigation, export (squash and side-by-sid
 | T-13.16a | row guides (concurrent-block--focused + lyric-line--active-row) appear when caret is inside a concurrent block | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Enhancement E1 |
 | T-13.16b | row guides disappear (both classes removed) when caret moves outside the concurrent block | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Enhancement E1 |
 | T-13.17 | stress-mark spans from one column are inside the concurrent-block element, enabling :has() CSS rule on columns without stress marks | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Stress-mark row alignment bug fix |
+| T-13.18 | Backspace at the start of the first column on an all-empty row deletes that row from every column | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | Recorded 2026-09-12: the tests existed and passed, but had no criterion row, so the ledger never counted them |
+| T-13.19 | Backspace on the last remaining empty row removes the whole block, leaving a plain empty `lyricLine` in its place | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | As above |
+| T-13.20 | Backspace does **not** delete a row when the first column still has content | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | As above |
+| T-13.21 | `deleteConcurrentBlock` replaces the block with a plain `lyricLine` | integration | `tests/integration/editor/concurrent-block-integration.test.ts` | [x] | [x] | As above |
 
 ## Regression Requirements
 - Stages 0–12 must remain passing
