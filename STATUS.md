@@ -73,6 +73,15 @@ unblocked. That table is gone; nothing is waiting on the owner.
 2. **Hook Lab gets built as a structured workspace (C-27)** — hooks, groups, per-hook notes,
    drag-reorder, and a migration from the legacy rich-text doc. This **deliberately expands v1
    scope**, so `SCOPE.md`, `FEATURES.md` and `DATA_MODEL.md` move with the code in the same PR.
+3. **C-23 is unblocked: ship the full 24 MB family index, and defer the licence.** Both
+   questions raised when the item was promoted are answered. 24 MB of local data is not a size
+   worth designing around in a desktop-first app, so no trimming and no IndexedDB seeding. The
+   constraint that survives is the *shape*: it must be a **static asset fetched and parsed on
+   first lookup, never a Vite `import`**, which would put it in the bundle graph and parse it
+   at boot. ConceptNet's CC BY-SA ShareAlike is sortable later and is not a reason to hold the
+   feature; keep the derived index in its own file and show the attribution now, so a
+   differently-licensed rebuild stays a data swap behind the provider interface rather than a
+   rewrite. Full reasoning in C-23's `BACKLOG.md` detail.
 
 ---
 
@@ -134,6 +143,25 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-09-12 — Claude — C-23 unblocked: ship the whole index, defer the licence
+
+Did:      Recorded the maintainer's answers to the two questions that were holding C-23 (and
+          that the previous agent explicitly skipped the item over). Updated C-23's detail in
+          `BACKLOG.md`, the two decision sections in `docs/product/MASTERWRITER_PLAN.md`, and
+          the maintainer-decisions list above. No source code touched.
+Gates:    not run. This session is a Linux VM against a macOS `node_modules`, so the gates die
+          on a missing `@rollup/rollup-linux-arm64-gnu`. Docs-only change.
+Next:     C-23 is now the lowest unclaimed item with nothing in front of it. C-25 is claimed
+          and in flight.
+Notes:    The size question turned out to be the wrong question. 24 MB is unremarkable for a
+          desktop-first local-first app, and treating it as a hard architectural fork was
+          web-bundle instinct misapplied. What does still matter, and is now an acceptance
+          criterion, is that the index must **not** be a Vite JSON `import` — that transforms
+          it into a JS module at build time, blows up build memory and parses it at boot,
+          which is exactly what the existing "lazily on first lookup, never at boot" rule
+          exists to prevent. Static asset, `fetch`, `JSON.parse`, cache in a module-level
+          variable. If the parse is ever felt, the answer is a worker, not a smaller index.
 
 ### 2026-09-12 — Claude — A plan for the reference layer, and eleven items for it
 

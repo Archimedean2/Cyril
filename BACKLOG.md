@@ -151,7 +151,7 @@ in the filter chips.
 half-gigabyte commit hazard and deliberately left the wiring to C-23.
 
 
-### C-23 · Wire the offline rhyme + family indexes - Lane D · Size L · ⬜
+### C-23 · Wire the offline rhyme + family indexes - Lane D · Size L · ⬜ · unblocked
 
 **Promoted from Pri 140 to 45 on 2026-09-12.** It was behind C-25, C-24, C-21, C-37 and
 C-39, and it unblocks five of the items below. The argument for moving it is not that
@@ -167,31 +167,44 @@ Build behind the existing `ToolProvider` abstraction so nothing above the servic
 changes. Datamuse is demoted from critical path to enrichment and fallback: proper nouns,
 coinages and anything cmudict does not know still go to the network when it is there.
 
-**Two decisions the maintainer must make before this starts** (`TASKING.md`: stop and ask
-rather than pick quietly).
+**Both decisions are settled (maintainer, 2026-09-12). This item is unblocked.**
 
-1. **How the 24 MB family index ships.** It cannot be a Vite import.
-   - *Trim then bundle*: raise `MIN_WEIGHT` to 1.5 and lower `PER_FACET` until it fits in a
-     few MB, lazily imported alongside the rhyme index. Simple, offline at once, loses the
-     long tail.
-   - *Seed IndexedDB on first run*: keep the full index, stream it into the existing tool
-     cache store keyed by term, read per lookup. Keeps everything, costs an install step
-     and a migration path when the index is rebuilt.
+1. **Ship the full 24 MB family index. No trimming, no IndexedDB seeding.** Cyril is a
+   desktop-first app, not a website on a phone budget, and 24 MB of local data is not a
+   size worth designing around. The original framing of this as a hard choice applied
+   web-bundle instincts to the wrong product.
 
-   The rhyme index at ~9 MB raw and ~2.5 MB gzipped can be lazily bundled either way, so it
-   does not have to wait for this call. Splitting C-23 so the rhyme half lands first is
-   allowed and probably wise.
+   **The one constraint that survives the decision is the shape, not the size: it must not
+   be a Vite `import`.** `import index from './family-index.json'` makes Vite transform the
+   file into a JavaScript module at build time, which blows up build memory, puts it in the
+   bundle graph, and parses it eagerly at boot. Instead ship it as a **static asset** (in
+   `public/`, or an `import ... ?url`), `fetch` and `JSON.parse` it on first lookup, and
+   hold the parsed object in a module-level variable so the cost is paid once.
 
-2. **Whether the ConceptNet licence is acceptable.** The family index derives from
-   ConceptNet 5, CC BY-SA 4.0, and **ShareAlike propagates to the derived index**. Shipping
-   it obliges an in-app attribution string and keeps that index file under CC BY-SA,
-   separate from Cyril's own licence. The build script prints the required text. This is a
-   real decision if Cyril is ever sold, and it should be made now rather than discovered.
+   Expect roughly 4 to 6 MB gzipped over a local read and a few hundred milliseconds to
+   parse. That is acceptable precisely because it happens on a user-initiated lookup rather
+   than on the boot path, which is what the "lazily on first lookup, never at boot" rule in
+   the acceptance criteria is protecting. If that parse turns out to be felt in the UI, the
+   fix is a worker or a keyed store, not a smaller index.
+
+   Splitting C-23 so the rhyme half lands first is still allowed and still probably wise.
+
+2. **The ConceptNet licence is deferred, deliberately.** The index derives from ConceptNet
+   5, CC BY-SA 4.0, and ShareAlike propagates to the derived index. The maintainer's call is
+   that this is sortable later and is not a reason to hold the feature. Build it.
+
+   Two things keep that cheap to unwind, and both are conditions of this item: **keep the
+   derived index in its own file** so it never contaminates Cyril's own licence, and **put
+   the attribution string the build script prints into the app now** rather than
+   retrofitting it. If Cyril is ever sold and ShareAlike turns out to be unacceptable, the
+   escape is to rebuild the families index from a differently-licensed source behind the
+   same provider interface, which is a data swap rather than a rewrite.
 
 - Acceptance: a rhyme lookup returns results with the network disabled; the index loads
-  lazily on first lookup and never at boot; Datamuse is still consulted for terms the index
-  does not know, and its absence degrades to local-only rather than to an error; the
-  attribution string is visible in the app if the family index ships.
+  lazily on first lookup and never at boot, and is **not** a Vite JSON import; Datamuse is
+  still consulted for terms the index does not know, and its absence degrades to local-only
+  rather than to an error; the ConceptNet attribution string is visible in the app; the
+  derived index sits in its own file.
 
 
 ### C-49 · Retire the dead `'idioms'` ToolMode; relabel or repoint "Related" - Lane D · Size S · ⬜

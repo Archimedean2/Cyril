@@ -69,28 +69,31 @@ This is not a nice-to-have. It is the answer to four separate problems at once:
 **C-23 is the highest-leverage unbuilt item in the backlog and it is sitting at Pri 140**,
 behind five things it should be in front of.
 
-### The decision this needs before it starts
+### How it ships (settled 2026-09-12)
 
-24 MB of JSON cannot be a Vite import. Two viable approaches, and `TASKING.md` says stop
-and ask rather than pick one quietly:
+**The full 24 MB index, untrimmed.** Cyril is a desktop-first app and 24 MB of local data
+is not a size worth designing around; framing this as a hard choice applied web-bundle
+instincts to the wrong product.
 
-- **Trim then bundle.** Raise `MIN_WEIGHT` to 1.5 and lower `PER_FACET` in the build script
-  until the family index fits in a few MB, ship it as a lazily-imported asset alongside the
-  rhyme index. Simple, works offline immediately, loses the long tail.
-- **Seed IndexedDB on first run.** Keep the full index, stream it into the existing tool
-  cache store keyed by term, read per-lookup. Keeps everything, costs a one-time install
-  step and a migration path when the index is rebuilt.
+What survives the decision is the **shape**, not the size. It must not be a Vite `import`:
+that transforms the JSON into a JavaScript module at build time, blows up build memory, and
+parses it eagerly at boot. Ship it as a static asset, `fetch` and `JSON.parse` on first
+lookup, hold the parsed object in a module-level variable. Roughly 4 to 6 MB gzipped and a
+few hundred milliseconds to parse, paid once, on a user-initiated lookup rather than on the
+boot path. If that parse is ever felt in the UI the answer is a worker, not a smaller index.
 
-The rhyme index at 9 MB raw and roughly 2.5 MB gzipped can be bundled lazily either way,
-so it does not need to wait for this call.
+### The licence condition (deferred 2026-09-12)
 
-### The licence condition
+The family index derives from ConceptNet 5, CC BY-SA 4.0, and **ShareAlike propagates to the
+derived index**. The maintainer's call is that this is sortable later and is not a reason to
+hold the feature.
 
-The family index derives from ConceptNet 5, CC BY-SA 4.0. **ShareAlike propagates to the
-derived index.** Shipping it obliges an in-app attribution string and keeps that index file
-under CC BY-SA, separate from Cyril's own source licence. The build script prints the
-required text. This is a real product decision if Cyril is ever sold, and it should be made
-deliberately rather than discovered later.
+Two cheap conditions keep it unwindable, and both are in C-23's acceptance criteria: keep
+the derived index in **its own file** so it never contaminates Cyril's own licence, and put
+the attribution string the build script prints into the app **now** rather than
+retrofitting it. If ShareAlike later proves unacceptable, the escape is to rebuild the
+families index from a differently-licensed source behind the same provider interface. That
+is a data swap, not a rewrite, which is the reason deferring it is safe.
 
 ## 3. What MasterWriter has that Cyril does not
 
