@@ -35,10 +35,6 @@ const styles: Record<string, React.CSSProperties> = {
 };
 
 export function RightSidebar() {
-  // TODO: Wire up editor selection to populate search term
-  // For now, ToolsPane works with manual entry only
-  const getSelectedText = () => null;
-
   return (
     <>
       {/* Tools Section */}
@@ -51,7 +47,7 @@ export function RightSidebar() {
         </div>
         <div style={styles.toolsBody}>
           <ErrorBoundary paneName="tools pane">
-            <ToolsPane getSelectedText={getSelectedText} />
+            <ToolsPane />
           </ErrorBoundary>
         </div>
       </section>

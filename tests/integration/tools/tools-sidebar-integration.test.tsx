@@ -36,29 +36,9 @@ describe('Tools Sidebar Integration', () => {
     expect(screen.getByTestId('tools-results-empty')).toBeInTheDocument();
   });
 
-  test('T-7.04: Selected word populates tool search term', () => {
-    const getSelectedText = vi.fn().mockReturnValue('example');
-    
-    render(<ToolsPane getSelectedText={getSelectedText} />);
-
-    // Click populate button
-    const populateButton = screen.getByTestId('tools-populate-button');
-    fireEvent.click(populateButton);
-
-    // Verify getSelectedText was called
-    expect(getSelectedText).toHaveBeenCalled();
-    
-    // Verify input was populated
-    const input = screen.getByTestId('tools-search-input') as HTMLInputElement;
-    expect(input.value).toBe('example');
-  });
-
-  test('T-7.04: Populate button not shown when no getSelectedText callback', () => {
-    render(<ToolsPane />);
-
-    // Populate button should not exist
-    expect(screen.queryByTestId('tools-populate-button')).not.toBeInTheDocument();
-  });
+  // T-7.04 (the ⌖ "populate from selection" control) is RETIRED — see stage-7.md.
+  // C-41 removes the control; `tests/integration/tools/tools-lookup-request.test.tsx`
+  // carries the replacement gesture under T-14.24/T-14.29.
 
   test('T-7.05: Switching tool modes works', async () => {
     const mockLookup = vi.fn().mockResolvedValue({

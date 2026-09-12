@@ -9,6 +9,7 @@ import { ChordExtension } from '../extensions/chords';
 import { SyllableExtension } from '../extensions/syllables';
 import { CharacterColorExtension } from '../extensions/characters';
 import { DraftPlaceholder } from '../extensions/placeholder';
+import { WordLookupExtension } from '../extensions/wordLookup';
 import { Character } from '../../domain/project/types';
 
 const STARTER_KIT = StarterKit.configure({
@@ -65,6 +66,10 @@ export const getDraftEditorConfig = (options: DraftEditorConfigOptions = {}): Pa
       }),
       CharacterColorExtension.configure({ characters }),
       DraftPlaceholder,
+      // C-41 / §13.1: double-click (and Mod-Shift-L) raises a lookup request.
+      // Draft-only on purpose — the workspace `RichTextEditor` builds its own
+      // extension list, so double-clicking in the Brief never hijacks the rail.
+      WordLookupExtension,
     ],
     content,
     editable: true,

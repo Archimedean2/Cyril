@@ -1,21 +1,27 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ToolsSearchInputProps {
   searchTerm: string;
   onSearch: (term: string) => void;
-  onPopulateFromSelection?: () => string | null;
   placeholder?: string;
 }
 
 export function ToolsSearchInput({
   searchTerm,
   onSearch,
-  onPopulateFromSelection,
   placeholder = 'Enter a word...',
 }: ToolsSearchInputProps) {
   const [inputValue, setInputValue] = useState(searchTerm);
 
-  // Sync with external searchTerm
+  // C-41: the box is no longer only an input — a double-click in the lyric sets
+  // the term from outside, and the box has to show the word that was looked up.
+  // (Until now this component only read `searchTerm` once, on mount; the
+  // "Sync with external searchTerm" comment described an effect that was never
+  // written.)
+  useEffect(() => {
+    setInputValue(searchTerm);
+  }, [searchTerm]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
@@ -26,16 +32,6 @@ export function ToolsSearchInput({
       onSearch(inputValue.trim());
     }
   };
-
-  const handlePopulateFromSelection = useCallback(() => {
-    if (onPopulateFromSelection) {
-      const selected = onPopulateFromSelection();
-      if (selected) {
-        setInputValue(selected);
-        onSearch(selected);
-      }
-    }
-  }, [onPopulateFromSelection, onSearch]);
 
   return (
     <form onSubmit={handleSubmit} className="tools-search-form">
@@ -57,18 +53,6 @@ export function ToolsSearchInput({
         >
           →
         </button>
-        {onPopulateFromSelection && (
-          <button
-            type="button"
-            onClick={handlePopulateFromSelection}
-            className="tools-populate-button"
-            data-testid="tools-populate-button"
-            aria-label="Use selected word"
-            title="Use selected word"
-          >
-            ⌖
-          </button>
-        )}
       </div>
     </form>
   );

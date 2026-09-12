@@ -673,8 +673,7 @@
   border-color: var(--accent-color, var(--accent-primary));
 }
 
-.tools-search-button,
-.tools-populate-button {
+.tools-search-button {
   padding: 6px 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -684,9 +683,46 @@
   font-size: 0.9rem;
 }
 
-.tools-search-button:hover,
-.tools-populate-button:hover {
+.tools-search-button:hover {
   background: var(--button-hover-bg, #e8e8e8);
+}
+
+/* C-41 / §13.1: names the word the list belongs to, so a rail that changes
+   under the writer's hands is never mysterious. Quiet by design — it labels
+   the results, it does not compete with them. */
+.tools-lookup-subject {
+  margin: 0;
+  padding: 2px var(--space-3) 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tools-lookup-subject strong {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+/* The opt-out for the double-click gesture. Sits at the foot of the pane at
+   the smallest weight that is still legible: it must be findable, and it must
+   never be the first thing the eye lands on. */
+.tools-lookup-pref {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.tools-lookup-pref input {
+  cursor: pointer;
+  margin: 0;
 }
 
 .tools-results-list {

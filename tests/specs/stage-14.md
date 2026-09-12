@@ -18,6 +18,9 @@ click-to-edit identity in the top bar.
 - `tests/integration/ui/qol-view-toggles-grouped.test.tsx`
 - `tests/integration/inventory/inventory-chips.test.tsx`
 - `tests/integration/tools/tools-filter-chips-and-collect.test.tsx`
+- `tests/unit/editor/word-lookup.test.ts`
+- `tests/integration/tools/tools-lookup-request.test.tsx`
+- `tests/e2e/stage-14-lookup.spec.ts`
 
 ## Checklist
 
@@ -46,3 +49,9 @@ click-to-edit identity in the top bar.
 | T-14.21 | An Inventory chip whose text appears (case-insensitively, whole-word, punctuation-insensitively) in the active draft renders in a "used" state, derived not stored, and reverts when the word leaves the draft; a substring match (e.g. "low" inside "below") does not count | integration, unit | `tests/integration/inventory/inventory-used-state.test.tsx`, `tests/unit/tools/draft-word-usage.test.ts` | [x] | [x] | C-44, §13.4 |
 | T-14.22 | Tool results already in the draft or already collected render dimmed (derived, un-dims once the word leaves the draft), so the writer scans what is new | integration | `tests/integration/tools/tools-results-used-state.test.tsx` | [x] | [x] | C-44, §13.4 |
 | T-14.23 | The rhyme list stays skimmable: no comma separators, copy control out of layout flow, even row gap | integration | `tests/integration/tools/rhyme-list-skimmability.test.tsx` | [x] | [x] | Guards D-25 |
+| T-14.24 | Double-clicking a word in the lyric queries the active tool for exactly that word, without moving the caret or taking focus from the editor; consecutive lookups of the same word each fire | unit, integration, e2e | `tests/unit/editor/word-lookup.test.ts`, `tests/integration/tools/tools-lookup-request.test.tsx`, `tests/e2e/stage-14-lookup.spec.ts` | [x] | [x] | C-41, §13.1. The click→position half needs real layout, so the gesture itself is proved in the browser; jsdom covers which word a position resolves to |
+| T-14.25 | The rail names the word the results are for | integration | `tests/integration/tools/tools-lookup-request.test.tsx` | [x] | [x] | C-41, §13.1 |
+| T-14.26 | A keyboard shortcut (`Mod-Shift-L`) looks up the word under the caret, and is a no-op when there is no word | unit | `tests/unit/editor/word-lookup.test.ts` | [x] | [x] | C-41, §13.1: never a mouse-only feature |
+| T-14.27 | A setting disables the behaviour — with it off, double-click only selects; the preference persists, and a localStorage that throws does not break the feature | unit, integration, e2e | `tests/unit/editor/word-lookup.test.ts`, `tests/integration/tools/tools-lookup-request.test.tsx`, `tests/e2e/stage-14-lookup.spec.ts` | [x] | [x] | C-41, §13.1. A UI preference, NOT a `.cyril` field — no DATA_MODEL change |
+| T-14.28 | Whitespace, free-standing punctuation, an empty line, and a multi-word selection raise no lookup | unit | `tests/unit/editor/word-lookup.test.ts` | [x] | [x] | C-41, §13.1. A click on the boundary immediately after a word deliberately resolves to that word — `pos` lands on either side of a glyph depending on which half was clicked |
+| T-14.29 | The inert ⌖ "populate from selection" control is gone | integration | `tests/integration/tools/tools-lookup-request.test.tsx` | [x] | [x] | C-41, §13.1. Retires D-24 |

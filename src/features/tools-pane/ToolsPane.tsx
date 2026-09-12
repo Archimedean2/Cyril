@@ -1,8 +1,9 @@
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { ToolMode, ToolLookupResponse, ToolResultSource } from '../../domain/tools/types';
 import { cachedToolLookupService } from '../../domain/tools/tool-service';
 import { RhymeFilter, rhymeFilterToMode, applyRhymeFilter } from '../../domain/tools/rhymeFilter';
 import { useProjectStore } from '../../app/state/projectStore';
+import { useWordLookupStore } from '../../app/state/wordLookupStore';
 import { inventoryDocToItems, itemsToInventoryDoc } from '../inventory/inventoryDoc';
 import { extractDraftPlainText, tokenizeWords, isPhraseUsedInDraft } from '../../domain/tools/draftWordUsage';
 import { ToolsModeTabs } from './ToolsModeTabs';
@@ -30,14 +31,9 @@ interface PaneResponse extends ToolLookupResponse {
   source?: ToolResultSource;
 }
 
-interface ToolsPaneProps {
-  /** Optional callback to get selected text from editor */
-  getSelectedText?: () => string | null;
-}
-
 const RHYME_MODES: ToolMode[] = ['rhyme-exact', 'rhyme-near'];
 
-export function ToolsPane({ getSelectedText }: ToolsPaneProps) {
+export function ToolsPane() {
   const [activeMode, setActiveMode] = useState<ToolMode>('rhyme-exact');
   const [rhymeFilter, setRhymeFilter] = useState<RhymeFilter>('perfect');
   const [searchTerm, setSearchTerm] = useState('');
@@ -158,19 +154,29 @@ export function ToolsPane({ getSelectedText }: ToolsPaneProps) {
     return collectedItems.some((item) => item.trim().toLowerCase() === normalized);
   }, [draftWords, collectedItems]);
 
-  // Handle populate from selection
-  const handlePopulateFromSelection = useCallback(() => {
-    if (getSelectedText) {
-      const selected = getSelectedText();
-      if (selected && selected.trim()) {
-        const trimmed = selected.trim();
-        setSearchTerm(trimmed);
-        performSearch(trimmed, activeMode);
-        return trimmed;
-      }
-    }
-    return null;
-  }, [getSelectedText, activeMode, performSearch]);
+  // C-41 / DESIGN_PROPOSAL.md §13.1: a double-click (or Mod-Shift-L) in the lyric
+  // raises a request on `wordLookupStore`; the rail answers it with the mode and
+  // filters the writer already has selected. This replaces the inert ⌖
+  // "populate from selection" control (D-24), which is removed.
+  //
+  // Keyed on the request's nonce, NOT on the term: looking the same word up twice
+  // in a row is ordinary, and an unchanged term would be an unchanged dependency.
+  // `activeMode` is deliberately read through a ref rather than listed as a
+  // dependency — including it would re-run the last lookup whenever the writer
+  // switched tabs, which is the rail lurching on its own that §13.1 warns against.
+  const lookupRequest = useWordLookupStore((s) => s.request);
+  const activeModeRef = useRef(activeMode);
+  activeModeRef.current = activeMode;
+  const handledLookupNonce = useRef(0);
+
+  useEffect(() => {
+    if (!lookupRequest || lookupRequest.nonce === handledLookupNonce.current) return;
+    handledLookupNonce.current = lookupRequest.nonce;
+    performSearch(lookupRequest.term, activeModeRef.current);
+  }, [lookupRequest, performSearch]);
+
+  const lookupEnabled = useWordLookupStore((s) => s.enabled);
+  const setLookupEnabled = useWordLookupStore((s) => s.setEnabled);
 
   // Build a loading response for UI feedback, then apply the Close/Wide client-side
   // score filter on top of the near-rhyme result set.
@@ -195,12 +201,19 @@ export function ToolsPane({ getSelectedText }: ToolsPaneProps) {
       <ToolsSearchInput
         searchTerm={searchTerm}
         onSearch={handleSearch}
-        onPopulateFromSelection={getSelectedText ? handlePopulateFromSelection : undefined}
         placeholder={`Search for ${getModeLabel(activeMode)}...`}
       />
 
       {isRhymeMode && (
         <ToolsFilterChips active={rhymeFilter} onChange={handleFilterChange} />
+      )}
+
+      {/* §13.1: "Name what was looked up" — a list that changes under you is
+          never mysterious if the rail says what it is a list of. */}
+      {searchTerm && (
+        <p className="tools-lookup-subject" data-testid="tools-lookup-subject">
+          {getModeLabel(activeMode)} for <strong>{searchTerm}</strong>
+        </p>
       )}
 
       <ToolsResultsList
@@ -209,6 +222,19 @@ export function ToolsPane({ getSelectedText }: ToolsPaneProps) {
         onCollectResult={handleCollectResult}
         isResultUsed={isResultUsed}
       />
+
+      {/* §13.1: the gesture is opt-out. The control sits with the behaviour it
+          governs rather than in the draft's View toggles — those describe the
+          song, this describes how this person likes to work. */}
+      <label className="tools-lookup-pref" data-testid="tools-lookup-pref">
+        <input
+          type="checkbox"
+          checked={lookupEnabled}
+          onChange={(e) => setLookupEnabled(e.target.checked)}
+          data-testid="tools-lookup-pref-checkbox"
+        />
+        Look up on double-click
+      </label>
     </div>
   );
 }
