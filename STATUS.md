@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-09-12 15:02 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-09-12 15:10 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,19 +20,19 @@ _Last stamped: **2026-09-12 15:02 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 508/508 tests, 87 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 202 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm test` | 🟢 | 549/549 tests, 95 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 223 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` |
-| Last commit | fix(D-25): make the rhyme list skimmable again |
-| Committed | 2026-08-29 17:39:13 +0100 |
-| Uncommitted files | **1** (`git status`) |
-| Backlog | **25 of 46** done · 3 in flight (C-48, C-35, C-36) · 2 blocked on you (C-25, C-27) |
+| Branch | `feat/title-screen` (0 behind / 5 ahead) |
+| Last commit | Merge F2: editor command bridge, speaker picker, paintable gutter (C-48, C-35, C-36) |
+| Committed | 2026-09-12 16:09:31 +0100 |
+| Uncommitted files | **2** (`git status`) |
+| Backlog | **28 of 49** done · 2 blocked on you (C-25, C-27) |
 | Next up | **C-41 (20) Double-click a word in the lyric to look it up**<br>C-42 (30) Click an Inventory chip to insert it at the caret<br>C-47 (90) Empty states teach the double-click gesture |
 <!-- END GENERATED -->
 
@@ -44,28 +44,11 @@ _Last stamped: **2026-09-12 15:02 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** three agents — F1 (C-32 repo hygiene), F2 (C-48 editor command bridge, then
-C-35 speaker picker and C-36 the paintable speaker gutter), F3 (C-45 absolute score emphasis,
-C-43 collect-on-click, C-44 dim-when-used).
+**Working on:** C-41, then C-42 — the lookup-and-collect loop, now that C-48's editor bridge
+has landed. F1/F2/F3's lanes are all merged and marked; no branch is left stranded.
 
-**Last verified state:** all gates green — 479 unit + integration tests, 198/198 non-e2e
-criteria, e2e 124/124, 8 visual baselines.
-
-**Expect visual baselines to fail** after these merge: F2 and F3 both change the UI. Agents
-were told not to regenerate them; the coordinator does it once after all merges, so the PNGs
-don't conflict.
-
-**Pending action at F3's merge — do not do this early.** C-43 removes the `tools-collect-button`
-testid (the result item itself becomes the collect action). Two files outside F3's ownership
-reference it and must be updated *in the same merge commit*:
-
-- `tests/e2e/journey-write-a-song.spec.ts:98`
-- `tests/e2e/visual.spec.ts:133`
-
-Both: `getByTestId('tools-collect-button').first().click()` → `getByTestId('tools-result-item').first().click()`.
-
-Applying it before C-43 lands would break the suite — on the current tree a result click copies
-rather than collects, so no Inventory chip appears and the assertion fails.
+**Last verified state:** all gates green on the merged tree — 549 tests, 223/223 non-e2e
+criteria, e2e 116/116, visual 8/8.
 
 ## Decisions taken unsupervised (2026-08-29) — review these
 
@@ -125,6 +108,28 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-09-12 — Claude (coordinator) — Merged F2's stranded lane: the editor bridge, at last
+
+Did:      Merged `worktree-agent-ae70e79a6130d6de0` — three commits from 2026-08-29 that were
+          finished, committed and then never merged or marked. C-48 gives the right rail a narrow
+          command surface over the draft editor (`insertAtCaret` / `getFocusedWord`) registered as
+          a non-reactive ref, so the rail can read and write the caret without re-rendering the
+          shell on every keystroke. C-35 puts a character picker on the speaker line's colour dot.
+          C-36 adds the speaker gutter you can click and drag to paint a range, in one undo step.
+          29 new criteria (T-4.39 … T-4.59) with tests. Marked all three ✅ and wrote this entry —
+          the lane's own step 8 was never done, which is why the work sat invisible for two weeks.
+Gates:    🟢 all five on the merged tree — 549 tests (95 files), 223/223 non-e2e criteria,
+          e2e 116/116, visual 8/8.
+Next:     C-41 (double-click a word to look it up) — unblocked now that C-48 has landed.
+Notes:    Three things worth carrying. (1) The merge conflicted on FEATURE_COVERAGE.md and only
+          on that — the known landmine, resolved by regenerating from the merged tree as C-31
+          requires. (2) The standing warning in this file that visual baselines would fail after
+          the F2/F3 merges is now obsolete: all 8 pass, including the right-rail shot. Removed it.
+          (3) `npm run test:e2e` is 116 tests, not 124 — Playwright has two projects and the
+          visual suite (8) runs separately via `npm run test:visual`. Earlier entries quoting 124
+          were counting both. The coordinator note about the `tools-collect-button` selector swap
+          is also done and gone; F2's branch carried the fix.
 
 ### 2026-08-29 — F3 (lane S) — Lookup-and-collect: score emphasis, click-to-collect, dim-when-used
 

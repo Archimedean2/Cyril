@@ -52,12 +52,12 @@ this table and tells you what is next, so this ordering is the one that counts.
 | Pri | # | Item | Lane | Status | Size | Depends | Spec |
 |--:|---|---|:--:|:--:|:--:|---|---|
 | 10 | C-32 | Track the lint config and the coverage script (main cannot run its own gates) | X | ✅ | S | — | below |
-| 15 | C-48 | **Editor command bridge** — let the rail read and write the caret | E | 🚧 F2 | S | — | §13.0 |
+| 15 | C-48 | **Editor command bridge** — let the rail read and write the caret | E | ✅ | S | — | §13.0 |
 | 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ⬜ | M | C-48 | §13.1 |
 | 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ⬜ | S | C-48 | §13.2 |
 | 40 | C-45 | Emphasise results by an absolute score, not a relative one | S | ✅ | S | — | §13.5 |
-| 50 | C-35 | Speaker picker on the character colour dot | E | 🚧 F2 | S | C-20 | §12.1 |
-| 60 | C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | 🚧 F2 | M | C-35 | §12.2 |
+| 50 | C-35 | Speaker picker on the character colour dot | E | ✅ | S | C-20 | §12.1 |
+| 60 | C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | ✅ | M | C-35 | §12.2 |
 | 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | ✅ | S | — | §13.3 |
 | 80 | C-44 | Dim collected words once they appear in the draft | S | ✅ | S | — | §13.4 |
 | 90 | C-47 | Empty states teach the double-click gesture | S | ⬜ | S | C-41 | §13.7 |
@@ -84,7 +84,7 @@ Not started deliberately — each changes something only the owner should agree 
 
 ### Done
 
-25 items. Detail for the ones with a written-up rationale is kept below.
+28 items. Detail for the ones with a written-up rationale is kept below.
 
 - **C-01** — Write-permission check before every save
 - **C-02** — Validate on load; corrupt + newer-schema files
@@ -111,6 +111,9 @@ Not started deliberately — each changes something only the owner should agree 
 - **C-30** — `beforeunload` also treats `saving` as dirty
 - **C-31** — Feature-coverage gate moved into CI
 - **C-34** — Console guard, golden files, visual regression, journey test
+- **C-35** — Speaker picker on the character colour dot
+- **C-36** — Speaker gutter — click a cell, drag to paint a range
+- **C-48** — Editor command bridge — `insertAtCaret` / `getFocusedWord`
 
 ---
 
