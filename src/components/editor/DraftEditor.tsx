@@ -7,8 +7,12 @@ import { DraftToolbar } from './DraftToolbar';
 import { SectionContextMenu } from './SectionContextMenu';
 import { LineContextMenu } from './LineContextMenu';
 import { ChordPopover, ChordPopoverTarget } from './ChordPopover';
+import { CharacterDotPicker, CharacterDotPickerTarget } from './CharacterDotPicker';
+import { SpeakerGutter } from './SpeakerGutter';
 import { SpeakerAutocomplete, SpeakerSuggestState } from './SpeakerAutocomplete';
 import { useLineMenuStore } from '../../app/state/lineMenuStore';
+import { useActiveEditorStore } from '../../app/state/activeEditorStore';
+import { createActiveEditorCommands } from '../../editor/core/editorCommands';
 import { chordPluginKey } from '../../editor/extensions/chords';
 import { syllablePluginKey } from '../../editor/extensions/syllables';
 import { characterColorPluginKey } from '../../editor/extensions/characters';
@@ -86,6 +90,20 @@ export function DraftEditor({
     }
   }, [editor, initialContent]);
 
+  // C-48: the editor command bridge (§13.0). Expose a narrow, non-reactive
+  // command surface on `activeEditorStore` — never the `Editor` object
+  // itself — so code outside this component (the right rail's
+  // lookup-and-collect loop) can read/write the caret without forcing this
+  // component (or anything else) to re-render on every keystroke. Only the
+  // draft editor registers; `RichTextEditor` (the workspace editor) never
+  // imports this store. Re-registers whenever `editor` changes so a fresh
+  // editor instance is never left stranded on a stale registration.
+  useEffect(() => {
+    if (!editor) return;
+    const unregister = useActiveEditorStore.getState().register(createActiveEditorCommands(editor));
+    return unregister;
+  }, [editor]);
+
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
     const { tr } = editor.state;
@@ -103,6 +121,8 @@ export function DraftEditor({
 
   const [chordPopover, setChordPopover] = useState<ChordPopoverTarget | null>(null);
   const closeChordPopover = useCallback(() => setChordPopover(null), []);
+  const [characterDotPicker, setCharacterDotPicker] = useState<CharacterDotPickerTarget | null>(null);
+  const closeCharacterDotPicker = useCallback(() => setCharacterDotPicker(null), []);
   const openLineMenu = useLineMenuStore(s => s.open);
   const editorSurfaceRef = useRef<HTMLDivElement>(null);
 
@@ -257,6 +277,28 @@ export function DraftEditor({
     return () => dom.removeEventListener('click', handleChordClick);
   }, [editor]);
 
+  // C-35 (§12.1): clicking a speaker line's colour dot opens the character
+  // picker. Same pattern as the chord marker click above — the dot is a
+  // decoration widget (see `characterDecorations.ts`), not document
+  // content, so it's found via a document-level click listener rather than
+  // a node view.
+  useEffect(() => {
+    if (!editor) return;
+    function handleCharacterDotClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      const dot = target.closest('.cyril-character-dot') as HTMLElement | null;
+      if (!dot) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const linePosAttr = dot.getAttribute('data-line-pos');
+      if (linePosAttr === null) return;
+      setCharacterDotPicker({ linePos: Number(linePosAttr), anchorEl: dot });
+    }
+    const dom = editor.view.dom;
+    dom.addEventListener('click', handleCharacterDotClick);
+    return () => dom.removeEventListener('click', handleCharacterDotClick);
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
@@ -287,7 +329,9 @@ export function DraftEditor({
       onClick={handleContainerClick}
     >
       <DraftToolbar editor={editor} draftMode={draftMode} settings={settings} />
-      <EditorContent ref={editorSurfaceRef} editor={editor} className={editorClasses} data-testid="editor-surface" />
+      <EditorContent ref={editorSurfaceRef} editor={editor} className={editorClasses} data-testid="editor-surface">
+        <SpeakerGutter editor={editor} characters={characters} containerRef={editorSurfaceRef} />
+      </EditorContent>
       <SectionContextMenu editor={editor} />
       <LineContextMenu editor={editor} />
       {chordPopover && createPortal(
@@ -295,6 +339,15 @@ export function DraftEditor({
           target={chordPopover}
           editor={editor}
           onClose={closeChordPopover}
+        />,
+        document.body
+      )}
+      {characterDotPicker && createPortal(
+        <CharacterDotPicker
+          target={characterDotPicker}
+          characters={characters}
+          editor={editor}
+          onClose={closeCharacterDotPicker}
         />,
         document.body
       )}
