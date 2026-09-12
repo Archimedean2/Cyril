@@ -140,3 +140,34 @@ describe('Tools pane: lookup requests from the editor (C-41)', () => {
     expect(screen.queryByTestId('tools-populate-button')).toBeNull();
   });
 });
+
+/**
+ * C-47 / DESIGN_PROPOSAL.md §13.7 — "empty states are the only documentation
+ * anyone reads". The pane's empty state should teach the gesture the writer
+ * cannot see, not describe the search box they can.
+ */
+describe('Tools pane empty state teaches the gesture (C-47)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useWordLookupStore.setState({ enabled: true, request: null });
+    setUpProject();
+  });
+
+  it('T-14.32: the empty state teaches double-click rather than describing the search box', () => {
+    render(<ToolsPane />);
+
+    const empty = screen.getByTestId('tools-results-empty');
+    expect(empty.textContent).toMatch(/double-click/i);
+    expect(empty.textContent).toMatch(/lyric/i);
+  });
+
+  it('T-14.32: with the gesture turned off, the empty state stops advertising it', () => {
+    render(<ToolsPane />);
+
+    fireEvent.click(screen.getByTestId('tools-lookup-pref-checkbox'));
+
+    const empty = screen.getByTestId('tools-results-empty');
+    expect(empty.textContent).not.toMatch(/double-click/i);
+    expect(empty.textContent).toMatch(/search/i);
+  });
+});

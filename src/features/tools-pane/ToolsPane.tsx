@@ -221,6 +221,7 @@ export function ToolsPane() {
         onCopyResult={handleCopyResult}
         onCollectResult={handleCollectResult}
         isResultUsed={isResultUsed}
+        lookupEnabled={lookupEnabled}
       />
 
       {/* §13.1: the gesture is opt-out. The control sits with the behaviour it

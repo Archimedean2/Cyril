@@ -60,7 +60,7 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 60 | C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | ✅ | M | C-35 | §12.2 |
 | 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | ✅ | S | — | §13.3 |
 | 80 | C-44 | Dim collected words once they appear in the draft | S | ✅ | S | — | §13.4 |
-| 90 | C-47 | Empty states teach the double-click gesture | S | 🚧 Claude | S | C-41 | §13.7 |
+| 90 | C-47 | Empty states teach the double-click gesture | S | ✅ | S | C-41 | §13.7 |
 | 100 | C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | §5 |
 | 110 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | §3.2–3.3 |
 | 120 | C-37 | Structure outline with drag-reorder and jump-to | S | ⬜ | M | C-21 | §12.3 |
@@ -84,7 +84,7 @@ Not started deliberately — each changes something only the owner should agree 
 
 ### Done
 
-28 items. Detail for the ones with a written-up rationale is kept below.
+31 items. Detail for the ones with a written-up rationale is kept below.
 
 - **C-01** — Write-permission check before every save
 - **C-02** — Validate on load; corrupt + newer-schema files
@@ -113,6 +113,9 @@ Not started deliberately — each changes something only the owner should agree 
 - **C-34** — Console guard, golden files, visual regression, journey test
 - **C-35** — Speaker picker on the character colour dot
 - **C-36** — Speaker gutter — click a cell, drag to paint a range
+- **C-41** — Double-click a word in the lyric to look it up
+- **C-42** — Click an Inventory chip to insert it at the caret
+- **C-47** — The Tools empty state teaches the double-click gesture
 - **C-48** — Editor command bridge — `insertAtCaret` / `getFocusedWord`
 
 ---

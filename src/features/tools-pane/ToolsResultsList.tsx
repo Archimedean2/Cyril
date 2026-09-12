@@ -14,6 +14,9 @@ interface ToolsResultsListProps {
    * still works standalone (e.g. in tests) without the derivation wired up; absent
    * means "nothing is used" rather than an error. */
   isResultUsed?: (word: string) => boolean;
+  /** C-47 / §13.7: whether the double-click gesture is on, so the empty state
+   * teaches it rather than advertising a gesture the writer has turned off. */
+  lookupEnabled?: boolean;
 }
 
 const RHYME_MODES: ToolMode[] = ['rhyme-exact', 'rhyme-near'];
@@ -37,11 +40,20 @@ const RHYME_MODES: ToolMode[] = ['rhyme-exact', 'rhyme-near'];
  */
 const RHYME_EMPHASIS_SCORE_THRESHOLD = 5000;
 
-export function ToolsResultsList({ response, onCopyResult, onCollectResult, isResultUsed }: ToolsResultsListProps) {
+export function ToolsResultsList({ response, onCopyResult, onCollectResult, isResultUsed, lookupEnabled = true }: ToolsResultsListProps) {
   if (!response) {
+    // C-47 / DESIGN_PROPOSAL.md §13.7: an empty state is the only documentation
+    // anyone reads, so it teaches the thing the writer cannot see — not the
+    // search box sitting right above it, which they can.
     return (
       <div className="tools-results-empty" data-testid="tools-results-empty">
-        <p>Search for a word to see rhymes, synonyms, definitions, and related words.</p>
+        {lookupEnabled ? (
+          <p>
+            <strong>Double-click any word</strong> in your lyric to look it up — or search above.
+          </p>
+        ) : (
+          <p>Search for a word to see rhymes, synonyms, definitions, and related words.</p>
+        )}
       </div>
     );
   }
