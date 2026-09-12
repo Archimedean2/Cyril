@@ -2,7 +2,26 @@
  * Tools domain types for rhyme, dictionary, and thesaurus lookups.
  */
 
-export type ToolMode = 'rhyme-exact' | 'rhyme-near' | 'thesaurus' | 'dictionary' | 'idioms' | 'related';
+/**
+ * C-49: `'idioms'` was declared here but had no provider behind it and no tab in front of
+ * it — a type documenting a feature that did not exist. Removed rather than left as a seam;
+ * C-53 re-adds it deliberately when there is a phrase corpus to answer it.
+ */
+export type ToolMode = 'rhyme-exact' | 'rhyme-near' | 'thesaurus' | 'dictionary' | 'related';
+
+/**
+ * Every declared mode, at runtime. A TypeScript union is erased at compile time, so
+ * without this there is no way for a test to assert the property C-49 exists to protect:
+ * that Cyril never declares a lookup mode nothing can answer. Keep it in step with
+ * `ToolMode` — `T-7.09` fails if a mode here has no provider behind it.
+ */
+export const TOOL_MODES: readonly ToolMode[] = [
+  'rhyme-exact',
+  'rhyme-near',
+  'thesaurus',
+  'dictionary',
+  'related',
+] as const;
 
 export interface ToolResult {
   /** Display word/phrase */
@@ -15,8 +34,6 @@ export interface ToolResult {
   definition?: string;
   /** For dictionary: part of speech */
   partOfSpeech?: string;
-  /** For idioms: the full idiom */
-  idiom?: string;
 }
 
 export interface ToolLookupResponse {

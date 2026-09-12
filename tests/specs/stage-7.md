@@ -22,6 +22,8 @@ Tools sidebar and provider-backed lookup workflows.
 | ~~T-7.06~~ | **RETIRED** (ID cell struck so `scripts/feature-coverage.mjs` no longer requires a matching test — see its "Match table rows that start with an ID cell" parsing). Was "Clicking result copies text to clipboard" — C-43 (§13.3) inverted this gesture by design: the primary click now collects, not copies. Superseded by `T-14.20` (`tests/specs/stage-14.md`), which carries the current copy-control behaviour forward under the same test file. | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | [ ] | [ ] | Retired 2026-08-29, C-43 |
 | T-7.07 | Provider failure does not crash editor | integration | `tests/integration/tools/tools-sidebar-integration.test.ts` | [ ] | [ ] | |
 | T-7.08 | Tools workflow passes in UI | e2e | `tests/e2e/stage-7-tools.spec.ts` | [ ] | [ ] | |
+| T-7.09 | Every declared `ToolMode` has a provider that supports it — no mode may be declared that nothing can answer | unit | `tests/unit/tools/tool-provider-adapters.test.ts` | [x] | [x] | C-49. Guards the class of defect `'idioms'` was: a type documenting a feature that did not exist |
+| T-7.10 | The "Related" tab asks Datamuse for semantically related words (`rel_trg`), not sounds-like (`sl`) | unit | `tests/unit/tools/tool-provider-adapters.test.ts` | [x] | [x] | C-49. The tab promised meaning and returned rhyme, beside two tabs that already do rhyme |
 
 ## Regression Requirements
 - Stages 0–6 must remain passing

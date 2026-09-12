@@ -56,8 +56,8 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ✅ | M | C-48 | §13.1 |
 | 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ✅ | S | C-48 | §13.2 |
 | 40 | C-45 | Emphasise results by an absolute score, not a relative one | S | ✅ | S | — | §13.5 |
-| 41 | C-49 | Retire the dead `'idioms'` ToolMode; relabel or repoint "Related" | D | 🚧 Claude | S | - | MW §Phase 0 |
-| 42 | C-50 | Syllable filter on rhyme results | S | ⬜ | S | - | MW §Phase 0 |
+| 41 | C-49 | Retire the dead `'idioms'` ToolMode; relabel or repoint "Related" | D | ✅ | S | - | MW §Phase 0 |
+| 42 | C-50 | Syllable filter on rhyme results | S | 🚧 Claude | S | - | MW §Phase 0 |
 | 45 | C-23 | **Wire the offline rhyme + family indexes** (was Pri 140) | D | ⬜ | L | C-08 | MW §Phase 1 |
 | 46 | C-51 | Phonetic rhyme tiers from the rime index, retiring the 40% heuristic | D | ⬜ | M | C-23 | MW §Phase 1 |
 | 50 | C-35 | Speaker picker on the character colour dot | E | ✅ | S | C-20 | §12.1 |

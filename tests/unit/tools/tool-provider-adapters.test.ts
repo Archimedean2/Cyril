@@ -1,7 +1,14 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { DatamuseProvider } from '../../../src/domain/tools/datamuse-provider';
 import { ToolService } from '../../../src/domain/tools/tool-service';
-import { ToolMode } from '../../../src/domain/tools/types';
+import { ToolMode, TOOL_MODES } from '../../../src/domain/tools/types';
+
+/**
+ * C-49 retired `'idioms'` from `ToolMode`: it was declared, had no provider, and had no tab.
+ * The guard that rejects a mode a provider does not know still matters, so these tests cast a
+ * deliberately unknown string rather than dropping the assertions.
+ */
+const UNKNOWN_MODE = 'idioms' as unknown as ToolMode;
 
 describe('Tool Provider Adapters', () => {
   describe('DatamuseProvider', () => {
@@ -17,7 +24,27 @@ describe('Tool Provider Adapters', () => {
       expect(provider.supportsMode('thesaurus')).toBe(true);
       expect(provider.supportsMode('dictionary')).toBe(true);
       expect(provider.supportsMode('related')).toBe(true);
-      expect(provider.supportsMode('idioms')).toBe(false);
+      expect(provider.supportsMode(UNKNOWN_MODE)).toBe(false);
+    });
+
+    test('T-7.09: every declared ToolMode has a provider that supports it', () => {
+      // The property C-49 exists to protect: no mode may be declared that nothing answers.
+      const unsupported = TOOL_MODES.filter((mode) => !provider.supportsMode(mode));
+      expect(unsupported).toEqual([]);
+    });
+
+    test('T-7.10: "related" asks Datamuse for semantically related words, not sounds-like', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({ ok: true, json: async () => [] });
+      global.fetch = mockFetch;
+
+      await provider.lookup('grief', 'related');
+
+      const url = mockFetch.mock.calls[0][0] as string;
+      // rel_trg = "triggers": words statistically associated with the term in real text.
+      expect(url).toContain('rel_trg=grief');
+      // sl = sounds-like, which is what this tab used to send — a "Related" tab that
+      // returned rhymes, next to two tabs that already do rhyme properly.
+      expect(url).not.toContain('sl=');
     });
 
     test('T-7.01: returns normalized rhyme results', async () => {
@@ -102,7 +129,7 @@ describe('Tool Provider Adapters', () => {
     });
 
     test('T-7.02: returns empty array for unsupported mode', async () => {
-      const results = await provider.lookup('test', 'idioms' as ToolMode);
+      const results = await provider.lookup('test', UNKNOWN_MODE);
       expect(results).toEqual([]);
     });
   });

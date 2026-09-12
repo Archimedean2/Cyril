@@ -12,6 +12,7 @@
  * - md=d: definitions (adds definitions to result)
  * - md=p: parts of speech
  * - sl: sounds like
+ * - rel_trg: "triggers" — words statistically associated with the term (semantic)
  * - sp: spelled like
  */
 
@@ -79,8 +80,12 @@ export class DatamuseProvider implements ToolProvider {
         return `sp=${encodedTerm}&md=d&md=p&max=10`;
       
       case 'related':
-        // sl = sounds like (broader relatedness)
-        return `sl=${encodedTerm}&max=50`;
+        // C-49: was `sl` (sounds-like), which made the "Related" tab return words that
+        // RHYME with the term rather than words about it — a tab whose label promised one
+        // thing and delivered another, next to two tabs that already do sounds-like
+        // properly. `rel_trg` is Datamuse's "triggers": words statistically associated
+        // with the term in real text, which is what a writer means by "related".
+        return `rel_trg=${encodedTerm}&max=50`;
       
       default:
         return null;
