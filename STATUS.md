@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-09-12 15:51 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-09-12 16:13 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -28,10 +28,10 @@ _Last stamped: **2026-09-12 15:51 UTC** · regenerate with `npm run status`_
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 13 ahead) |
-| Last commit | docs(C-41,C-42,C-47): mark done, log the session |
-| Committed | 2026-09-12 16:33:01 +0100 |
-| Uncommitted files | **2** (`git status`) |
+| Branch | `main` |
+| Last commit | Merge origin/main: PRs #4 and #5, landed on GitHub during this session |
+| Committed | 2026-09-12 17:07:35 +0100 |
+| Uncommitted files | **1** (`git status`) |
 | Backlog | **31 of 54** done |
 | Next up | **C-25 (95) Chords: transpose, trailing runs, instrumental lines**<br>C-24 (100) Alternates peek + draft compare view<br>C-21 (110) Section type colour-coding + sticky stage-direction mode |
 <!-- END GENERATED -->
@@ -44,7 +44,8 @@ _Last stamped: **2026-09-12 15:51 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** nothing in flight. The lookup-and-collect loop (§13) is complete end to end:
+**Working on:** nothing in flight. `main` is now the trunk again — every PR is landed and
+closed, and the branch to cut new work from is `main`, not `feat/title-screen`. The lookup-and-collect loop (§13) is complete end to end:
 double-click to look up, click to collect, dim what is used, click a chip to put it back.
 C-25 and C-27 were unblocked by the maintainer — see *Decisions* below before starting either.
 
@@ -127,6 +128,40 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-09-12 — Claude — Landed the whole PR stack on `main`
+
+Did:      Merged all ten open PRs (#6–#15) and closed the stack. `main` had been sitting ~20
+          commits behind a chain of stacked branches for two weeks. Net content change across
+          all ten: **one file** — `.github/workflows/ci.yml`. Everything else was already in the
+          integration branch; PR #8 was the only branch carrying work that had never landed
+          (blocking lint, PRs on any base, the 5 MB tracked-file guard).
+Gates:    🟢 all five on `main` — 576 tests (98 files), 231/231 non-e2e criteria, e2e 120/120,
+          visual 8/8. Run on the merged tree before the push, not after.
+Next:     C-25 (Pri 95) — chords; transpose first, it needs no format change.
+Notes:    Four things worth carrying, because this will happen again.
+          (1) **Naive merging would have reverted finished work.** Five of the branches (#10–#14)
+          predate the 2026-08-28 doc reorganisation and still carry the 26 root-level markdown
+          files as tracked content, plus `src/editor/transforms/metadata.ts` — the `delivery`
+          feature C-10 deleted and T-4.26 asserts is grep-clean. A plain merge resurrects both.
+          Those five were recorded with `-s ours` after verifying, per branch, that every
+          acceptance criterion on them was already present: no unique criteria, no unique
+          source beyond the two hazards above. The merge messages say so.
+          (2) **Check the branch side of a conflict before resolving.** Nearly every conflict was
+          "HEAD has later content, branch side is empty" — safe to keep ours — but that has to be
+          *verified*, not assumed. A throwaway script reported both sides of every conflict block;
+          the two-sided ones in `projectStore.ts` and `autosave.ts` turned out to be C-29/C-06
+          work the branch predated. `FEATURE_COVERAGE.md` conflicted on all nine merges and was
+          regenerated every time, never picked (C-31).
+          (3) **`git cherry` over-reports uniqueness.** It compares patch-ids, so a commit applied
+          through a conflict resolution looks unique when its work is already in. It said PR #9
+          had 4 unique commits; all four test files were already on the branch. Compare trees and
+          criteria, not patch-ids.
+          (4) **PRs #4 and #5 were merged on GitHub mid-session**, which is why the first push was
+          rejected. Their content was already here; merging `origin/main` back in was clean.
+          GitHub then auto-closed #6/#7/#8/#15 as merged, but refused to retarget or merge #9–#14
+          ("no new commits between base and head") — an already-landed PR cannot be marked merged.
+          Those six were closed with a comment naming the commit that landed them.
 
 ### 2026-09-12 — Claude — The lookup-and-collect loop closes (C-41, C-42, C-47)
 
