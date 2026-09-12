@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-09-12 15:10 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-09-12 15:32 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,20 +20,20 @@ _Last stamped: **2026-09-12 15:10 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 549/549 tests, 95 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 223 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm test` | 🟢 | 576/576 tests, 98 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 231 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
 
 ### Repo
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 5 ahead) |
-| Last commit | Merge F2: editor command bridge, speaker picker, paintable gutter (C-48, C-35, C-36) |
-| Committed | 2026-09-12 16:09:31 +0100 |
-| Uncommitted files | **2** (`git status`) |
-| Backlog | **28 of 49** done · 2 blocked on you (C-25, C-27) |
-| Next up | **C-41 (20) Double-click a word in the lyric to look it up**<br>C-42 (30) Click an Inventory chip to insert it at the caret<br>C-47 (90) Empty states teach the double-click gesture |
+| Branch | `feat/title-screen` (0 behind / 12 ahead) |
+| Last commit | feat(C-47): the Tools empty state teaches the double-click gesture (T-14.32) |
+| Committed | 2026-09-12 16:31:59 +0100 |
+| Uncommitted files | **1** (`git status`) |
+| Backlog | **31 of 52** done · 2 blocked on you (C-25, C-27) |
+| Next up | **C-24 (100) Alternates peek + draft compare view**<br>C-21 (110) Section type colour-coding + sticky stage-direction mode<br>C-37 (120) Structure outline with drag-reorder and jump-to |
 <!-- END GENERATED -->
 
 ---
@@ -44,11 +44,11 @@ _Last stamped: **2026-09-12 15:10 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** C-41, then C-42 — the lookup-and-collect loop, now that C-48's editor bridge
-has landed. F1/F2/F3's lanes are all merged and marked; no branch is left stranded.
+**Working on:** nothing in flight. The lookup-and-collect loop (§13) is complete end to end:
+double-click to look up, click to collect, dim what is used, click a chip to put it back.
 
-**Last verified state:** all gates green on the merged tree — 549 tests, 223/223 non-e2e
-criteria, e2e 116/116, visual 8/8.
+**Last verified state:** all gates green — 576 tests, 231/231 non-e2e criteria, e2e 120/120,
+visual 8/8. Next unclaimed item is C-24 (Pri 100).
 
 ## Decisions taken unsupervised (2026-08-29) — review these
 
@@ -108,6 +108,45 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-09-12 — Claude — The lookup-and-collect loop closes (C-41, C-42, C-47)
+
+Did:      C-41 double-click a word in the lyric and the rail looks it up. The gesture is
+          observed, never consumed (`handleDoubleClick` always returns false), so the browser
+          still selects the word and the caret never moves; the rail names what it is showing
+          ("rhymes for **left**"); `Mod-Shift-L` is the keyboard twin for the word under the
+          caret; a checkbox at the foot of the Tools pane turns the whole thing off. The word is
+          read from the document at the clicked position rather than from the selection
+          afterwards — at handler time ProseMirror has not yet applied its word selection, and
+          waiting for it would be a timing hack. C-42 clicking an Inventory chip inserts its
+          text at the caret through C-48's bridge — the way out of the word bank, which until
+          now only had a way in. C-47 the empty state now teaches the gesture instead of
+          describing the search box the writer can already see. Removed the inert ⌖ control
+          (D-24 closed) and retired T-7.04, which asserted its behaviour.
+Gates:    🟢 all five — 576 tests (98 files), 231/231 non-e2e criteria, e2e 120/120, visual 8/8.
+Next:     C-24 (alternates peek + draft compare view) is the next unclaimed item, at Pri 100.
+Notes:    Four things worth carrying. (1) **Two real defects, both found only in the browser**
+          (D-26, D-27). Clicking a chip left focus on the chip button — a button takes focus on
+          mousedown, before the click handler runs — so the writer's next keystroke went
+          nowhere and `Cmd+Z` reached the browser's native undo, which emptied the editor.
+          Fixed with `preventDefault` on mousedown. Then, with focus fixed, one `Cmd+Z` still
+          removed the inserted word *and the sentence typed before it*: `insertAtCaret` was one
+          transaction (true, and tested) but prosemirror-history folds adjacent steps into one
+          undo *event* inside its 500 ms group delay. Now `closeHistory` runs before the insert.
+          The lesson is the gap between "one transaction" and "one undo as the writer feels it"
+          — the unit test asserted the first and would never have caught the second.
+          (2) **The visual suite's 2% pixel tolerance is loose enough to miss a new row of UI.**
+          Adding the subject line and the preference toggle to the rail changed shot 6 by less
+          than `maxDiffPixelRatio: 0.02`, so it passed and Playwright did not rewrite the
+          baseline; the committed PNG was quietly stale. I deleted and regenerated it. Worth
+          deciding whether that tolerance should be tighter, or whether baselines should be
+          regenerated deliberately whenever a pane's contents change.
+          (3) The double-click preference is a **localStorage UI preference, not a `.cyril`
+          field** — it describes how this person works, not the song, and DATA_MODEL.md is
+          untouched.
+          (4) §13.2's "drag a result or a chip into a line" is **not built** — it is a bullet in
+          the spec prose, not one of the item's acceptance criteria, and I did not widen scope
+          to take it. If you want drag, it needs its own item.
 
 ### 2026-09-12 — Claude (coordinator) — Merged F2's stranded lane: the editor bridge, at last
 
