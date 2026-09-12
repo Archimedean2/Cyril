@@ -61,6 +61,7 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | ✅ | S | — | §13.3 |
 | 80 | C-44 | Dim collected words once they appear in the draft | S | ✅ | S | — | §13.4 |
 | 90 | C-47 | Empty states teach the double-click gesture | S | ✅ | S | C-41 | §13.7 |
+| 95 | C-25 | **Chords: transpose, trailing runs, instrumental lines** | E | ⬜ | L | C-17 | §4.4–4.5 |
 | 100 | C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | §5 |
 | 110 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | §3.2–3.3 |
 | 120 | C-37 | Structure outline with drag-reorder and jump-to | S | ⬜ | M | C-21 | §12.3 |
@@ -70,17 +71,9 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 160 | C-38 | Bulk line-type conversion on a multi-line selection | E | ⬜ | S | C-26 | §12.4 |
 | 170 | C-40 | Make `Cmd+K` selection-aware | S | ⬜ | S | C-38 | §12.5 |
 | 180 | C-46 | One shared word-bank component (Inventory + Vocabulary World) | S | ⬜ | M | C-44 | §13.6 |
+| 185 | C-27 | **Hook Lab as a structured workspace** | X | ⬜ | L | — | §9 |
 | 190 | C-33 | A suppressed duplicate speaker label leaves a blank row | S | ⬜ | S | C-20 | below |
 | 200 | C-28 | Burn down the edge-case register (ongoing) | X | ⬜ | — | — | below |
-
-### Blocked on the maintainer
-
-Not started deliberately — each changes something only the owner should agree to.
-
-| # | Item | Lane | Size | Why it is blocked | Spec |
-|---|---|:--:|:--:|---|---|
-| C-25 | Chords: transpose, trailing runs, instrumental lines | E | L | changes `ChordMarker.position` in the **file format** | §4.4–4.5 |
-| C-27 | Hook Lab as a structured workspace | X | L | expands **v1 scope** | §9 |
 
 ### Done
 
@@ -145,6 +138,53 @@ was a scheduling workaround and should not be the permanent shape.
 
 - Acceptance: a fresh clone of `main` runs all four gates with no missing-file errors; the
   config and script are tracked deliberately in one commit; `printProfile` lives in `types.ts`.
+
+
+### C-25 · Chords: transpose, trailing runs, instrumental lines — Lane E · Size L · ⬜
+
+**Unblocked 2026-09-12. The maintainer approved the file-format change**, on the answer to the
+question that had been left open: *Cyril's chord sheets are played from by musicians.* That
+settles it — a sheet that cannot notate an intro, a solo or an end-of-line fill is incomplete
+for the person holding it, so wordless measures are a requirement and not a nicety.
+
+Build in this order; the first part ships without touching the file at all.
+
+1. **Transpose** (no schema change). Rewrites `ChordMarker.symbol` across the draft, ± semitones.
+   Independent of everything below — land it first, on its own commit, so the format work is not
+   holding up a feature that needs none of it.
+2. **Stop clamping.** Three call sites currently pull a chord back onto the text:
+   `src/editor/extensions/chords/chordDecorations.ts:58`, `src/domain/export/printRenderer.ts:234`,
+   `src/domain/export/markdownTransformer.ts:112`. All three must learn the new anchor.
+3. **Trailing runs and instrumental lines.** Extend `ChordMarker.position` with a second anchor
+   type — an ordered slot index rather than a character offset — as a **discriminated union on
+   `anchorType`**, so every existing `{ anchorType: 'char' }` marker stays valid and no migration
+   is needed for old files. Bump `SCHEMA_VERSION` (minor). `docs/engineering/DATA_MODEL.md` must
+   be updated in the same commit — this is the deliberate update TASKING.md requires, not drift.
+4. **Capo** (display-only) needs a genuinely new stored field. Smallest and most skippable of the
+   four; do it last, and skip it if the item is running long.
+
+The chord-sheet print profile named in §4.5 already exists — C-22 shipped `chordSheet`.
+
+- Acceptance: the criteria in `docs/product/DESIGN_PROPOSAL.md` §4.4–4.5, plus
+  `docs/engineering/EDGE_CASES.md` §1 (chords) covered in full, per C-28's rule.
+
+
+### C-27 · Hook Lab as a structured workspace — Lane X · Size L · ⬜
+
+**Unblocked 2026-09-12. The maintainer approved expanding v1 scope** to build the structured
+version specced in §9 — hooks, groups, per-hook notes, drag-reorder, and a migration from the
+legacy rich-text document. Hook Lab is a headline concept in the design docs that currently
+renders an unexplained empty box; that gap is the reason for the decision.
+
+Because this changes what v1 *is*, three documents move with the code, in the same PR:
+`docs/product/SCOPE.md`, `docs/product/FEATURES.md`, `docs/engineering/DATA_MODEL.md`.
+
+The one sub-decision §9 leaves open and the builder must settle deliberately (and record): what
+happens to a legacy project's existing Hook Lab prose — split it by line into individual hooks in
+an "Imported" group, or preserve it whole as a single note. Either is defensible; silently losing
+it is not.
+
+- Acceptance: the criteria in `docs/product/DESIGN_PROPOSAL.md` §9.
 
 
 ### C-33 · A suppressed duplicate speaker label leaves a blank row — Lane S · Size S · ⬜
@@ -349,3 +389,7 @@ cross-song idea vault, Nashville numbers, and cloud sync.
 
 The project's own principle — *no speculative complexity before core drafting is excellent* — is
 correct. Hold the line.
+
+**One deliberate exception, 2026-09-12:** Hook Lab (C-27) leaves this list by the maintainer's
+decision. It was never speculative complexity — it is a concept the design docs already lead
+with, shipped as an empty box.

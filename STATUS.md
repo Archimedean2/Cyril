@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-09-12 15:32 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-09-12 15:51 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -28,12 +28,12 @@ _Last stamped: **2026-09-12 15:32 UTC** · regenerate with `npm run status`_
 
 | | |
 |---|---|
-| Branch | `feat/title-screen` (0 behind / 12 ahead) |
-| Last commit | feat(C-47): the Tools empty state teaches the double-click gesture (T-14.32) |
-| Committed | 2026-09-12 16:31:59 +0100 |
-| Uncommitted files | **1** (`git status`) |
-| Backlog | **31 of 52** done · 2 blocked on you (C-25, C-27) |
-| Next up | **C-24 (100) Alternates peek + draft compare view**<br>C-21 (110) Section type colour-coding + sticky stage-direction mode<br>C-37 (120) Structure outline with drag-reorder and jump-to |
+| Branch | `feat/title-screen` (0 behind / 13 ahead) |
+| Last commit | docs(C-41,C-42,C-47): mark done, log the session |
+| Committed | 2026-09-12 16:33:01 +0100 |
+| Uncommitted files | **2** (`git status`) |
+| Backlog | **31 of 54** done |
+| Next up | **C-25 (95) Chords: transpose, trailing runs, instrumental lines**<br>C-24 (100) Alternates peek + draft compare view<br>C-21 (110) Section type colour-coding + sticky stage-direction mode |
 <!-- END GENERATED -->
 
 ---
@@ -46,9 +46,28 @@ _Last stamped: **2026-09-12 15:32 UTC** · regenerate with `npm run status`_
 
 **Working on:** nothing in flight. The lookup-and-collect loop (§13) is complete end to end:
 double-click to look up, click to collect, dim what is used, click a chip to put it back.
+C-25 and C-27 were unblocked by the maintainer — see *Decisions* below before starting either.
 
 **Last verified state:** all gates green — 576 tests, 231/231 non-e2e criteria, e2e 120/120,
 visual 8/8. Next unclaimed item is C-24 (Pri 100).
+
+## Decisions taken by the maintainer (2026-09-12) — these are settled
+
+Both items that had been parked in `BACKLOG.md`'s "Blocked on the maintainer" table are now
+unblocked. That table is gone; nothing is waiting on the owner.
+
+1. **Cyril's chord sheets are played from by musicians** — not just a lyricist's note of where
+   the harmony moves. This was the open question behind C-25, and it settles the item: a sheet
+   that cannot notate an intro, a solo or an end-of-line fill is incomplete for the person
+   holding it. **The `ChordMarker.position` format change is approved** — as an additive
+   discriminated union on `anchorType`, so existing files stay valid — with
+   `docs/engineering/DATA_MODEL.md` updated in the same commit and `SCHEMA_VERSION` bumped.
+   Transpose needs none of this and should land first, on its own.
+2. **Hook Lab gets built as a structured workspace (C-27)** — hooks, groups, per-hook notes,
+   drag-reorder, and a migration from the legacy rich-text doc. This **deliberately expands v1
+   scope**, so `SCOPE.md`, `FEATURES.md` and `DATA_MODEL.md` move with the code in the same PR.
+
+---
 
 ## Decisions taken unsupervised (2026-08-29) — review these
 
