@@ -9,6 +9,8 @@ import { Editor } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { ChordMarker, LyricLineNode, LyricLineMeta } from '../project/types';
 import { generateId } from '../project/ids';
+import { closeHistory } from '@tiptap/pm/history';
+import { transposeChordSymbol } from '../chords/transpose';
 
 interface LyricLineInfo {
   node: ProseMirrorNode;
@@ -293,4 +295,62 @@ export function isInLyricLine(editor: Editor): boolean {
  */
 export function canEditChords(draftMode: string, showChords: boolean): boolean {
   return draftMode === 'lyricsWithChords' && showChords;
+}
+
+/**
+ * Command: transpose every chord in the draft by `semitones`
+ * (C-25 / `docs/product/DESIGN_PROPOSAL.md` §4.5).
+ *
+ * Walks the whole document, so chords inside concurrent-block speaker columns move with
+ * everything else — a transposed sheet with one untransposed duet column would be worse
+ * than useless.
+ *
+ * Every line is rewritten in ONE transaction, which makes the whole transpose a single undo
+ * step: a writer who transposes a forty-line song and changes their mind presses Cmd+Z once,
+ * not forty times. `closeHistory` starts a fresh undo event first, for the same reason the
+ * Inventory insert does (D-27): a transpose is a discrete act and must not fold into whatever
+ * the writer was typing half a second earlier.
+ *
+ * Symbols the transposer does not understand are left exactly as they are — see
+ * `src/domain/chords/transpose.ts`.
+ *
+ * @returns true if any chord actually changed.
+ */
+export function transposeDraftChords(editor: Editor, semitones: number): boolean {
+  if (!Number.isInteger(semitones) || semitones === 0) return false;
+
+  const edits: { pos: number; node: ProseMirrorNode; chords: ChordMarker[] }[] = [];
+
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name !== 'lyricLine') return true;
+    const meta = (node.attrs as unknown as LyricLineNode).meta;
+    const chords = meta?.chords;
+    if (!chords?.length) return true;
+
+    const transposed = chords.map((chord) => ({
+      ...chord,
+      symbol: transposeChordSymbol(chord.symbol, semitones),
+    }));
+
+    // Skip a line whose symbols all came back identical (e.g. a line holding only `N.C.`),
+    // so the transaction carries no no-op steps.
+    if (transposed.every((chord, i) => chord.symbol === chords[i].symbol)) return true;
+
+    edits.push({ pos, node, chords: transposed });
+    return true;
+  });
+
+  if (edits.length === 0) return false;
+
+  const { tr } = editor.state;
+  closeHistory(tr);
+  for (const edit of edits) {
+    const meta = (edit.node.attrs as unknown as LyricLineNode).meta;
+    tr.setNodeMarkup(edit.pos, undefined, {
+      ...edit.node.attrs,
+      meta: { ...meta, chords: edit.chords },
+    });
+  }
+  editor.view.dispatch(tr);
+  return true;
 }

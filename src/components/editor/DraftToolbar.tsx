@@ -3,7 +3,7 @@ import { Editor, useEditorState } from '@tiptap/react';
 import { isInsideSection } from '../../editor/nodes/sectionBlock/sectionBlock';
 import { SectionTypePicker, SectionPickerMode } from './SectionTypePicker';
 import { InsertConcurrentBlockDialog } from './InsertConcurrentBlockDialog';
-import { addChordToCurrentLine, isInLyricLine } from '../../domain/editor/chord-commands';
+import { addChordToCurrentLine, isInLyricLine, transposeDraftChords } from '../../domain/editor/chord-commands';
 import { DraftMode, DraftSettings } from '../../domain/project/types';
 
 interface DraftToolbarProps {
@@ -164,6 +164,26 @@ export function DraftToolbar({ editor, draftMode, settings }: DraftToolbarProps)
             title={canAddChord ? 'Add chord at cursor position' : 'Place cursor in a lyric line to add a chord'}
           >
             Add Chord
+          </button>
+          {/* C-25 / §4.5: transpose the whole draft a semitone at a time. Two buttons
+              rather than a key picker — a singer says "a bit lower", not "put it in Eb",
+              and stepping is the gesture that matches. The whole draft moves in one undo
+              step, so changing your mind costs one Cmd+Z. */}
+          <button
+            onClick={() => transposeDraftChords(editor, -1)}
+            data-testid="chord-transpose-down"
+            title="Transpose every chord down a semitone"
+            aria-label="Transpose down a semitone"
+          >
+            ♭
+          </button>
+          <button
+            onClick={() => transposeDraftChords(editor, 1)}
+            data-testid="chord-transpose-up"
+            title="Transpose every chord up a semitone"
+            aria-label="Transpose up a semitone"
+          >
+            ♯
           </button>
         </div>
       )}
