@@ -12,7 +12,7 @@ whoever last worked here.
 ---
 
 <!-- BEGIN GENERATED — npm run status -->
-_Last stamped: **2026-09-12 17:03 UTC** · regenerate with `npm run status`_
+_Last stamped: **2026-09-12 18:22 UTC** · regenerate with `npm run status`_
 
 ### Gate status — 🟢 all green
 
@@ -20,8 +20,8 @@ _Last stamped: **2026-09-12 17:03 UTC** · regenerate with `npm run status`_
 |---|:--:|---|
 | `npm run build` | 🟢 | tsc + vite clean |
 | `npm run lint` | 🟢 | 0 errors, 0 warnings |
-| `npm test` | 🟢 | 608/608 tests, 101 files |
-| `npm run coverage:features` | 🟢 | 100.0% — 252 passing, 0 failing, 0 untested, 39 e2e-only |
+| `npm test` | 🟢 | 618/618 tests, 102 files |
+| `npm run coverage:features` | 🟢 | 100.0% — 259 passing, 0 failing, 0 untested, 39 e2e-only |
 | `npm run test:e2e` | ⚪️ | not run — `npm run status -- --e2e` |
 
 ### Repo
@@ -29,11 +29,11 @@ _Last stamped: **2026-09-12 17:03 UTC** · regenerate with `npm run status`_
 | | |
 |---|---|
 | Branch | `main` (0 behind / 2 ahead) |
-| Last commit | feat(C-25): transpose the whole draft a semitone at a time (T-9.08–18, E-9.24–26) |
-| Committed | 2026-09-12 18:02:52 +0100 |
-| Uncommitted files | **1** (`git status`) |
-| Backlog | **33 of 67** done · 1 in flight (C-25) |
-| Next up | **C-23 (45) Wire the offline rhyme + family indexes (was Pri 140)**<br>C-51 (46) Phonetic rhyme tiers from the rime index, retiring the 40% heuristic<br>C-24 (100) Alternates peek + draft compare view |
+| Last commit | feat(C-25): trailing runs and instrumental lines — the additive slot anchor (T-9.19-25) |
+| Committed | 2026-09-12 19:16:12 +0100 |
+| Uncommitted files | **6** (`git status`) |
+| Backlog | **34 of 70** done |
+| Next up | **C-23 (45) Wire the offline rhyme + family indexes (was Pri 140)**<br>C-51 (46) Phonetic rhyme tiers from the rime index, retiring the 40% heuristic<br>C-60 (47) Chords must follow their letters through an edit (D-28, D-29) |
 <!-- END GENERATED -->
 
 ---
@@ -44,9 +44,9 @@ _Last stamped: **2026-09-12 17:03 UTC** · regenerate with `npm run status`_
 > when you start and when you stop. If it disagrees with the generated block above, the
 > generated block is right.
 
-**Working on:** C-25 — transpose has shipped; the format-change parts (trailing runs,
-instrumental lines) are next, then capo. C-23 (Pri 45) is skipped, not forgotten: it is
-blocked on two maintainer decisions recorded in its BACKLOG detail.
+**Working on:** nothing in flight. C-25 is done. The queue's next item is **C-60 (Pri 47)** —
+chords must follow their letters through an edit (D-28, D-29), the most serious open defect
+in the app. C-23 (Pri 45) is ahead of it but blocked on two maintainer decisions.
 
 **Previously:** nothing in flight. `main` is the only branch that exists now, locally or on
 origin — every PR is landed and closed, every worktree removed. Cut new work from `main`.
@@ -200,6 +200,43 @@ Notes:    Four findings worth carrying. (1) **The Tools pane is one Datamuse end
           documenting a missing feature. C-49 removes it; C-53 re-adds the seam with a corpus
           behind it. Also: `docs/product/FEATURES.md` numbers two different features 10, and 11,
           12 and 13 twice over. Flagged inside C-56 rather than fixed here.
+
+### 2026-09-12 — Claude — C-25 complete: wordless measures and the first schema change
+
+Did:      Finished C-25 against its §4.4–4.5 acceptance criteria. `ChordMarker.position` is now
+          a discriminated union on `anchorType`: a chord in a wordless measure holds an ordered
+          `slotIndex` instead of a `charOffset`, which renders as a trailing fill after the last
+          word, or as an instrumental line when there are no words at all — the same stored
+          thing, told apart by the line it sits on. `SCHEMA_VERSION` → 1.1.0 with
+          `DATA_MODEL.md` updated in the same commit. The union is additive, so no migration.
+          Also wrote the four layout criteria (E-9.27–30) that C-17's left-alignment had been
+          living without since it shipped.
+Gates:    🟢 all five — 618 tests (102 files), 259/259 non-e2e criteria, e2e 127/127, visual 8/8.
+Next:     **C-60 (Pri 47)** — see below. Then C-23, still blocked on your two decisions.
+Notes:    Four things, and the first is the important one.
+          (1) **Two 🔴 defects found, logged as D-28 and D-29, and NOT fixed — raised as C-60
+          at Pri 47.** `EDGE_CASES.md` §1 lists four red chord hazards that had never been
+          tested; I probed two and both fail. Typing three characters before a chord leaves it
+          over the wrong word, silently, while you type. Splitting a chorded line duplicates
+          every chord onto *both* halves. This is data corruption a writer cannot see, in the
+          one feature where being over the right letter is the entire point. It is pre-existing
+          — C-25 changed none of it — but C-25 is what uncovered it. I deliberately did not
+          attempt the fix at the end of a long session: it needs an `appendTransaction` plugin
+          remapping every chord through the transaction mapping, and a bad fix there breaks
+          typing itself. **C-25 is marked done against its own acceptance criteria, not against
+          §1** — that distinction is in the backlog item so nobody reads it as covered.
+          (2) **The compatibility rule for the new union is asymmetric on purpose.** Only an
+          explicit `'slot'` is a slot; anything else, *including a position with no
+          `anchorType` at all*, is a character anchor. Testing `anchorType === 'char'` instead
+          silently zeroes every legacy offset — and the chordSheet golden file caught exactly
+          that when I got it wrong the first time. C-34's golden files earned their keep today.
+          (3) **The e2e layout tests found a real CSS defect the moment they ran.** The chord
+          run inherited the zero-width chord anchor, so it rendered with no size at all —
+          present in the DOM, invisible on the page. jsdom cannot see that class of bug; a
+          browser saw it in one run.
+          (4) **Capo is split out as C-61** rather than built. §4.5 mentions it in prose but it
+          is not one of the section's acceptance criteria, and it is the only part that needed
+          a second schema field.
 
 ### 2026-09-12 — Claude — Transpose ships (C-25, part 1 of 4)
 

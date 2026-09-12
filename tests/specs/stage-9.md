@@ -14,6 +14,7 @@ Chord lane for chord-enabled drafts.
 - `tests/integration/editor/chord-transpose-integration.test.ts`
 - `tests/e2e/stage-9-transpose.spec.ts`
 - `tests/integration/editor/chord-wordless-measures.test.ts`
+- `tests/e2e/stage-9-chord-layout.spec.ts`
 
 ## Checklist
 
@@ -47,6 +48,10 @@ Chord lane for chord-enabled drafts.
 | T-9.23 | Export emits chords in reading order — over-letter chords left to right, then the wordless run in slot order — regardless of stored order | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25, §4.4 |
 | T-9.24 | A legacy chord position with no `anchorType` keeps its offset; slot indices continue from the highest used and never collide | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25. Guards the additive-union compatibility rule in DATA_MODEL.md |
 | T-9.25 | Wordless chords survive save/load and are not clamped back onto the text — the defect §4.4 exists to fix | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25, §4.4 acceptance |
+| E-9.27 | A chord's left edge sits above the first letter of its anchor word, measured against the real glyph box | e2e | `tests/e2e/stage-9-chord-layout.spec.ts` | [x] | [ ] | C-25 §4.4 acceptance. True since C-17 but unguarded until now — a layout claim jsdom cannot check |
+| E-9.28 | The chord stays aligned when the line reflows at a narrower pane | e2e | `tests/e2e/stage-9-chord-layout.spec.ts` | [x] | [ ] | C-25 §4.4 acceptance |
+| E-9.29 | Two chords on one word render at their own letters without overlapping | e2e | `tests/e2e/stage-9-chord-layout.spec.ts` | [x] | [ ] | C-25 §4.4 acceptance |
+| E-9.30 | An instrumental line renders its chords as a spaced run rather than stacked at one point | e2e | `tests/e2e/stage-9-chord-layout.spec.ts` | [x] | [ ] | C-25 §4.4. Caught a real CSS defect: the run inherited the zero-width anchor and rendered hidden |
 
 ## Regression Requirements
 - Stages 0–8 must remain passing

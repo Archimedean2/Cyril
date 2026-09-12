@@ -65,7 +65,9 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | ✅ | S | — | §13.3 |
 | 80 | C-44 | Dim collected words once they appear in the draft | S | ✅ | S | — | §13.4 |
 | 90 | C-47 | Empty states teach the double-click gesture | S | ✅ | S | C-41 | §13.7 |
-| 95 | C-25 | **Chords: transpose, trailing runs, instrumental lines** | E | 🚧 Claude | L | C-17 | §4.4–4.5 |
+| 47 | C-60 | **Chords must follow their letters through an edit** (D-28, D-29) | E | ⬜ | L | C-25 | below |
+| 95 | C-25 | **Chords: transpose, trailing runs, instrumental lines** | E | ✅ | L | C-17 | §4.4–4.5 |
+| 196 | C-61 | Capo — a display-only transpose for guitarists | E | ⬜ | M | C-25 | §4.5 |
 | 100 | C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | §5 |
 | 105 | C-52 | Word Families tab, facet results, ConceptNet attribution | S | ⬜ | M | C-23 | MW §Phase 1 |
 | 110 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | §3.2–3.3 |
@@ -88,7 +90,7 @@ this table and tells you what is next, so this ordering is the one that counts.
 
 ### Done
 
-33 items. Detail for the ones with a written-up rationale is kept below.
+34 items. Detail for the ones with a written-up rationale is kept below.
 
 - **C-01** — Write-permission check before every save
 - **C-02** — Validate on load; corrupt + newer-schema files
@@ -123,6 +125,7 @@ this table and tells you what is next, so this ordering is the one that counts.
 - **C-48** — Editor command bridge — `insertAtCaret` / `getFocusedWord`
 - **C-49** — Retired the dead `'idioms'` mode; "Related" now returns related words
 - **C-50** — Syllable filter on rhyme results
+- **C-25** — Chords: transpose, trailing runs, instrumental lines
 
 ---
 
@@ -421,6 +424,54 @@ an "Imported" group, or preserve it whole as a single note. Either is defensible
 it is not.
 
 - Acceptance: the criteria in `docs/product/DESIGN_PROPOSAL.md` §9.
+
+
+### C-60 · Chords must follow their letters through an edit — Lane E · Size L · ⬜
+
+**Found 2026-09-12 while finishing C-25, and it is the most serious open defect in the app.**
+Two 🔴 hazards from `docs/engineering/EDGE_CASES.md` §1, both reproduced, both logged as
+`D-28` and `D-29`:
+
+- **Typing before a chord does not move it.** The stored `charOffset` is never remapped, so
+  the chord silently ends up over the wrong word while the writer types.
+- **Splitting a line duplicates its chords onto both halves**, because the new node inherits
+  the original's attrs wholesale.
+
+Deleting the anchored character and merging two chorded lines are the other two 🔴 entries in
+§1 and almost certainly fail the same way; test them as part of this.
+
+This is data corruption a writer cannot see happening, in the one feature where being over
+the right letter is the whole point. It is **pre-existing** — it predates C-25, which changed
+none of this — but C-25 is what uncovered it.
+
+The fix is an `appendTransaction` plugin that maps each chord's absolute position (line start
++ offset) through the transaction's mapping, re-bases it onto whichever line it lands in, and
+drops chords whose anchor was deleted. Slot-anchored chords (C-25 §4.4) carry no offset and
+need no mapping, but they must follow their line through a split.
+
+Do not start this at the end of a long session: it touches the editor's core transaction
+handling, and a bad fix here breaks typing itself.
+
+- Acceptance: all four 🔴 hazards in `EDGE_CASES.md` §1 have passing tests — type before/after,
+  delete the anchor, split, merge — plus the 🟠 paste case; `D-28` and `D-29` close.
+
+
+### C-61 · Capo — a display-only transpose for guitarists — Lane E · Size M · ⬜
+
+`docs/product/DESIGN_PROPOSAL.md` §4.5 mentions a display-only capo alongside transpose, but
+it is **not** one of the section's acceptance criteria, and it is the only part of C-25 that
+would have needed a second schema field. Split out rather than scope-crept in.
+
+A capo is a clamp on a guitar neck that raises every string's pitch, letting a player use easy
+shapes in an awkward key. Display-only means the file keeps the real chords and the sheet
+shows the easier shapes with "Capo N" at the top — a lens over the data, not a change to it.
+
+Needs a new stored field (`capo` on the draft, most likely) and a `DATA_MODEL.md` update, so
+it is a deliberate schema change like C-25's was.
+
+- Acceptance: setting a capo changes what the editor and print show without changing a single
+  stored `ChordMarker.symbol`; the capo position is stated on the page and in print; clearing
+  it restores the written chords exactly.
 
 
 ### C-33 · A suppressed duplicate speaker label leaves a blank row — Lane S · Size S · ⬜

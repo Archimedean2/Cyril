@@ -1400,17 +1400,27 @@ input[type="text"].concurrent-speaker-name.has-character-color:focus {
    A trailing run sits in the empty space after the last word; an instrumental line spreads
    across the whole line. Both are one flex row rather than separate widgets, because
    separate widgets at the same document position would stack on top of each other with no
-   character between them to push them apart. */
-.cyril-chord-run-anchor {
-  position: relative;
+   character between them to push them apart.
+
+   The row is positioned exactly like a single pill — absolute, above the anchor — because
+   its anchor is `width: 0` like every other chord anchor. The pills inside it then have to
+   go back into normal flow, or they would all stack at the row's own left edge and we would
+   have rebuilt the very problem the row exists to solve. */
+.cyril-chord-run {
+  position: absolute;
+  bottom: 1.15em;
+  left: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding-left: var(--space-3);
+  white-space: nowrap;
 }
 
-.cyril-chord-run {
-  display: inline-flex;
-  gap: var(--space-3);
-  align-items: baseline;
-  padding-left: var(--space-3);
-  vertical-align: baseline;
+.cyril-chord-run .cyril-chord-marker {
+  position: static;
+  bottom: auto;
+  left: auto;
 }
 
 /* An instrumental line has no words to sit beside, so its chords carry the line on their
