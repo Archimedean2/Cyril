@@ -223,14 +223,18 @@ function renderAlternatesMargin(alternates: ExportableAlternate[] | undefined): 
  * Render chord row with approximate positioning
  */
 function renderChordRow(chords: ExportableChord[], lyricText: string): string {
-  // Sort chords by offset
-  const sortedChords = [...chords].sort((a, b) => a.offset - b.offset);
+  // C-25 §4.4: chords over letters first, left to right; then the wordless run in slot
+  // order. `toExportableChords` already produced them in that order, so preserve it rather
+  // than re-sorting everything by an offset the run does not have.
+  const anchored = chords.filter((c) => c.slotIndex === undefined).sort((a, b) => a.offset - b.offset);
+  const run = chords.filter((c) => c.slotIndex !== undefined)
+    .sort((a, b) => (a.slotIndex ?? 0) - (b.slotIndex ?? 0));
 
   // Build chord row with positioning
   const parts: string[] = [];
   let currentPos = 0;
 
-  for (const chord of sortedChords) {
+  for (const chord of anchored) {
     const offset = Math.min(chord.offset, lyricText.length);
     const spacing = Math.max(0, offset - currentPos);
 
@@ -243,6 +247,16 @@ function renderChordRow(chords: ExportableChord[], lyricText: string): string {
     parts.push(`<span class="chord">${escapeHtml(chord.symbol)}</span>`);
 
     currentPos = offset;
+  }
+
+  // The run sits after the last word — a fill the band plays while nobody sings — or, on a
+  // line with no words at all, spaced across the instrumental line.
+  if (run.length > 0) {
+    const gap = Math.max(0, lyricText.length - currentPos);
+    if (gap > 0) parts.push(`<span class="chord-spacing" style="width: ${gap * 0.6}em;"></span>`);
+    const className = lyricText.length === 0 ? 'chord-run chord-run-instrumental' : 'chord-run';
+    const pills = run.map((chord) => `<span class="chord">${escapeHtml(chord.symbol)}</span>`).join('');
+    parts.push(`<span class="${className}">${pills}</span>`);
   }
 
   return parts.join('');

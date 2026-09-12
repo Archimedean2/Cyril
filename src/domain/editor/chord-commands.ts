@@ -11,6 +11,7 @@ import { ChordMarker, LyricLineNode, LyricLineMeta } from '../project/types';
 import { generateId } from '../project/ids';
 import { closeHistory } from '@tiptap/pm/history';
 import { transposeChordSymbol } from '../chords/transpose';
+import { splitChords, charOffsetOf, isCharAnchored, nextSlotIndex } from '../chords/position';
 
 interface LyricLineInfo {
   node: ProseMirrorNode;
@@ -103,10 +104,13 @@ function createChordMarker(symbol: string, charOffset: number, bias: 'before' | 
 }
 
 /**
- * Sort chord markers by character offset.
+ * Sort chord markers into reading order: chords over letters first, left to right, then the
+ * trailing run in slot order (C-25 §4.4). A slot chord has no offset to compare, so the two
+ * groups are ordered separately and concatenated rather than sorted together.
  */
 function sortChords(chords: ChordMarker[]): ChordMarker[] {
-  return [...chords].sort((a, b) => a.position.charOffset - b.position.charOffset);
+  const { anchored, run } = splitChords(chords);
+  return [...anchored, ...run];
 }
 
 /**
@@ -139,8 +143,10 @@ export function addChordToCurrentLine(
   } else {
     finalOffset = clampOffset(finalOffset, lineLength);
   }
-  
-  const newChord = createChordMarker(symbol, finalOffset, bias);
+
+  const newChord = wantsWordlessMeasure(meta.chords, finalOffset, lineLength)
+    ? createRunChordMarker(symbol, nextSlotIndex(meta.chords))
+    : createChordMarker(symbol, finalOffset, bias);
   const updatedChords = sortChords([...meta.chords, newChord]);
   
   return editor
@@ -152,6 +158,42 @@ export function addChordToCurrentLine(
       }
     })
     .run();
+}
+
+/**
+ * Does this chord belong in a wordless measure rather than over a letter? (C-25 §4.4)
+ *
+ * Two situations, and the rule is written so that neither can be reached by accident:
+ *
+ * - **An empty line.** There are no letters, so every chord on it is part of an instrumental
+ *   line. Without this, a second chord on an empty line lands at offset 0 on top of the
+ *   first — which is what the app did before C-25.
+ * - **Repeating at the end of a line that already has a chord there.** §4.4 describes the
+ *   gesture as "press the chord shortcut repeatedly with the caret at line end — each press
+ *   drops the next chord to the right". The FIRST press at line end still anchors to the
+ *   last character, because that is the ordinary way to put a chord on the final word and
+ *   changing it would break a gesture writers already use. Only the presses after it, when
+ *   that end position is taken, start a trailing run.
+ */
+function wantsWordlessMeasure(
+  existing: ChordMarker[],
+  offset: number,
+  lineLength: number
+): boolean {
+  if (lineLength === 0) return true;
+  if (offset < lineLength) return false;
+  return existing.some(
+    (chord) => isCharAnchored(chord.position) && (charOffsetOf(chord.position) ?? 0) >= lineLength
+  );
+}
+
+/** A chord in a wordless measure: it holds an ordered slot, not a character offset. */
+function createRunChordMarker(symbol: string, slotIndex: number): ChordMarker {
+  return {
+    id: generateId('chord'),
+    symbol,
+    position: { anchorType: 'slot', slotIndex },
+  };
 }
 
 /**
@@ -213,16 +255,18 @@ export function moveChordOnCurrentLine(
   if (chordIndex === -1) return false;
   
   const chord = meta.chords[chordIndex];
-  const newOffset = clampOffset(chord.position.charOffset + delta, lineLength);
+  // Moving is a character-offset gesture. A chord in a wordless measure has no character to
+  // move along, and its place in the run is set by its slot — nudging it left would be
+  // meaningless, so the command refuses rather than inventing an offset for it (C-25 §4.4).
+  const currentOffset = charOffsetOf(chord.position);
+  if (currentOffset === null) return false;
+  const newOffset = clampOffset(currentOffset + delta, lineLength);
   
   const updatedChords = meta.chords.map((c, idx) => {
     if (idx === chordIndex) {
       return {
         ...c,
-        position: {
-          ...c.position,
-          charOffset: newOffset,
-        },
+        position: { anchorType: 'char' as const, charOffset: newOffset, bias: 'on' as const },
       };
     }
     return c;

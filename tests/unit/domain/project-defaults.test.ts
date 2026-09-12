@@ -14,7 +14,8 @@ describe('Project Defaults (T-1.01)', () => {
     expect(() => validateCyrilFile(file)).not.toThrow();
     
     // Check specific fields
-    expect(file.schemaVersion).toBe('1.0.0');
+    // C-25 moved this to 1.1.0 when ChordMarker.position gained its additive 'slot' anchor.
+    expect(file.schemaVersion).toBe('1.1.0');
     expect(file.project.title).toBe('Test Song');
     expect(file.project.workspaces).toHaveProperty('brief');
     expect(file.project.workspaces).toHaveProperty('vocabularyWorld');

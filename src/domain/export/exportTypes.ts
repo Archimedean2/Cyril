@@ -1,3 +1,6 @@
+import { ChordMarker } from '../project/types';
+import { splitChords, charOffsetOf, slotIndexOf } from '../chords/position';
+
 /**
  * Export domain types and constants
  */
@@ -91,7 +94,15 @@ export interface ExportableLine {
 
 export interface ExportableChord {
   symbol: string;
+  /** Character offset for a chord over a letter. Meaningless when `slotIndex` is set. */
   offset: number;
+  /**
+   * C-25 §4.4: set when this chord belongs to a **wordless measure** — a trailing run after
+   * the line's last word, or an instrumental line with no words at all. Ordered left to
+   * right from 0. Renderers must place these after the text rather than at `offset`, which
+   * is why it is a separate field and not a magic offset value.
+   */
+  slotIndex?: number;
 }
 
 export interface ConcurrentColumnExport {
@@ -119,4 +130,27 @@ export interface ExportableDraft {
   draftName: string;
   projectTitle: string;
   sections: ExportableSection[];
+}
+
+/**
+ * Map a line's stored chords into export order (C-25 §4.4).
+ *
+ * Shared by every export path — the print renderer, the Markdown transformer and the
+ * concurrent-block exporter all call this, so none of them can drift on what order a chord
+ * sheet reads in. Chords over letters come first, left to right; the wordless run follows in
+ * slot order.
+ */
+export function toExportableChords(chords: readonly ChordMarker[]): ExportableChord[] {
+  const { anchored, run } = splitChords(chords);
+  return [
+    ...anchored.map((chord) => ({
+      symbol: chord.symbol,
+      offset: charOffsetOf(chord.position) ?? 0,
+    })),
+    ...run.map((chord) => ({
+      symbol: chord.symbol,
+      offset: 0,
+      slotIndex: slotIndexOf(chord),
+    })),
+  ];
 }

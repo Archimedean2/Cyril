@@ -4,6 +4,7 @@ import { addChordToCurrentLine, getChordsForCurrentLine } from '../../../src/dom
 import { ChordExtension } from '../../../src/editor/extensions/chords';
 import StarterKit from '@tiptap/starter-kit';
 import { LyricLine } from '../../../src/editor/nodes/lyricLine/lyricLine';
+import { charOffsetOf } from '../../../src/domain/chords/position';
 
 describe('T-9.06: Editing lyric text does not corrupt chord marker data', () => {
   let editor: Editor;
@@ -128,9 +129,12 @@ describe('T-9.06: Editing lyric text does not corrupt chord marker data', () => 
     // Get chords and verify positions are valid numbers
     const chords = getChordsForCurrentLine(editor);
     expect(chords).toHaveLength(1);
-    expect(typeof chords[0].position.charOffset).toBe('number');
-    expect(Number.isFinite(chords[0].position.charOffset)).toBe(true);
-    expect(chords[0].position.charOffset).toBeGreaterThanOrEqual(0);
+    // C-25 made ChordPosition a union; this chord is anchored to a character, so narrowing
+    // here also asserts that ordinary chord entry did not start producing slot anchors.
+    const offset = charOffsetOf(chords[0].position);
+    expect(typeof offset).toBe('number');
+    expect(Number.isFinite(offset)).toBe(true);
+    expect(offset).toBeGreaterThanOrEqual(0);
   });
 
   it('chord IDs remain stable across text edits', () => {

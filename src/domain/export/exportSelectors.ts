@@ -2,8 +2,8 @@
  * Export selectors - transforms canonical draft data into export-ready representation
  */
 
-import { Character, CyrilFile, Draft, RichTextNode, SectionType, ChordMarker, LyricLineMeta, AlternateLine, RichTextDocument } from '../project/types';
-import { ExportableDraft, ExportableSection, ExportableLine, ExportableChord, ExportableAlternate, ResolvedExportOptions, ConcurrentSectionExport } from './exportTypes';
+import { Character, CyrilFile, Draft, RichTextNode, SectionType, LyricLineMeta, AlternateLine, RichTextDocument } from '../project/types';
+import { ExportableDraft, ExportableSection, ExportableLine, ExportableChord, ExportableAlternate, ResolvedExportOptions, ConcurrentSectionExport, toExportableChords } from './exportTypes';
 import { squashConcurrentBlock, buildSideBySideConcurrentBlock } from './concurrentExport';
 import { resolveCharacterColor } from '../project/characters';
 
@@ -202,10 +202,7 @@ function processLyricLine(node: RichTextNode, options: ResolvedExportOptions): E
   if (options.includeChords) {
     const meta = node.attrs?.meta as LyricLineMeta | undefined;
     if (meta?.chords && Array.isArray(meta.chords)) {
-      chords = meta.chords.map((chord: ChordMarker) => ({
-        symbol: chord.symbol,
-        offset: chord.position?.charOffset || 0,
-      }));
+      chords = toExportableChords(meta.chords);
     }
   }
 

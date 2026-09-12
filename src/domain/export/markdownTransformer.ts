@@ -104,8 +104,14 @@ function lyricLineToMarkdown(line: ExportableLine): string {
   const chords = line.chords;
   let result = text;
 
+  // C-25 §4.4: a chord in a wordless measure has no offset to insert at — it belongs after
+  // the text, in slot order. Appending keeps the line readable as "words, then the fill".
+  const anchored = chords.filter((c) => c.slotIndex === undefined);
+  const run = [...chords].filter((c) => c.slotIndex !== undefined)
+    .sort((a, b) => (a.slotIndex ?? 0) - (b.slotIndex ?? 0));
+
   // Sort chords by offset descending to insert from end to start
-  const sortedChords = [...chords].sort((a, b) => b.offset - a.offset);
+  const sortedChords = [...anchored].sort((a, b) => b.offset - a.offset);
 
   for (const chord of sortedChords) {
     // Insert chord bracket at the offset position
@@ -113,6 +119,12 @@ function lyricLineToMarkdown(line: ExportableLine): string {
     const before = result.slice(0, insertPos);
     const after = result.slice(insertPos);
     result = `${before}[${chord.symbol}]${after}`;
+  }
+
+  if (run.length > 0) {
+    const pills = run.map((chord) => `[${chord.symbol}]`).join(' ');
+    // An instrumental line is the run on its own, with no leading space to dangle.
+    result = result.length > 0 ? `${result} ${pills}` : pills;
   }
 
   return result;

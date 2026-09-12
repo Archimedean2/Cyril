@@ -13,6 +13,7 @@ Chord lane for chord-enabled drafts.
 - `tests/unit/chords/transpose.test.ts`
 - `tests/integration/editor/chord-transpose-integration.test.ts`
 - `tests/e2e/stage-9-transpose.spec.ts`
+- `tests/integration/editor/chord-wordless-measures.test.ts`
 
 ## Checklist
 
@@ -39,6 +40,13 @@ Chord lane for chord-enabled drafts.
 | E-9.24 | The transpose controls appear only in chord mode | e2e | `tests/e2e/stage-9-transpose.spec.ts` | [x] | [ ] | C-25 |
 | E-9.25 | Transposing up two semitones turns C into D on the rendered page | e2e | `tests/e2e/stage-9-transpose.spec.ts` | [x] | [ ] | C-25 |
 | E-9.26 | Transposing down works from the toolbar and one undo puts the song back without touching the lyric | e2e | `tests/e2e/stage-9-transpose.spec.ts` | [x] | [ ] | C-25 |
+| T-9.19 | Every chord added to an empty line becomes an instrumental-line chord, ordered left to right, instead of stacking at offset 0 | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25, §4.4 |
+| T-9.20 | The first chord at line end still anchors to the last character; pressing again starts a trailing run, and a mid-line chord is unaffected by it | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25, §4.4. The existing gesture must not break |
+| T-9.21 | A chord in a wordless measure cannot be nudged along a line it does not sit on — the move command refuses rather than inventing an offset | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25 |
+| T-9.22 | A run renders as ONE decoration holding a row, not one widget per chord stacked at the same position | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25 |
+| T-9.23 | Export emits chords in reading order — over-letter chords left to right, then the wordless run in slot order — regardless of stored order | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25, §4.4 |
+| T-9.24 | A legacy chord position with no `anchorType` keeps its offset; slot indices continue from the highest used and never collide | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25. Guards the additive-union compatibility rule in DATA_MODEL.md |
+| T-9.25 | Wordless chords survive save/load and are not clamped back onto the text — the defect §4.4 exists to fix | integration | `tests/integration/editor/chord-wordless-measures.test.ts` | [x] | [x] | C-25, §4.4 acceptance |
 
 ## Regression Requirements
 - Stages 0–8 must remain passing

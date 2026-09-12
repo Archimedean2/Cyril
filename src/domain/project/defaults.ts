@@ -1,7 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { CyrilProject, CyrilFile, DraftSettings, DraftDocument, InventoryDocument } from './types';
 
-export const SCHEMA_VERSION = '1.0.0';
+// 1.1.0 (C-25): ChordMarker.position gained an additive 'slot' anchor for wordless
+// measures. Files written by 1.0.0 remain valid and need no migration.
+export const SCHEMA_VERSION = '1.1.0';
 
 export function generateId(prefix: string): string {
   return `${prefix}_${uuidv4().replace(/-/g, '').substring(0, 12)}`;

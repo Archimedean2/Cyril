@@ -1395,3 +1395,27 @@ input[type="text"].concurrent-speaker-name.has-character-color:focus {
 .chord-popover-delete:hover {
   background: color-mix(in srgb, var(--bg-danger) 50%, var(--border-danger) 50%);
 }
+
+/* C-25 / §4.4 — wordless measures.
+   A trailing run sits in the empty space after the last word; an instrumental line spreads
+   across the whole line. Both are one flex row rather than separate widgets, because
+   separate widgets at the same document position would stack on top of each other with no
+   character between them to push them apart. */
+.cyril-chord-run-anchor {
+  position: relative;
+}
+
+.cyril-chord-run {
+  display: inline-flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  padding-left: var(--space-3);
+  vertical-align: baseline;
+}
+
+/* An instrumental line has no words to sit beside, so its chords carry the line on their
+   own and get a little more air. */
+.cyril-chord-run-instrumental {
+  gap: var(--space-4);
+  padding-left: 0;
+}

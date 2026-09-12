@@ -6,7 +6,7 @@ export type ExportFontPreset = 'default';
 export type PageDensity = 'normal' | 'compact';
 export type PreferredExportMode = 'lyricsOnly' | 'lyricsWithChords';
 export type PrintProfileId = 'lyricSheet' | 'chordSheet' | 'libretto' | 'annotated';
-export type ChordAnchorType = 'char';
+export type ChordAnchorType = 'char' | 'slot';
 export type ChordBias = 'before' | 'on' | 'after';
 
 /**
@@ -63,11 +63,43 @@ export interface Workspaces {
   vocabularyWorld: WorkspaceDocument;
 }
 
-export interface ChordPosition {
-  anchorType: ChordAnchorType;
+/**
+ * A chord anchored to a character in the line's text — the original and still the common
+ * case. `charOffset` counts characters from the start of the line.
+ */
+export interface CharChordPosition {
+  anchorType: 'char';
   charOffset: number;
   bias: ChordBias;
 }
+
+/**
+ * C-25 / `docs/product/DESIGN_PROPOSAL.md` §4.4 — a chord in a **wordless measure**: there
+ * is no character for it to sit above, so it holds an ordered slot instead of an offset.
+ *
+ * One representation, two things a writer recognises, told apart by the line it sits on:
+ *
+ * - **Trailing run** — the line has text, and these chords sit in the empty space after the
+ *   last word (an end-of-line fill the band plays while nobody sings).
+ * - **Instrumental line** — the line has no text at all, and these chords space evenly
+ *   across it (an intro, a solo, a turnaround).
+ *
+ * `slotIndex` is 0-based and orders the run left to right. It is deliberately NOT a beat or
+ * a bar count: Cyril does not model time (`docs/product/SCOPE.md` rules out notation), and
+ * pretending an index is a beat would be a claim the rest of the app cannot honour.
+ */
+export interface SlotChordPosition {
+  anchorType: 'slot';
+  slotIndex: number;
+}
+
+/**
+ * Where a chord sits. A discriminated union on `anchorType`, added additively in C-25:
+ * every `.cyril` file written before it holds only `'char'` positions and stays valid
+ * unchanged, so there is no migration. `SCHEMA_VERSION` moves to 1.1.0 so an older build
+ * meeting a newer file says so plainly rather than rendering a slot chord at `NaN`.
+ */
+export type ChordPosition = CharChordPosition | SlotChordPosition;
 
 export interface ChordMarker {
   id: string;

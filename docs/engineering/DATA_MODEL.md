@@ -706,24 +706,58 @@ Chords are stored per lyric line.
 }
 ```
 
-### ChordPosition fields
+`ChordPosition` is a **discriminated union on `anchorType`**, with two members.
+
+### `anchorType: "char"` — a chord over a letter
+
+The original and still the common case.
 
 | Field | Type | Required | Description |
 |------|------|----------|-------------|
-| `anchorType` | string enum | yes | v1 value: `char` |
+| `anchorType` | string enum | yes | `char` |
 | `charOffset` | number | yes | Character offset in active lyric text |
 | `bias` | string enum | yes | `before`, `on`, or `after` |
 
-### Notes
 - `charOffset` is relative to the plain text representation of the active lyric line
 - `bias` helps distinguish placement semantics around a boundary
-- This model supports positioning before, on, or after lyric text segments
-- UI may render using snapping/grid logic, but storage remains character-offset based in v1
+- UI may render using snapping/grid logic, but storage remains character-offset based
 
-### v1 simplification
-Only `anchorType = "char"` is allowed.
+### `anchorType: "slot"` — a chord in a wordless measure
 
-Future anchor types such as token/grid may be added in later schema versions.
+**Added in schema 1.1.0 (C-25, `docs/product/DESIGN_PROPOSAL.md` §4.4.)** There is no
+character for the chord to sit above, so it holds an ordered slot instead of an offset.
+
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| `anchorType` | string enum | yes | `slot` |
+| `slotIndex` | number | yes | 0-based, orders the run left to right |
+
+One representation covers two things a writer recognises, told apart by the line it sits on:
+
+- **Trailing run** — the line has text, and these chords sit in the empty space after the
+  last word: an end-of-line fill the band plays while nobody sings.
+- **Instrumental line** — the line has no text at all, and these chords space evenly across
+  it: an intro, a solo, a turnaround.
+
+`slotIndex` is deliberately **not** a beat or bar count. Cyril does not model time
+(`docs/product/SCOPE.md` rules out notation), and an index that pretended to be a beat would
+be a claim the rest of the app could not honour.
+
+### Compatibility
+
+The union is **additive**, so there is no migration:
+
+- Every `.cyril` file written before 1.1.0 contains only `char` positions and stays valid
+  exactly as it is.
+- `slot` is a value no earlier build could have written, so code reading these files must
+  treat **anything that is not explicitly `"slot"` as a character anchor** — including a
+  position that omits `anchorType` altogether. `src/domain/chords/position.ts` is the single
+  place that decision lives. Testing `anchorType === "char"` instead silently zeroes the
+  offset of every legacy chord.
+- `SCHEMA_VERSION` moved to **1.1.0** so an older build meeting a newer file says so plainly
+  (see *Forward compatibility* above) rather than rendering a slot chord at `NaN`.
+- A `slot` chord has no `charOffset`, so commands that move a chord along the text refuse it
+  rather than inventing one.
 
 ---
 
