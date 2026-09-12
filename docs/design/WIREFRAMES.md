@@ -13,7 +13,7 @@ It is intended to guide implementation of:
 - key overlays and panels
 
 This document focuses on layout and interaction structure, not color tokens or detailed visual styling.
-See `DESIGN_SYSTEM.md` for visual rules.
+See `docs/design/DESIGN_SYSTEM.md` for visual rules.
 
 ---
 
@@ -715,7 +715,7 @@ Now the second doc.
 
 ---
 
-# `DESIGN_SYSTEM.md`
+# `docs/design/DESIGN_SYSTEM.md`
 
 ```md
 # Cyril — Design System
@@ -1212,9 +1212,9 @@ You can use these in three ways:
 
 ## 1. Put them in the repo
 - `WIREFRAMES.md`
-- `DESIGN_SYSTEM.md`
+- `docs/design/DESIGN_SYSTEM.md`
 
-## 2. Update `README_AGENT.md`
+## 2. Update `docs/process/DOC_MAP.md`
 Add them to the “read when relevant” inventory.
 
 ## 3. Prompt Windsurf to restyle/restructure the shell
@@ -1227,9 +1227,9 @@ Especially if Stage 2 UI is already drifting toward generic web app vibes.
 ```text
 Please read:
 - WIREFRAMES.md
-- DESIGN_SYSTEM.md
-- STAGES.md for the current stage
-- TASKING.md
+- docs/design/DESIGN_SYSTEM.md
+- docs/archive/STAGES.md for the current stage
+- docs/process/TASKING.md
 
 Update the current UI implementation so that Cyril’s shell follows the wireframes and design system.
 

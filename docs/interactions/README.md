@@ -40,5 +40,5 @@ Each interaction section should include:
 ## Rules
 
 1. Do not implement interactions from future stages early.
-2. Respect `STAGES.md` stage boundaries.
-3. If implementation must differ, record deviation in `PROGRESS.md`.
+2. Respect `docs/archive/STAGES.md` stage boundaries.
+3. If implementation must differ, record deviation in `docs/archive/PROGRESS.md`.

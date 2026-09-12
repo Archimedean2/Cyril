@@ -19,7 +19,7 @@ The goal is to improve implementation quality without giving the coding agent pe
 7. Pause for senior test plan
 8. Implement tests
 9. Run tests
-10. Update `PROGRESS.md`
+10. Update `docs/archive/PROGRESS.md`
 11. Commit if the milestone is complete
 
 ## Junior-to-Senior Handoff Template

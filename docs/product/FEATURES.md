@@ -15,7 +15,7 @@ Each feature section includes:
 - edge cases
 - acceptance notes
 
-Read only the features required for the current stage in `STAGES.md`.
+Read only the features required for the current stage in `docs/archive/STAGES.md`.
 
 ---
 
@@ -734,7 +734,7 @@ Reduces redundant network calls during writing sessions. Makes previously looked
 - Per-project cache partitioning in v1 (project association is optional metadata only)
 
 ### Data Dependencies
-- `ToolQueryCacheEntry` (see `DATA_MODEL.md` Local Tool Cache Model section)
+- `ToolQueryCacheEntry` (see `docs/engineering/DATA_MODEL.md` Local Tool Cache Model section)
 - `ToolType` enum (existing provider abstraction)
 - Cyril-normalized `ToolResultPayload` shape (existing tool service contract)
 

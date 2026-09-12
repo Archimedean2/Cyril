@@ -1,6 +1,6 @@
 # Task: Persistence Hardening (highest data-loss risk)
 
-_A concrete, test-first hardening task for the 🔴 items in `EDGE_CASES.md` §8. This is the biggest
+_A concrete, test-first hardening task for the 🔴 items in `docs/engineering/EDGE_CASES.md` §8. This is the biggest
 data-loss surface in Cyril. Build it under `DEFINITION_OF_DONE.md`: every sub-task lands with
 `T-`tagged tests (use the Stage-1 persistence range, `T-1.2x`). Order below is by risk._
 
@@ -35,7 +35,7 @@ On the same debounce, write a full snapshot of `currentProject` to IndexedDB **r
 handle or the autosave setting**. On app init, if a snapshot exists and is newer than the opened file
 (or there is no file), offer "Recover unsaved work?" — accept restores it, decline discards it. This
 closes both the "never-saved project is lost" and "autosave no-ops without a handle" holes. Add the
-snapshot store to `DATA_MODEL.md`.
+snapshot store to `docs/engineering/DATA_MODEL.md`.
 - `T-1.22`: editing with no file handle writes a recovery snapshot.
 - `T-1.23`: on init with a newer snapshot, recovery is offered; accept restores exactly; decline clears it.
 
@@ -74,4 +74,4 @@ handle and no fallback copy yet, reflect `unsaved` (or a new `local-only` state)
 
 H1 → H5 → H3 (core correctness, small), then **H2** (the durability payoff), then H4 (fallback), then
 H6/H7. Land each with its tests and regenerate `FEATURE_COVERAGE.md`. Touches `fileManager.ts`,
-`autosave.ts`, `saveStatusStore.ts`, the app-init path, and `DATA_MODEL.md` (recovery store).
+`autosave.ts`, `saveStatusStore.ts`, the app-init path, and `docs/engineering/DATA_MODEL.md` (recovery store).

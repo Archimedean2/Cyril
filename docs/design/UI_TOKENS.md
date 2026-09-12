@@ -4,7 +4,7 @@
 
 This document defines concrete UI tokens and layout metrics for Cyril.
 
-It turns the design intent from `DESIGN_SYSTEM.md` into implementation-friendly values.
+It turns the design intent from `docs/design/DESIGN_SYSTEM.md` into implementation-friendly values.
 
 These values are intended for:
 - CSS variables

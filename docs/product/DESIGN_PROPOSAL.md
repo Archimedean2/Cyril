@@ -4,7 +4,7 @@ _A design spec for making Cyril feel finished and reach usable parity with Maste
 while winning on the things MasterWriter can't do: a slick look, real theatre structure
 (characters + stage directions), chord notation, alternate lyrics, and beautiful print._
 
-This document extends `DESIGN_SYSTEM.md` and `UI_TOKENS.md`; it does not replace them. Where
+This document extends `docs/design/DESIGN_SYSTEM.md` and `docs/design/UI_TOKENS.md`; it does not replace them. Where
 this proposes new visuals, they use the existing token palette. Every feature section ends
 with **acceptance criteria** written so they can be turned into `T-`tagged tests per
 `DEFINITION_OF_DONE.md`. Build order is deliberate: **theatre features first**, then chords,
@@ -72,7 +72,7 @@ Cyril's strategy:
 
 ## 2. Visual foundation (partially done)
 
-The design intent in `DESIGN_SYSTEM.md` — a calm, light-mode "IDE for lyricists" — is right. The
+The design intent in `docs/design/DESIGN_SYSTEM.md` — a calm, light-mode "IDE for lyricists" — is right. The
 gap was execution: the editor CSS referenced token names that were never defined (`--accent-color`,
 `--border-color`, …) and silently fell back to an off-palette blue (`#4a90d9`), so the editor never
 matched the shell.
@@ -149,7 +149,7 @@ Acceptance criteria:
 
 Design: section labels are now legible with a left accent bar. Give each section **type** its own accent
 colour (verse = gold, chorus = blue, bridge = violet, etc.) via a `--section-color` set per block. Keep the
-label compact and uppercase; never fill the whole section with colour (per `DESIGN_SYSTEM.md`).
+label compact and uppercase; never fill the whole section with colour (per `docs/design/DESIGN_SYSTEM.md`).
 
 Acceptance criteria:
 
@@ -165,13 +165,13 @@ than rework it.
 
 Remove, together:
 
-- the `delivery` attribute from the `lyricLine` node and the `DeliveryMode` type in `DATA_MODEL.md`;
+- the `delivery` attribute from the `lyricLine` node and the `DeliveryMode` type in `docs/engineering/DATA_MODEL.md`;
 - the `toggleDelivery` command and its "Delivery" toolbar button (`DraftToolbar`);
 - the `[data-delivery="spoken"] { font-style: italic }` rule and the `data-delivery` render attr;
 - any `delivery` references in fixtures/tests, export selectors, and defaults.
 
 Migration: loading an older project should simply drop the `delivery` attribute (a no-op — it was
-purely cosmetic). Record the removal in `PROGRESS.md`.
+purely cosmetic). Record the removal in `docs/archive/PROGRESS.md`.
 
 Acceptance criteria:
 
@@ -198,7 +198,7 @@ each lyric line; a trailing chord free-floating in the empty space after the las
 
 - **Left-align to the character.** A chord's left edge sits above the first letter of its anchor.
   Fix the current centering (`transform: translateX(-50%)` on `.cyril-chord-marker`) that makes
-  chords float slightly off the letter. (Also tracked as a bug in `NEXT_STEPS.md`.)
+  chords float slightly off the letter. (Also tracked as a bug in `docs/archive/NEXT_STEPS.md`.)
 - **Visual treatment:** small grey pill (`--bg-subtle` background, `--text-primary`, medium weight),
   `--font-chord` mono. This supersedes the earlier transparent/blue chord styling — match the
   reference. Chord line height above the lyric matches the reference's clear one-line separation.
@@ -243,7 +243,7 @@ nothing can sit past the last word. Add two ways to notate chords without lyrics
 Data model: extend `ChordMarker.position` beyond `{ anchorType: 'char', charOffset }` with an
 anchor type for trailing/instrumental chords — an ordered slot index (and optional beat/spacing)
 rather than a character offset — and stop clamping char offsets so trailing anchors survive. Update
-`DATA_MODEL.md` intentionally. Squash/print export must emit these in reading order.
+`docs/engineering/DATA_MODEL.md` intentionally. Squash/print export must emit these in reading order.
 
 ### 4.5 Also
 
@@ -352,19 +352,19 @@ Acceptance criteria:
 - **Keyboard-first**: shortcuts for new line-type (speaker/stage direction), collect-selected-word, toggle
   panes, transpose, and draft switching. Show them in a discoverable command menu.
 - **Save feedback**: wire the top-bar save dot to real autosave state (`saved` / `saving` / `unsaved`) using
-  `--status-*` tokens. (Autosave itself is `NEXT_STEPS.md` Phase 2.)
+  `--status-*` tokens. (Autosave itself is `docs/archive/NEXT_STEPS.md` Phase 2.)
 - **Empty & error states**: the error boundaries exist — give their fallbacks helpful copy and a working
   Reload, and give empty drafts an inviting first-run state (sentence-case, verb-first copy).
-- **Motion**: keep the existing 120ms functional transitions; no decorative animation (per `DESIGN_SYSTEM.md`).
+- **Motion**: keep the existing 120ms functional transitions; no decorative animation (per `docs/design/DESIGN_SYSTEM.md`).
 
 ---
 
 ## 9. Hook Lab — a structured hook workspace
 
 Today Hook Lab is just a rich-text `WorkspaceDocument` like Brief and Vocabulary (v1 explicitly
-excluded "structured behavior beyond base rich text" — see `FEATURES.md`). Upgrade it into a proper
+excluded "structured behavior beyond base rich text" — see `docs/product/FEATURES.md`). Upgrade it into a proper
 place to develop hooks: a list of candidates the writer can annotate and organise. This intentionally
-expands v1 scope, so `SCOPE.md`, `FEATURES.md`, and `DATA_MODEL.md` must be updated together when it's
+expands v1 scope, so `docs/product/SCOPE.md`, `docs/product/FEATURES.md`, and `docs/engineering/DATA_MODEL.md` must be updated together when it's
 built.
 
 Design:
@@ -407,7 +407,7 @@ the editor suppresses the native browser menu and opens a Cyril menu whose items
 clicked**. Reuse the existing `lineMenuStore` / `sectionMenuStore`. Items that don't apply are hidden;
 destructive items sit last, styled as danger; a separator groups families. It must reposition to stay
 on-screen near edges, be keyboard-navigable (arrows, Enter, Escape; open via the Menu key), and return
-focus to a sane caret position on close (the caret-jump class of bug — see `EDGE_CASES.md` §12).
+focus to a sane caret position on close (the caret-jump class of bug — see `docs/engineering/EDGE_CASES.md` §12).
 
 Contents by what's under the cursor (⟳ = depends on planned features; the rest can ship now):
 
@@ -454,7 +454,7 @@ Each step is a stage of work that must pass all four gates and land `T-`tagged t
 8. **Right-click contextual menu** (§10) — ties the existing actions together; grows as features land.
 9. **Feel layer**: focus mode, command menu, save feedback, empty states (§8).
 10. **Hook Lab structured workspace** (§9) — hook list + comments + groups; expands v1 scope, so
-    update `SCOPE.md` / `FEATURES.md` / `DATA_MODEL.md` alongside it.
+    update `docs/product/SCOPE.md` / `docs/product/FEATURES.md` / `docs/engineering/DATA_MODEL.md` alongside it.
 
 Theatre (steps 2–3) leads because it's what makes Cyril unmistakably itself and is the clearest reason a
 musical-theatre writer would choose it over MasterWriter.

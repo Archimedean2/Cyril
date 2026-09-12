@@ -9,7 +9,7 @@ Implementation is complete. Based on the post-implementation report below, provi
 2. which test types are needed (unit / integration / e2e)
 3. specific scenarios to cover
 4. any edge cases or regression risks to address
-5. test ids to use where relevant (see `TEST_IDS.md`)
+5. test ids to use where relevant (see `docs/testing/TEST_IDS.md`)
 6. what a passing test run should look like
 
 Important:

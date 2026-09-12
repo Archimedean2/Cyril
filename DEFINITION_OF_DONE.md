@@ -12,7 +12,7 @@ It now means something verifiable. Nothing is done until every item below is tru
 3. **The suite passes and exits.** `npm test` ends with all tests passing **and the process terminates** (no hang).
 4. **Every acceptance criterion you touched has an ID-tagged, passing test.** See the ID rule below.
 5. **Feature coverage confirms it.** `npm run coverage:features` shows your criteria as `✅ passing` in `FEATURE_COVERAGE.md` — not `⚠️ no test`, not `❌ failing`.
-6. **Docs match reality.** `PROGRESS.md` is updated, and any box you check there is backed by the feature-coverage ledger. Do not check a box the ledger can't prove.
+6. **Docs match reality.** `docs/archive/PROGRESS.md` is updated, and any box you check there is backed by the feature-coverage ledger. Do not check a box the ledger can't prove.
 
 If a criterion is only covered by an end-to-end (Playwright) test, it is **not done**
 until `npm run test:e2e` actually runs green. "e2e exists" ≠ "e2e passes."
@@ -64,5 +64,5 @@ Plus `npm run test:coverage` for line/branch/function coverage (currently report
 
 Report-only in CI for now, by decision: coverage does not fail the build yet, and lint
 is non-blocking while the warning backlog is burned down. The plan to tighten these is
-in `NEXT_STEPS.md` ("How to use the two metrics going forward"). Report-only does **not**
+in `docs/archive/NEXT_STEPS.md` ("How to use the two metrics going forward"). Report-only does **not**
 mean optional — the Definition of Done above still applies to every change.

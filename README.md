@@ -1,41 +1,51 @@
-# Cyril — Stage Test Specs
+# Cyril
 
-[![CI](https://github.com/Archimedean2/Cyril/actions/workflows/ci.yml/badge.svg)](https://github.com/Archimedean2/Cyril/actions/workflows/ci.yml)
+A desktop-first, local-first lyric editor for musical-theatre lyricists.
 
-## Purpose
+Cyril keeps everything for one song in one place — a brief, a structure outline, a hook lab, a
+vocabulary world, and as many named drafts as the song needs — and gives you a real editor to
+write them in: structured speaker and stage-direction lines, section blocks, concurrent
+(duet) columns, syllable counts and stress marks, a chord lane, line-level alternates, rhyme and
+thesaurus tools beside the page, and print output that looks like a lyric sheet rather than a
+web page. Projects are plain `.cyril` files on your own disk.
 
-This folder contains stage-specific test checklists.
+Built with React, TypeScript, Vite, Tiptap/ProseMirror and Zustand.
 
-These files are:
-- human-readable
-- agent-readable
-- small enough for focused context windows
+## Getting started
 
-They are not executable tests.
-They define what tests must exist and pass before a stage is considered complete.
+```bash
+npm install
+npm run dev          # http://localhost:5173
+```
 
-## Status Fields
+Chromium-based browsers get the full local-file experience via the File System Access API.
 
-Each row includes:
-- `Implemented`: test code exists
-- `Passing`: test currently passes
+## The commands that matter
 
-A stage is not done until both are checked for all required tests.
+```bash
+npm run status              # ← start here: gate state, git state, what's next
+npm run build               # tsc + vite build
+npm run lint                # eslint, 0 errors and 0 warnings
+npm test                    # vitest (unit + integration)
+npm run test:e2e            # playwright
+npm run coverage:features   # regenerate the acceptance-criteria ledger
+```
 
-## Workflow
+## Where the project stands
 
-For a given stage:
-1. Read the corresponding stage file in this folder
-2. Implement the listed test files
-3. Check `Implemented`
-4. Run the tests
-5. Check `Passing`
-6. Update `PROGRESS.md`
+Run `npm run status`, or read these three files:
 
-## Naming Convention
+- **`STATUS.md`** — live gate status, and where the last working session stopped.
+- **`BACKLOG.md`** — the ordered work queue.
+- **`FEATURE_COVERAGE.md`** — the generated ledger of which acceptance criteria actually have a
+  passing test behind them.
 
-Stage files:
-- `stage-0.md`
-- `stage-1.md`
-- ...
-- `stage-13.md` — Concurrent Speakers (multi-column authoring mode)
+`CLAUDE.md` is the operating guide for anyone — human or agent — doing work here, and
+`docs/process/DOC_MAP.md` maps every other document in the repo.
+
+## A note on "done"
+
+Cyril once had thirteen stages marked complete on top of a failing build, no lint config, and a
+test suite that hung instead of finishing. `DEFINITION_OF_DONE.md` exists so that can't recur:
+nothing is done until the build, lint, tests and the feature-coverage ledger all say so, and
+every acceptance criterion is traceable to a test that carries its ID.

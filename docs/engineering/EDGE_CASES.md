@@ -52,7 +52,7 @@ Written 2026-07-05. This is a living register — add to it as new interactions 
   column creating a new aligned row.
 - 🟠 Ragged columns → row alignment (planned markers) and squash-export order stay correct.
 - 🟠 Fill an interior empty cell (already works) → interior empties must persist for alignment while
-  trailing empties are not stored (see `DATA_MODEL.md` note to add).
+  trailing empties are not stored (see `docs/engineering/DATA_MODEL.md` note to add).
 - 🟠 Inserting a concurrent block **inside** a concurrent block must be blocked.
 - 🟡 Speaker name blank → "Speaker N" fallback everywhere (display, export, remove-confirm).
 
@@ -81,8 +81,8 @@ Written 2026-07-05. This is a living register — add to it as new interactions 
 
 ## 8. Persistence & files (highest data-loss risk)
 
-> These 🔴 items are drafted as a concrete, test-first task in **`HARDENING_PERSISTENCE.md`** (the top
-> robustness priority in `NEXT_STEPS.md`).
+> These 🔴 items are drafted as a concrete, test-first task in **`docs/engineering/HARDENING_PERSISTENCE.md`** (the top
+> robustness priority in `docs/archive/NEXT_STEPS.md`).
 
 - 🔴 **File handle lost / permission revoked** after a browser restart — autosave currently writes only
   when a handle exists and is silent on error, so the user may think they're saved when they're not.

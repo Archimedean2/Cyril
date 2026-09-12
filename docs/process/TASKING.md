@@ -22,14 +22,14 @@ It exists to prevent:
 4. Do not perform unrelated refactors while implementing a stage.
 5. Keep changes small, modular, and reversible.
 6. If a requirement is ambiguous, stop and ask instead of guessing.
-7. If a technical constraint blocks the spec, implement the closest safe version and log the deviation in `PROGRESS.md`.
+7. If a technical constraint blocks the spec, implement the closest safe version and log the deviation in `docs/archive/PROGRESS.md`.
 8. Every stage must include tests.
 9. A stage is not complete until:
    - acceptance criteria are met
    - tests are implemented
    - tests are passing
 10. Preserve working behavior from earlier stages.
-11. UI work must follow the design and interaction docs (`WIREFRAMES.md`, `DESIGN_SYSTEM.md`, `UI_TOKENS.md`, `COMPONENT_MAP.md`).
+11. UI work must follow the design and interaction docs (`docs/design/WIREFRAMES.md`, `docs/design/DESIGN_SYSTEM.md`, `docs/design/UI_TOKENS.md`, `docs/engineering/COMPONENT_MAP.md`).
 12. Avoid generic dashboard/SaaS styling.
 13. Preserve the desktop-editor feel:
     - compact top bar
@@ -61,7 +61,7 @@ If a task requires broad changes:
 Stop and ask for clarification if:
 - the schema appears insufficient for the requested feature
 - the stage requires a dependency not described in the specs
-- the best implementation would violate `SCOPE.md`
+- the best implementation would violate `docs/product/SCOPE.md`
 - a provider/API/embedding assumption fails
 - a feature appears to require a future-stage system
 - an editor framework limitation changes the intended UX materially
@@ -75,7 +75,7 @@ Do not silently invent a new product direction.
 A deviation is allowed only if:
 1. the spec cannot be implemented literally
 2. the alternative preserves product intent
-3. the deviation is recorded in `PROGRESS.md`
+3. the deviation is recorded in `docs/archive/PROGRESS.md`
 
 Every deviation entry should include:
 - stage
@@ -129,7 +129,7 @@ The coding agent should then stop and wait for the senior dev plan unless explic
 After receiving the senior dev plan, the coding agent should:
 1. restate the plan as a short execution checklist
 2. implement only within the approved scope
-3. record deviations in `PROGRESS.md` if necessary
+3. record deviations in `docs/archive/PROGRESS.md` if necessary
 4. avoid expanding scope while coding
 
 ### Post-Implementation Report
@@ -182,15 +182,15 @@ Do not continue guessing after break-glass is triggered.
 
 ## Required Workflow for Every Task
 
-1. Identify the current stage in `PROGRESS.md`
-2. Read the matching section in `STAGES.md`
-3. Read only the relevant features in `FEATURES.md`
-4. Check schema dependencies in `DATA_MODEL.md`
+1. Identify the current stage in `docs/archive/PROGRESS.md`
+2. Read the matching section in `docs/archive/STAGES.md`
+3. Read only the relevant features in `docs/product/FEATURES.md`
+4. Check schema dependencies in `docs/engineering/DATA_MODEL.md`
 5. Identify test files required by `tests/specs/stage-N.md`
 6. Implement the smallest complete version of the task
 7. Add/update tests
 8. Run tests
-9. Update `PROGRESS.md`
+9. Update `docs/archive/PROGRESS.md`
 
 ---
 
@@ -260,7 +260,7 @@ A task is done only when:
    - verify acceptance criteria
    - verify required tests are implemented
    - verify required tests are passing
-   - update `PROGRESS.md`
+   - update `docs/archive/PROGRESS.md`
    - then create a commit
 6. Commit messages should be explicit and stage-based.
 
