@@ -596,6 +596,16 @@ button {
   padding: var(--space-2) var(--space-2) 0;
 }
 
+/* C-50: the syllable narrowing row sits under the Perfect/Close/Wide chips and borrows
+   their chip styling — it is the same kind of control, so it should not look like a new
+   one. Tighter top padding keeps the two rows reading as one filter block. */
+.tools-syllable-chips {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2) 0;
+  flex-wrap: wrap;
+}
+
 .tools-filter-chip {
   height: 22px;
   padding: 0 var(--space-2);

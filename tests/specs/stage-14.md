@@ -23,6 +23,7 @@ click-to-edit identity in the top bar.
 - `tests/e2e/stage-14-lookup.spec.ts`
 - `tests/integration/inventory/inventory-chip-insert.test.tsx`
 - `tests/e2e/stage-14-chip-insert.spec.ts`
+- `tests/integration/tools/tools-syllable-filter.test.tsx`
 
 ## Checklist
 
@@ -60,3 +61,7 @@ click-to-edit identity in the top bar.
 | T-14.30 | Clicking an Inventory chip inserts its text at the caret in the active draft, leaves the caret after the inserted word, and hands focus back to the lyric; with no draft editor mounted the control is disabled and the command a safe no-op, not an error | integration, unit, e2e | `tests/integration/inventory/inventory-chip-insert.test.tsx`, `tests/e2e/stage-14-chip-insert.spec.ts` | [x] | [x] | C-42, §13.2. Guards D-26 |
 | T-14.31 | The insertion is a single undo step *as the writer experiences it* — one `Cmd+Z` removes the inserted word and nothing else, even when typing immediately preceded the click | integration, e2e | `tests/integration/inventory/inventory-chip-insert.test.tsx`, `tests/e2e/stage-14-chip-insert.spec.ts` | [x] | [x] | C-42, §13.2. Guards D-27 |
 | T-14.32 | The Tools empty state teaches the double-click gesture instead of describing the search box; with the gesture turned off it stops advertising it | integration | `tests/integration/tools/tools-lookup-request.test.tsx` | [x] | [x] | C-47, §13.7 |
+| T-14.33 | Rhyme results can be narrowed to a single syllable count; only results of that length render, and the rules hold away from the React tree | integration | `tests/integration/tools/tools-syllable-filter.test.tsx` | [x] | [x] | C-50, MW §Phase 0 |
+| T-14.34 | The chips offer only counts present in the current results, ascending, skipping results the provider gave no syllable data for; clicking the active chip clears the narrowing | integration | `tests/integration/tools/tools-syllable-filter.test.tsx` | [x] | [x] | C-50. A writer is never offered a filter that would empty the rail |
+| T-14.35 | A narrowing the next lookup cannot honour resets to "All" rather than emptying the rail, and the control shows that it reset | integration | `tests/integration/tools/tools-syllable-filter.test.tsx` | [x] | [x] | C-50. The filter is otherwise sticky across lookups, deliberately |
+| T-14.36 | The syllable filter is not offered outside rhyme modes | integration | `tests/integration/tools/tools-syllable-filter.test.tsx` | [x] | [x] | C-50. Length is a melodic constraint; a synonym is not chosen by it |

@@ -8,6 +8,8 @@ import { inventoryDocToItems, itemsToInventoryDoc } from '../inventory/inventory
 import { extractDraftPlainText, tokenizeWords, isPhraseUsedInDraft } from '../../domain/tools/draftWordUsage';
 import { ToolsModeTabs } from './ToolsModeTabs';
 import { ToolsFilterChips } from './ToolsFilterChips';
+import { ToolsSyllableChips } from './ToolsSyllableChips';
+import { applySyllableFilter, availableSyllableCounts } from '../../domain/tools/syllableFilter';
 import { ToolsSearchInput } from './ToolsSearchInput';
 import { ToolsResultsList } from './ToolsResultsList';
 
@@ -36,6 +38,9 @@ const RHYME_MODES: ToolMode[] = ['rhyme-exact', 'rhyme-near'];
 export function ToolsPane() {
   const [activeMode, setActiveMode] = useState<ToolMode>('rhyme-exact');
   const [rhymeFilter, setRhymeFilter] = useState<RhymeFilter>('perfect');
+  // C-50: narrow rhymes to one syllable count. Sticky across lookups on purpose — a writer
+  // filling a fixed slot in a melody wants the next word to be the same length as the last.
+  const [syllableFilter, setSyllableFilter] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [response, setResponse] = useState<PaneResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -185,9 +190,37 @@ export function ToolsPane() {
       ? { term: searchTerm, mode: activeMode, results: [], loading: true }
       : response;
 
-    if (!displayResponse || displayResponse.mode !== 'rhyme-near') return displayResponse;
-    return { ...displayResponse, results: applyRhymeFilter(displayResponse.results, rhymeFilter) };
-  }, [isSearching, searchTerm, activeMode, response, rhymeFilter]);
+    if (!displayResponse) return displayResponse;
+
+    const scored = displayResponse.mode === 'rhyme-near'
+      ? applyRhymeFilter(displayResponse.results, rhymeFilter)
+      : displayResponse.results;
+
+    // C-50: syllable narrowing applies to rhyme modes only — it is a melodic constraint,
+    // and a definition or a synonym is not chosen by length.
+    if (!RHYME_MODES.includes(displayResponse.mode)) return { ...displayResponse, results: scored };
+    return { ...displayResponse, results: applySyllableFilter(scored, syllableFilter) };
+  }, [isSearching, searchTerm, activeMode, response, rhymeFilter, syllableFilter]);
+
+  // The chips offer counts from the scored-but-unnarrowed set, so narrowing never removes
+  // the chip you would need to widen again.
+  const syllableChoices = useMemo(() => {
+    if (!response || !RHYME_MODES.includes(response.mode)) return [];
+    const scored = response.mode === 'rhyme-near'
+      ? applyRhymeFilter(response.results, rhymeFilter)
+      : response.results;
+    return scored;
+  }, [response, rhymeFilter]);
+
+  // Drop a narrowing the new results cannot honour, rather than leaving a chip active that
+  // no longer matches anything the writer can see.
+  useEffect(() => {
+    if (syllableFilter === null) return;
+    if (syllableChoices.length === 0) return;
+    if (!availableSyllableCounts(syllableChoices).includes(syllableFilter)) {
+      setSyllableFilter(null);
+    }
+  }, [syllableChoices, syllableFilter]);
 
   const isRhymeMode = RHYME_MODES.includes(activeMode);
 
@@ -206,6 +239,14 @@ export function ToolsPane() {
 
       {isRhymeMode && (
         <ToolsFilterChips active={rhymeFilter} onChange={handleFilterChange} />
+      )}
+
+      {isRhymeMode && (
+        <ToolsSyllableChips
+          results={syllableChoices}
+          active={syllableFilter}
+          onChange={setSyllableFilter}
+        />
       )}
 
       {/* §13.1: "Name what was looked up" — a list that changes under you is
