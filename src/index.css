@@ -475,6 +475,25 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* C-42: the chip's text is the insert control, but it must still read as part
+     of the chip — a button that looks like a button here would turn a quiet word
+     bank into a wall of controls. */
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.inventory-chip-text:disabled {
+  cursor: default;
+}
+
+.inventory-chip-text:not(:disabled):hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
 }
 
 /* C-44 / DESIGN_PROPOSAL.md §13.4: "used" is derived (never stored) from whether the

@@ -21,6 +21,8 @@ click-to-edit identity in the top bar.
 - `tests/unit/editor/word-lookup.test.ts`
 - `tests/integration/tools/tools-lookup-request.test.tsx`
 - `tests/e2e/stage-14-lookup.spec.ts`
+- `tests/integration/inventory/inventory-chip-insert.test.tsx`
+- `tests/e2e/stage-14-chip-insert.spec.ts`
 
 ## Checklist
 
@@ -55,3 +57,5 @@ click-to-edit identity in the top bar.
 | T-14.27 | A setting disables the behaviour — with it off, double-click only selects; the preference persists, and a localStorage that throws does not break the feature | unit, integration, e2e | `tests/unit/editor/word-lookup.test.ts`, `tests/integration/tools/tools-lookup-request.test.tsx`, `tests/e2e/stage-14-lookup.spec.ts` | [x] | [x] | C-41, §13.1. A UI preference, NOT a `.cyril` field — no DATA_MODEL change |
 | T-14.28 | Whitespace, free-standing punctuation, an empty line, and a multi-word selection raise no lookup | unit | `tests/unit/editor/word-lookup.test.ts` | [x] | [x] | C-41, §13.1. A click on the boundary immediately after a word deliberately resolves to that word — `pos` lands on either side of a glyph depending on which half was clicked |
 | T-14.29 | The inert ⌖ "populate from selection" control is gone | integration | `tests/integration/tools/tools-lookup-request.test.tsx` | [x] | [x] | C-41, §13.1. Retires D-24 |
+| T-14.30 | Clicking an Inventory chip inserts its text at the caret in the active draft, leaves the caret after the inserted word, and hands focus back to the lyric; with no draft editor mounted the control is disabled and the command a safe no-op, not an error | integration, unit, e2e | `tests/integration/inventory/inventory-chip-insert.test.tsx`, `tests/e2e/stage-14-chip-insert.spec.ts` | [x] | [x] | C-42, §13.2. Guards D-26 |
+| T-14.31 | The insertion is a single undo step *as the writer experiences it* — one `Cmd+Z` removes the inserted word and nothing else, even when typing immediately preceded the click | integration, e2e | `tests/integration/inventory/inventory-chip-insert.test.tsx`, `tests/e2e/stage-14-chip-insert.spec.ts` | [x] | [x] | C-42, §13.2. Guards D-27 |

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useProjectStore } from '../../app/state/projectStore';
+import { useActiveEditorStore } from '../../app/state/activeEditorStore';
 import { inventoryDocToItems, itemsToInventoryDoc } from './inventoryDoc';
 import { extractDraftPlainText, tokenizeWords, isPhraseUsedInDraft } from '../../domain/tools/draftWordUsage';
 
@@ -17,6 +18,14 @@ export function InventoryPane() {
   const updateDraftInventory = useProjectStore((s) => s.updateDraftInventory);
 
   const [newItemText, setNewItemText] = useState('');
+
+  // C-42 / DESIGN_PROPOSAL.md §13.2: the missing half of the loop — until now a
+  // collected word could only come back into the lyric by retyping it. Reads the
+  // C-48 bridge, which is a safe no-op when no draft editor is mounted, so a chip
+  // click while a workspace is showing does nothing rather than erroring.
+  // `hasActiveDraft` is reactive but only flips on mount/unmount — never on a
+  // keystroke — so subscribing here costs nothing per character typed.
+  const hasActiveDraft = useActiveEditorStore((s) => s.hasActiveDraft);
 
   // Get the active draft's inventory
   const inventory = useMemo(() => {
@@ -65,6 +74,16 @@ export function InventoryPane() {
     commitItems(items.filter((_, i) => i !== index));
   };
 
+  /**
+   * Put the chip's text into the lyric at the caret. Focus follows the text:
+   * `insertAtCaret` focuses the editor as part of the same transaction, so the
+   * writer carries straight on typing where the word landed rather than having
+   * to click back into the page.
+   */
+  const handleInsertItem = (item: string) => {
+    useActiveEditorStore.getState().insertAtCaret(item);
+  };
+
   // If no project or no active draft, show a placeholder
   if (!currentProject || !activeDraftId || !inventory) {
     return (
@@ -91,9 +110,29 @@ export function InventoryPane() {
               className={`inventory-chip${isUsed ? ' inventory-chip-used' : ''}`}
               data-testid="inventory-chip"
               key={`${item}-${index}`}
-              title={isUsed ? `"${item}" is already in the draft` : undefined}
             >
-              <span className="inventory-chip-text">{item}</span>
+              <button
+                type="button"
+                className="inventory-chip-text"
+                data-testid="inventory-chip-insert"
+                // Keep focus in the lyric. A button takes focus on mousedown,
+                // before our click handler runs, and in a real browser the
+                // editor does not reliably get it back — which leaves the
+                // writer's next keystroke going nowhere, and hands `Cmd+Z` to
+                // the browser's own undo stack, which mangles the document.
+                // (jsdom has no focus model, so only the e2e test sees this.)
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => handleInsertItem(item)}
+                disabled={!hasActiveDraft}
+                aria-label={`Insert "${item}" at the caret`}
+                title={
+                  hasActiveDraft
+                    ? `Insert "${item}" at the caret${isUsed ? ' — already in the draft' : ''}`
+                    : 'Open a draft to insert this'
+                }
+              >
+                {item}
+              </button>
               <button
                 type="button"
                 className="inventory-chip-remove"

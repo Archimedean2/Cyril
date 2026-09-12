@@ -1,5 +1,6 @@
 import { Editor } from '@tiptap/core';
 import { EditorState } from '@tiptap/pm/state';
+import { closeHistory } from '@tiptap/pm/history';
 import { ActiveEditorCommands } from '../../app/state/activeEditorStore';
 
 /** Word characters for `getFocusedWord` — letters plus the marks that
@@ -67,7 +68,23 @@ export function createActiveEditorCommands(editor: Editor): ActiveEditorCommands
       // `.chain()...run()` applies every command in the chain to a single
       // transaction and dispatches it once — the insertion (and the
       // `focus()` call alongside it) is one undo step.
-      return editor.chain().focus().insertContent(text).run();
+      //
+      // `closeHistory` additionally makes it its OWN step. Without it,
+      // prosemirror-history folds the insertion into whatever event is still
+      // open (typing within the last half-second), so a writer who clicks an
+      // Inventory chip and presses Cmd+Z loses the sentence they were typing
+      // as well as the word they just inserted — observed in the browser, see
+      // `tests/e2e/stage-14-chip-insert.spec.ts`. An insertion the writer
+      // asked for by clicking is a discrete act and must undo as one.
+      return editor
+        .chain()
+        .focus()
+        .command(({ tr }) => {
+          closeHistory(tr);
+          return true;
+        })
+        .insertContent(text)
+        .run();
     },
 
     getFocusedWord(): string | null {
