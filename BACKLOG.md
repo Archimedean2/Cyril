@@ -56,7 +56,7 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ✅ | M | C-48 | §13.1 |
 | 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ✅ | S | C-48 | §13.2 |
 | 40 | C-45 | Emphasise results by an absolute score, not a relative one | S | ✅ | S | — | §13.5 |
-| 41 | C-49 | Retire the dead `'idioms'` ToolMode; relabel or repoint "Related" | D | ⬜ | S | - | MW §Phase 0 |
+| 41 | C-49 | Retire the dead `'idioms'` ToolMode; relabel or repoint "Related" | D | 🚧 Claude | S | - | MW §Phase 0 |
 | 42 | C-50 | Syllable filter on rhyme results | S | ⬜ | S | - | MW §Phase 0 |
 | 45 | C-23 | **Wire the offline rhyme + family indexes** (was Pri 140) | D | ⬜ | L | C-08 | MW §Phase 1 |
 | 46 | C-51 | Phonetic rhyme tiers from the rime index, retiring the 40% heuristic | D | ⬜ | M | C-23 | MW §Phase 1 |
@@ -65,7 +65,7 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | ✅ | S | — | §13.3 |
 | 80 | C-44 | Dim collected words once they appear in the draft | S | ✅ | S | — | §13.4 |
 | 90 | C-47 | Empty states teach the double-click gesture | S | ✅ | S | C-41 | §13.7 |
-| 95 | C-25 | **Chords: transpose, trailing runs, instrumental lines** | E | 🚧 Claude | L | C-17 | §4.4–4.5 |
+| 95 | C-25 | **Chords: transpose, trailing runs, instrumental lines** | E | ⬜ | L | C-17 | §4.4–4.5 |
 | 100 | C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | §5 |
 | 105 | C-52 | Word Families tab, facet results, ConceptNet attribution | S | ⬜ | M | C-23 | MW §Phase 1 |
 | 110 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | §3.2–3.3 |

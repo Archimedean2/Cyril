@@ -45,12 +45,14 @@ _Last stamped: **2026-09-12 16:24 UTC** · regenerate with `npm run status`_
 > generated block is right.
 
 **Working on:** nothing in flight. `main` is the only branch that exists now, locally or on
-origin — every PR is landed and closed, every worktree removed. Cut new work from `main`. The lookup-and-collect loop (§13) is complete end to end:
-double-click to look up, click to collect, dim what is used, click a chip to put it back.
-C-25 and C-27 were unblocked by the maintainer — see *Decisions* below before starting either.
+origin — every PR is landed and closed, every worktree removed. Cut new work from `main`.
+A reference-layer plan landed (`docs/product/MASTERWRITER_PLAN.md`) and put eleven items in the
+queue; **C-23 was promoted from Pri 140 to 45** and now blocks five of them, with two open
+decisions in its BACKLOG detail. C-25 and C-27 remain unblocked, see *Decisions* below.
 
-**Last verified state:** all gates green — 576 tests, 231/231 non-e2e criteria, e2e 120/120,
-visual 8/8. Next unclaimed item is C-24 (Pri 100).
+**Last verified state:** the 16:24 stamp above, all gates green. It has **not** been
+refreshed since the backlog grew, so its counts are stale; run `npm run status`. Next unclaimed
+item is now C-49 (Pri 41).
 
 ## Decisions taken by the maintainer (2026-09-12) — these are settled
 
@@ -128,6 +130,44 @@ Gates:    green / red, and which
 Next:     the single next thing you'd do
 Notes:    anything surprising, any decision made, anything half-finished
 ```
+
+### 2026-09-12 — Claude — A plan for the reference layer, and eleven items for it
+
+Did:      Read the docs and the source, researched MasterWriter, and wrote
+          `docs/product/MASTERWRITER_PLAN.md`: what MasterWriter has that Cyril does not, what
+          Cyril should deliberately not copy, and a five-phase route. Added C-49 … C-59 to
+          `BACKLOG.md` with item detail for the block, **promoted C-23 from Pri 140 to 45**,
+          listed the new items in the Lanes table, and added the doc to `docs/process/DOC_MAP.md`.
+          No source code touched.
+Gates:    **not re-run, and the generated block above is therefore stale** — its backlog counts
+          predate these items. This was written from a Linux VM against a macOS `node_modules`,
+          so `npm run build`/`test`/`coverage` all die on a missing
+          `@rollup/rollup-linux-arm64-gnu` binary. A restamp from here was a false red and was
+          reverted to the 16:24 stamp. Run `npm run status` on the Mac to refresh it.
+Next:     C-49 (Pri 41), small and needs nothing first. C-23 is the real work, and has two
+          decisions on it (below).
+Notes:    Four findings worth carrying. (1) **The Tools pane is one Datamuse endpoint pretending
+          to be five tabs.** "Related" queries `sl`, sounds-like, so the tab a writer reads as
+          "words about this idea" returns words that sound like it. And Perfect / Close / Wide
+          are not three tiers of rhyme: `rhymeFilter.ts` maps Perfect to `rel_rhy` and both Close
+          and Wide to `rel_nry`, with Close keeping the top-scoring 40% of whatever came back.
+          That is exactly the relative-threshold mistake C-45 removed from result emphasis, still
+          alive in the filter chips — a weak set still shows a "Close" tier, because 40% of junk
+          is still 40%.
+          (2) **The offline pipeline is built and abandoned.** `rhyme-index.json` and
+          `family-index.json` are produced by tracked scripts and imported by **zero** source
+          files, confirmed by grep. C-08 stopped them being a commit hazard and left the wiring
+          to C-23, which then sat at Pri 140 behind five items it unblocks. One item buys
+          phonetic tiers, an offline reference panel, no network inside the writing loop, and
+          Word Families.
+          (3) **C-23 has two decisions the maintainer owns**, written into its BACKLOG detail:
+          how the 24 MB family index ships (trim-and-bundle vs seed IndexedDB), and whether
+          ConceptNet's CC BY-SA ShareAlike on the derived index is acceptable. The rhyme half
+          needs neither, so splitting the item is allowed and probably wise.
+          (4) `'idioms'` is a declared `ToolMode` with no provider and no tab — dead code
+          documenting a missing feature. C-49 removes it; C-53 re-adds the seam with a corpus
+          behind it. Also: `docs/product/FEATURES.md` numbers two different features 10, and 11,
+          12 and 13 twice over. Flagged inside C-56 rather than fixed here.
 
 ### 2026-09-12 — Claude — Cleaned out the worktrees, branches and the stash
 

@@ -24,6 +24,7 @@ These five are the only documents you read *every* session.
 | `SCOPE.md` | Goals, principles, in-scope/out-of-scope boundaries | Once at the start; revisit for any scope question |
 | `FEATURES.md` | Detailed feature behaviour specs | Read only the sections your task touches |
 | `DESIGN_PROPOSAL.md` | The forward spec: characters, chords, alternates, reference tools, print profiles, context menu, Hook Lab. Includes acceptance criteria per section | Before building any P2 backlog item |
+| `MASTERWRITER_PLAN.md` | The reference-layer plan: what MasterWriter has that Cyril does not, the abandoned offline word indexes, and a phased route to parity and past it. Proposes backlog items C-49 to C-59 | Before building any reference/dictionary/rhyme item |
 
 ## Design — `docs/design/`
 
