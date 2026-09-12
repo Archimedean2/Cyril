@@ -35,8 +35,8 @@ share files and must run in order.
 |---|---|---|
 | **P — Persistence** | `src/persistence/**`, `src/app/state/saveStatusStore.ts` | C-01 … C-07 |
 | **E — Editor** | `src/editor/**`, `src/components/editor/**` | C-09, C-10, C-17, C-25, C-26 |
-| **S — Shell & styling** | `src/components/layout/**`, `src/features/**`, `src/index.css` | C-11 … C-16, C-20, C-22, C-24 |
-| **D — Domain & export** | `src/domain/**` | C-19, C-21, C-23 |
+| **S — Shell & styling** | `src/components/layout/**`, `src/features/**`, `src/index.css` | C-11 … C-16, C-20, C-22, C-24, C-50, C-52, C-57, C-58, C-59 |
+| **D — Domain & export** | `src/domain/**` | C-19, C-21, C-23, C-49, C-51, C-53 … C-56 |
 | **X — Repo / process** | config, CI, docs, scripts | C-08, C-18, C-27, C-28 |
 
 Two agents in the same lane will conflict. One agent per lane is the safe fleet shape.
@@ -56,21 +56,32 @@ this table and tells you what is next, so this ordering is the one that counts.
 | 20 | C-41 | **Double-click a word in the lyric to look it up** | S | ✅ | M | C-48 | §13.1 |
 | 30 | C-42 | **Click an Inventory chip to insert it at the caret** | S | ✅ | S | C-48 | §13.2 |
 | 40 | C-45 | Emphasise results by an absolute score, not a relative one | S | ✅ | S | — | §13.5 |
+| 41 | C-49 | Retire the dead `'idioms'` ToolMode; relabel or repoint "Related" | D | ⬜ | S | - | MW §Phase 0 |
+| 42 | C-50 | Syllable filter on rhyme results | S | ⬜ | S | - | MW §Phase 0 |
+| 45 | C-23 | **Wire the offline rhyme + family indexes** (was Pri 140) | D | ⬜ | L | C-08 | MW §Phase 1 |
+| 46 | C-51 | Phonetic rhyme tiers from the rime index, retiring the 40% heuristic | D | ⬜ | M | C-23 | MW §Phase 1 |
 | 50 | C-35 | Speaker picker on the character colour dot | E | ✅ | S | C-20 | §12.1 |
 | 60 | C-36 | **Speaker gutter — click a cell, drag to paint a range** | E | ✅ | M | C-35 | §12.2 |
 | 70 | C-43 | Clicking a result collects it; copy becomes secondary | S | ✅ | S | — | §13.3 |
 | 80 | C-44 | Dim collected words once they appear in the draft | S | ✅ | S | — | §13.4 |
 | 90 | C-47 | Empty states teach the double-click gesture | S | ✅ | S | C-41 | §13.7 |
-| 95 | C-25 | **Chords: transpose, trailing runs, instrumental lines** | E | ⬜ | L | C-17 | §4.4–4.5 |
+| 95 | C-25 | **Chords: transpose, trailing runs, instrumental lines** | E | 🚧 Claude | L | C-17 | §4.4–4.5 |
 | 100 | C-24 | Alternates peek + draft compare view | S | ⬜ | M | — | §5 |
+| 105 | C-52 | Word Families tab, facet results, ConceptNet attribution | S | ⬜ | M | C-23 | MW §Phase 1 |
 | 110 | C-21 | Section type colour-coding + sticky stage-direction mode | D | ⬜ | M | C-20 | §3.2–3.3 |
+| 115 | C-53 | Phrases corpus + Phrases tab | D | ⬜ | L | C-49 | MW §Phase 2 |
+| 116 | C-54 | Rhymed Phrases, the corpus indexed by final-word rime | D | ⬜ | M | C-53, C-51 | MW §Phase 2 |
 | 120 | C-37 | Structure outline with drag-reorder and jump-to | S | ⬜ | M | C-21 | §12.3 |
+| 125 | C-55 | Cross-cutting filters: part of speech, positive/negative | D | ⬜ | L | C-52 | MW §Phase 3 |
 | 130 | C-39 | Smart paste — detect `NAME:` prefixes into speaker lines | E | ⬜ | M | C-20 | §12.5 |
-| 140 | C-23 | Reference tools: wire the offline word indexes | D | ⬜ | L | C-08 | §6 |
+| 135 | C-56 | **Automatic rhyme-scheme detection and colouring** | D | ⬜ | L | C-23 | MW §Phase 4 |
+| 136 | C-57 | Scheme labels + break detection in the prosody gutter | S | ⬜ | M | C-56 | MW §Phase 4 |
 | 150 | C-26 | Unified right-click context menu | E | ⬜ | L | C-35 | §10 |
 | 160 | C-38 | Bulk line-type conversion on a multi-line selection | E | ⬜ | S | C-26 | §12.4 |
 | 170 | C-40 | Make `Cmd+K` selection-aware | S | ⬜ | S | C-38 | §12.5 |
+| 175 | C-58 | Keyboard navigation through results (arrow, Enter, Cmd+Enter) | S | ⬜ | S | - | §13.2 |
 | 180 | C-46 | One shared word-bank component (Inventory + Vocabulary World) | S | ⬜ | M | C-44 | §13.6 |
+| 182 | C-59 | Drag a result or a chip into a line | S | ⬜ | M | C-46 | §13.2 |
 | 185 | C-27 | **Hook Lab as a structured workspace** | X | ⬜ | L | — | §9 |
 | 190 | C-33 | A suppressed duplicate speaker label leaves a blank row | S | ⬜ | S | C-20 | below |
 | 200 | C-28 | Burn down the edge-case register (ongoing) | X | ⬜ | — | — | below |
@@ -116,7 +127,217 @@ this table and tells you what is next, so this ordering is the one that counts.
 ## Item detail
 
 Only items that needed more than a table row. Everything else is specified in the linked
-`docs/product/DESIGN_PROPOSAL.md` section.
+`docs/product/DESIGN_PROPOSAL.md` or `docs/product/MASTERWRITER_PLAN.md` section.
+
+
+### The reference-layer block (C-23, C-49 … C-57) - Lanes D and S
+
+Added 2026-09-12 from `docs/product/MASTERWRITER_PLAN.md`, which has the full argument,
+the competitive read and the licence analysis. Read it before taking any of these. The
+short version of why they exist:
+
+**Cyril has one reference source pretending to be five.** Every Tools tab resolves to the
+same Datamuse endpoint. "Related" queries `sl` (sounds-like), not relatedness. Perfect /
+Close / Wide are not three tiers of rhyme: `rhymeFilter.ts` maps Perfect to `rel_rhy` and
+both Close and Wide to `rel_nry`, with Close keeping the top-scoring 40% of whatever came
+back. That is the relative-threshold mistake C-45 removed from result emphasis, still alive
+in the filter chips.
+
+**And the fix is already built and unused.** `scripts/build-rhyme-index.cjs` and
+`scripts/build-family-index.mjs` are tracked, working, and imported by zero source files
+(grep `src/` for `rhyme-index` or `family-index`: nothing). C-08 stopped them being a
+half-gigabyte commit hazard and deliberately left the wiring to C-23.
+
+
+### C-23 · Wire the offline rhyme + family indexes - Lane D · Size L · ⬜
+
+**Promoted from Pri 140 to 45 on 2026-09-12.** It was behind C-25, C-24, C-21, C-37 and
+C-39, and it unblocks five of the items below. The argument for moving it is not that
+chords matter less: it is that C-23 is the only item in the queue that changes what the
+product *is* rather than how well it does something it already does. Everything now above
+it is small and independent, so the promotion costs nothing in flight.
+
+One item, four wins: phonetic rhyme tiers, a reference panel that works offline (which is
+MasterWriter's single most-complained-about weakness and Cyril's own stated first
+principle), no network round trip inside the writing loop, and Word Families.
+
+Build behind the existing `ToolProvider` abstraction so nothing above the service layer
+changes. Datamuse is demoted from critical path to enrichment and fallback: proper nouns,
+coinages and anything cmudict does not know still go to the network when it is there.
+
+**Two decisions the maintainer must make before this starts** (`TASKING.md`: stop and ask
+rather than pick quietly).
+
+1. **How the 24 MB family index ships.** It cannot be a Vite import.
+   - *Trim then bundle*: raise `MIN_WEIGHT` to 1.5 and lower `PER_FACET` until it fits in a
+     few MB, lazily imported alongside the rhyme index. Simple, offline at once, loses the
+     long tail.
+   - *Seed IndexedDB on first run*: keep the full index, stream it into the existing tool
+     cache store keyed by term, read per lookup. Keeps everything, costs an install step
+     and a migration path when the index is rebuilt.
+
+   The rhyme index at ~9 MB raw and ~2.5 MB gzipped can be lazily bundled either way, so it
+   does not have to wait for this call. Splitting C-23 so the rhyme half lands first is
+   allowed and probably wise.
+
+2. **Whether the ConceptNet licence is acceptable.** The family index derives from
+   ConceptNet 5, CC BY-SA 4.0, and **ShareAlike propagates to the derived index**. Shipping
+   it obliges an in-app attribution string and keeps that index file under CC BY-SA,
+   separate from Cyril's own licence. The build script prints the required text. This is a
+   real decision if Cyril is ever sold, and it should be made now rather than discovered.
+
+- Acceptance: a rhyme lookup returns results with the network disabled; the index loads
+  lazily on first lookup and never at boot; Datamuse is still consulted for terms the index
+  does not know, and its absence degrades to local-only rather than to an error; the
+  attribution string is visible in the app if the family index ships.
+
+
+### C-49 · Retire the dead `'idioms'` ToolMode; relabel or repoint "Related" - Lane D · Size S · ⬜
+
+Two small honesty fixes, both in the reference layer, both independent of C-23.
+
+`'idioms'` is declared in `src/domain/tools/types.ts`, supported by no provider, and exposed
+by no tab: dead code documenting a missing feature. Delete it here; C-53 re-adds the seam
+deliberately when there is a corpus behind it.
+
+The "Related" tab queries Datamuse `sl`, sounds-like. A writer reads that tab as "words
+about this idea" and gets words that sound like it. Repoint it at `rel_trg` (triggers),
+which is what the label promises, or rename the tab "Sounds like". Repointing is better and
+is a one-line change.
+
+- Acceptance: `ToolMode` no longer declares a mode no provider supports; the tab labelled
+  "Related" returns semantically related words, or is labelled for what it actually returns.
+
+
+### C-51 · Phonetic rhyme tiers - Lane D · Size M · ⬜
+
+Replace the 40%-of-whatever-came-back heuristic with tiers defined by sound, using the
+index C-23 wires: Perfect is an exact-key match (last stressed vowel to end of word), Close
+is an assonance-key match with consonant agreement, Wide is the assonance key alone.
+
+Follow C-45's precedent exactly: an empty tier renders empty. Do not promote weak results
+to fill a tier, and do not hide low-scoring words. Prominence is the tool, not exclusion.
+
+- Acceptance: each tier is computed from phonetics, not from the score distribution of the
+  result set; a term whose Close tier is genuinely empty renders an empty Close tier; no
+  result is removed on the basis of score.
+
+
+### C-53 · Phrases corpus + Phrases tab - Lane D · Size L · ⬜
+
+MasterWriter ships 33,000 idioms, sayings and collocations searchable by any word they
+contain, and it is the module its critics keep. This item is mostly a **data-acquisition**
+problem, not a code one: candidate sources are Wiktionary's English idioms category (CC
+BY-SA, same condition as ConceptNet), WordNet multiword expressions (permissive), and open
+collocation lists. **Check the licence before ingesting anything** and record the choice.
+
+- Acceptance: a Phrases tab returns phrases containing the search term, from a local index,
+  offline; the corpus's source and licence are recorded in `scripts/README.md` and attributed
+  in-app if the licence requires it.
+
+
+### C-54 · Rhymed Phrases - Lane D · Size M · ⬜
+
+The cheapest high-value item in this block, and the one nothing free offers. MasterWriter's
+36,000-entry table (it returns "stuck in the eighties" as a rhyme for *baby*) is
+structurally just **a phrase corpus indexed by the rime key of each phrase's last word**.
+Both halves will exist by then: C-53 brings the corpus, and `build-rhyme-index.cjs`'s
+`analyse()` already computes rime keys. The work is a build script of perhaps fifty lines
+reusing it, plus a results renderer that handles multi-word entries.
+
+For a theatre writer working in longer lines this is more useful than another list of
+single words.
+
+- Acceptance: a rhyme search returns multi-word phrases alongside single words, tiered by
+  the same phonetic rules as C-51; a phrase collects into the Inventory and inserts at the
+  caret as one undo step, like any other result.
+
+
+### C-55 · Cross-cutting filters - Lane D · Size L · ⬜
+
+MasterWriter's real structural advantage is not any one dictionary: it is that part of
+speech, positive/negative and intensity apply *across* dictionaries. Cyril has three chips
+that apply to one tab.
+
+- **Part of speech** is available from Datamuse `md=p`, from WordNet locally, or derivable
+  at index-build time. Applies to rhymes, families, thesaurus and phrases.
+- **Positive / negative** needs a sentiment lexicon (AFINN, NRC and VADER all have usable
+  licences). Coverage will be partial, so the filter must degrade to "no opinion" rather
+  than silently dropping every word it has no data for, which would quietly hide results.
+- **Intensity** (MasterWriter's *pretty to gorgeous* ladder) has no open-data equivalent.
+  `MASTERWRITER_PLAN.md` §Phase 3 recommends skipping it and saying so rather than shipping
+  a weak imitation of the one module MasterWriter is consistently praised for. **Do not
+  build it without a decision.**
+
+- Acceptance: a filter applies to every tab that has data for it, and is absent rather than
+  inert on tabs that do not; a word with no sentiment data is never dropped by the
+  positive/negative filter.
+
+
+### C-56 · Automatic rhyme-scheme detection and colouring - Lane D · Size L · ⬜
+
+**This is the item that makes Cyril feel smarter than MasterWriter rather than equal to it.**
+MasterWriter never looks at your lyric: it is a lookup tool beside a text box, and it cannot
+tell you what your rhyme scheme is or where it breaks.
+
+`FEATURES.md` Feature 10 scopes rhyme visualisation to *manual* group assignment, with
+automatic detection explicitly out of v1. That was right when detection meant a network call
+per word. With the rime index in memory it is a local computation over a document the app
+already walks for syllable counts.
+
+Compute end-word rime keys across a section, group them, colour them. Feature 10's
+`rhymeColorMode` gains `automatic` alongside `off` and `manual`, and **manual assignment
+takes precedence over detection** so nothing a writer set by hand is overwritten.
+
+Guard rails, because this is the class of feature that becomes annoying fast, and Feature
+10's own warning about noisy prosody diagnostics is the right instinct:
+
+- Detection is **derived, never stored**. This is C-44's rule and it applies unchanged.
+- It is **off by default**.
+- It **never rewrites the document**.
+
+`DATA_MODEL.md` changes only for the `rhymeColorMode` value and, if it is built, C-57's
+tolerance dial. `FEATURES.md` and `SCOPE.md` move with the code. Note while you are in
+`FEATURES.md` that it numbers two different features 10, and 11, 12 and 13 twice over; fix
+that in the same pass.
+
+- Acceptance: with automatic mode on, lines whose end words share a rime render in the same
+  rhyme colour, and the grouping updates as the draft changes; a manually assigned group
+  wins over a detected one; turning the mode off removes no stored data; nothing is written
+  to the `.cyril` file as a result of detection.
+
+
+### C-57 · Scheme labels + break detection - Lane S · Size M · ⬜
+
+Beside the existing syllable counts, in the same quiet register: the section's scheme
+(ABAB, AABB) and a marker where an established scheme breaks. Plus a **near-rhyme tolerance
+dial**, because how close counts as a rhyme differs between a theatre writer and a rap
+writer, and the assonance key makes the dial cheap.
+
+Internal rhyme (the same computation across all words in a line, not just line-final ones)
+belongs here too if the item has room. No competitor in this price bracket does it.
+
+- Acceptance: the label reflects the detected scheme and updates with the document; a line
+  that breaks an established scheme is marked without being corrected; the tolerance dial
+  changes what counts as a rhyme in both the gutter and the Tools pane, consistently.
+
+
+### C-58 / C-59 · The two unbuilt bullets in §13.2 - Lane S · ⬜
+
+`DESIGN_PROPOSAL.md` §13.2 lists keyboard navigation through results and drag-a-result-into-
+a-line as prose bullets that were never turned into acceptance criteria. The 2026-09-12
+session log flags the drag one explicitly as unbuilt and deliberately not scope-crept into
+C-42. They finish the collect loop, which is the gesture MasterWriter is proudest of and the
+one place Cyril is already ahead (MasterWriter's collected list cannot put a word back into
+the lyric; C-42 can).
+
+- Acceptance (C-58): arrow keys move through the results list, `Enter` collects the focused
+  result, `Cmd/Ctrl+Enter` inserts it at the caret; focus never leaves the list unexpectedly
+  and the editor's caret is untouched by navigation.
+- Acceptance (C-59): a result or an Inventory chip can be dragged into a lyric line and
+  drops at the insertion point under the cursor, as one undo step; a drop outside a draft
+  editor is a no-op, not an error.
+
 
 ### C-32 · The lint config and the coverage script are not in version control — Lane X · Size S · ⬜
 
